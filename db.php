@@ -1,6 +1,6 @@
 <?php
-$host = "localhost"; 
-$user = "u507130350_johnrid	2"; 
+$host = "u507130350_board"; 
+$user = "u507130350_johnrid"; 
 $pass = "/0pXU13n*pc"; 
 $db_name = "board"; 
 
