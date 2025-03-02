@@ -52,7 +52,7 @@ if (isset($_POST['submit'])) {
     $t = mysqli_real_escape_string($link, $_POST['types']);
     $ts = date('Y-m-d h:ia');
 
-    $sql = "INSERT INTO chats (sender, receiver, msg, Category, dt) VALUES ('$uid', '$r', '$m', '$t', '$ts')";
+    $sql = "INSERT INTO chats (sender, receiver, msg, Category, dt) VALUES ('$id', '$r', '$m', '$t', '$ts')";
     if (!mysqli_query($link, $sql)) {
         echo "ERROR: Message not sent!";
     }
@@ -760,7 +760,7 @@ if (isset($_POST['submit'])) {
     <nav id="navmenu" class="navmenu">
       <ul>
         <li><a href="Home.php"><i class="bi bi-house navicon"></i>Home</a></li>
-        <li><a href="Documents.php" class="active"><i class="bi bi-file-earmark-text navicon"></i> Documents</a></li>
+        <li><a href="Documents.php" ><i class="bi bi-file-earmark-text navicon"></i> Documents</a></li>
 
         <li><a href="Messages.php" class="active"><i class="bi bi-envelope navicon"></i> Messages</a></li>
         <li><a href="Maintenance.php"><i class="bi bi-newspaper navicon"></i> Maintenance Request</a></li>
