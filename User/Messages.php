@@ -40,7 +40,7 @@ if ($result->num_rows > 0) {
 
 
 if (isset($_POST['submit'])) {
-    $link = mysqli_connect("localhost", "root", "", "board");
+    $link = mysqli_connect("localhost", "u507130350_johnrid", "Johnrid123", "u507130350_board");
 
     if ($link === false) {
         die("ERROR: Could not connect. " . mysqli_connect_error());
