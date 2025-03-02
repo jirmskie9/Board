@@ -16,24 +16,26 @@ if (isset($_POST['uname']) && isset($_POST['upass'])) {
         $row = $result->fetch_assoc();
         $_SESSION['Uid'] = $row['ID'];
 
-        // Set success message
-        $_SESSION['status'] = "Login Successful!";
-        $_SESSION['status_code'] = "success";
-
         // Redirect based on user type
         if ($row['Usertype'] == "0") {
-            $_SESSION['redirect'] = "Dashboard.php";
+            echo "<script>
+                    window.location.href = 'Dashboard.php';
+                  </script>";
         } else {
-            $_SESSION['redirect'] = "User/Home.php";
+            echo "<script>
+                    window.location.href = 'User/Home.php';
+                  </script>";
         }
+        exit(); // Stop further script execution
     } else {
-        // Set error message
         $_SESSION['status'] = "Invalid username or password!";
         $_SESSION['status_code'] = "error";
-        $_SESSION['redirect'] = "login.php";
+        header("Location: login.php");
+        exit();
     }
 }
 ?>
+
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
