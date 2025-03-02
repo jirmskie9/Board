@@ -51,7 +51,7 @@ if(isset($_POST['uname']) && isset($_POST['upass'])){
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
-  <title>PrimosBH</title>
+  <title>PrimosBH Login</title>
 </head>
 
 <style type="text/css">
