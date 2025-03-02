@@ -544,7 +544,7 @@ if (isset($_POST["submit_expense"])) {
         <li><a href="./Utilities.php"><i class="bi bi-lightbulb navicon"></i> <!-- Represents electricity/utilities -->
         Utility Bills</a></li>
         <li><a href="./Collection.php" class=""><i class="bi bi-cash-stack navicon"></i>Rent Collection</a></li>
-        <li><a href="./Expenses.php" class="active"><i class="bi bi-receipt navicon"></i> Expenses</a></li>
+        <li><a href="./expenses.php" class="active"><i class="bi bi-receipt navicon"></i> Expenses</a></li>
         <li><a href="./Messages.php"><i class="bi bi-envelope-fill navicon"></i> Messages</a></li>
         <li><a href="./Maintenance.php"><i class="bi bi-newspaper navicon"></i> Maintenance Request</a></li>
         <li><a href="./logout.php"><i class="bi bi-box-arrow-right navicon"></i> Logout</a></li>

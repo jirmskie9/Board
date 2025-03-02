@@ -400,7 +400,7 @@ VALUES ('$tenid','$amount','$billdate','0')";
         <li><a href="./Rooms.php"><i class="bi bi-door-open navicon"></i> Rooms</a></li>
         <li><a href="./Utilities.php"><i class="bi bi-lightbulb navicon"></i> <!-- Represents electricity/utilities -->
         Utility Bills</a></li>
-        <li><a href="./Expenses.php"><i class="bi bi-receipt navicon"></i> Expenses</a></li>
+        <li><a href="./expenses.php" class="active"><i class="bi bi-receipt navicon"></i> Expenses</a></li>
         <li><a href="./Collection.php" class=""><i class="bi bi-cash-stack navicon"></i>Rent Collection</a></li>
         <li><a href="./Messages.php"><i class="fa fa-envelope"></i> Messages</a></li>
         <li><a href="./Maintenance.php" class="active"><i class="bi bi-newspaper navicon"></i> Maintenance Request</a>
