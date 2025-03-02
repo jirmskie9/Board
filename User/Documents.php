@@ -136,7 +136,7 @@ VALUES ('$tenid','$amount','$billdate','0')";
 
         <nav id="navmenu" class="navmenu">
             <ul>
-                <li><a href="Home.php" class="active"><i class="bi bi-house navicon"></i>Home</a></li>
+                <li><a href="Home.php" ><i class="bi bi-house navicon"></i>Home</a></li>
                 <li><a href="Documents.php" class="active"><i class="bi bi-file-earmark-text navicon"></i> Documents</a>
                 </li>
 

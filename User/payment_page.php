@@ -1,9 +1,9 @@
 <?php
 session_start();
-include('db.php');
+include('../db.php');
 
 if (!isset($_SESSION['Uid'])) {
-    header("Location: login.php");
+    header("Location: ../login.php");
     exit(); // Stop script execution after redirect
 }
 
@@ -18,15 +18,54 @@ $result = $stmt->get_result();
 
 if ($result->num_rows > 0) {
     while ($user = $result->fetch_assoc()) {
+        $user_id = $user['user_id'];
         $fullname = $user['Fullname'];
     }
 } else {
     echo "No user found.";
 }
 
+if (isset($_POST['svform'])) {
+    $fname = $_POST['fname'];
+    $lname = $_POST['lname'];
+    $mname = $_POST['mname'];
+    $address = $_POST['address'];
+    $contact = $_POST['contact'];
+    $email = $_POST['email'];
+    $pname = $_POST['pname'];
+    $paddress = $_POST['paddress'];
+    $pcontact = $_POST['pcontact'];
+    $relation = $_POST['relation'];
+    $room = $_POST['room'];
+    $sql = "INSERT INTO tenants (fname,lname,mname,address,contact,email,efullname,eaddress,econtact,relation,room)
+VALUES ('$fname','$lname','$mname','$address','$contact','$email','$pname','$paddress','$pcontact','$relation','$room')";
+
+    if ($conn->query($sql) === TRUE) {
+        echo "New record created successfully";
+    } else {
+        echo "Error: " . $sql . "<br>" . $conn->error;
+    }
+}
+if (isset($_POST['tenid'])) {
+    $tenid = $_POST['tenid'];
+    $billdate = $_POST['billdate'];
+    $amount = $_POST['amount'];
+    $sql = "INSERT INTO paymenthistory (tenantid,amount,baseddate,user)
+VALUES ('$tenid','$amount','$billdate','0')";
+
+    if ($conn->query($sql) === TRUE) {
+        $sql = "UPDATE tenants SET balance=balance-'$amount' WHERE ID='$tenid'";
+
+        if ($conn->query($sql) === TRUE) {
+            echo "Record updated successfully";
+        } else {
+            echo "Error updating record: " . $conn->error;
+        }
+    } else {
+        echo "Error: " . $sql . "<br>" . $conn->error;
+    }
+}
 ?>
-
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -37,28 +76,31 @@ if ($result->num_rows > 0) {
     <meta content="" name="description">
     <meta content="" name="keywords">
 
+    <!-- Favicons -->
+    <link href="./logo/balay.jpg" rel="icon">
+
+    <!-- Fonts -->
     <link href="https://fonts.googleapis.com" rel="preconnect">
     <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
         rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Vendor CSS Files -->
-    <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap 5 JS Bundle (includes Popper.js) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+
     <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
-    <link href="assets/vendor/aos/aos.css" rel="stylesheet">
-    <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
-    <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+
+    <link href="https://demo.dashboardpack.com/architectui-html-free/main.css" rel="stylesheet">
 
     <!-- Main CSS File -->
     <link href="assets/css/main.css" rel="stylesheet">
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no" />
-    <meta name="description" content="This is an example dashboard created using build-in elements and components.">
-    <meta name="msapplication-tap-highlight" content="no">
-    <link href="./logo/balay.jpg" rel="icon">
-    <link href="https://demo.dashboardpack.com/architectui-html-free/main.css" rel="stylesheet">
-    <link href="./logo/balay.jpg" rel="icon">
+
+
     <!-- =======================================================
   * Template Name: iPortfolio
   * Template URL: https://bootstrapmade.com/iportfolio-bootstrap-portfolio-websites-template/
@@ -66,7 +108,10 @@ if ($result->num_rows > 0) {
   * Author: BootstrapMade.com
   * License: https://bootstrapmade.com/license/
   ======================================================== -->
+
 </head>
+
+
 
 <body class="index-page">
 
@@ -77,34 +122,37 @@ if ($result->num_rows > 0) {
             <img src="logo/balay.jpg" alt="" class="img-fluid rounded-circle">
         </div>
 
-        <a href="#" class="logo d-flex align-items-center justify-content-center">
+        <a href="index.html" class="logo d-flex align-items-center justify-content-center">
             <!-- Uncomment the line below if you also wish to use an image logo -->
             <!-- <img src="assets/img/logo.png" alt=""> -->
             <h1 class="sitename"><?php echo $fullname ?></h1>
         </a>
 
-
+        <div class="social-links text-center">
+            <a href="#" class="twitter"><i class="bi bi-twitter-x"></i></a>
+            <a href="#" class="facebook"><i class="bi bi-facebook"></i></a>
+            <a href="#" class="instagram"><i class="bi bi-instagram"></i></a>
+        </div>
 
         <nav id="navmenu" class="navmenu">
             <ul>
-                <li><a href="./Dashboard.php" class="active"><i class="bi bi-house navicon"></i>Dashboard</a></li>
-                <li><a href="./Occupants.php"><i class="bi bi-person navicon"></i> Occupants</a></li>
-                <li><a href="./Rooms.php"><i class="bi bi-door-open navicon"></i> Rooms</a></li>
-                <li><a href="./Utilities.php"><i class="bi bi-lightbulb navicon"></i>
-                        <!-- Represents electricity/utilities -->
-                        Utility Bills</a></li>
-                <li><a href="./Collection.php" class=""><i class="bi bi-cash-stack navicon"></i>Rent Collection</a></li>
+                <li><a href="Home.php" class="active"><i class="bi bi-house navicon"></i>Home</a></li>
+                <li><a href="Documents.php"><i class="bi bi-file-earmark-text navicon"></i> Documents</a>
+                </li>
 
-                <li><a href="./Expenses.php"><i class="bi bi-receipt navicon"></i> Expenses</a></li>
-                <li><a href="./Messages.php"><i class="bi bi-envelope-fill navicon"></i> Messages</a></li>
-                <li><a href="./Maintenance.php"><i class="bi bi-newspaper navicon"></i> Maintenance Request</a></li>
-                <li><a href="./logout.php"><i class="bi bi-box-arrow-right navicon"></i> Logout</a></li>
+
+                <li><a href="Messages.php"><i class="bi bi-envelope navicon"></i>
+                        Messages</a></li>
+                <li><a href="Maintenance.php"><i class="bi bi-newspaper navicon"></i>
+                        Maintenance Request</a></li>
+                <!--         <li><a href="#portfolio"><i class="bi bi-receipt navicon"></i> Expenses</a></li>
+        <li><a href="#services"><i class="bi bi-hdd-stack navicon"></i> History</a></li> -->
+                <li><a href="../logout.php"><i class="bi bi-box-arrow-right navicon"></i> Logout</a></li>
             </ul>
 
         </nav>
 
     </header>
-
     <main class="main">
         <div class="ui-theme-settings">
 
@@ -444,7 +492,8 @@ if ($result->num_rows > 0) {
                         <h3 class="themeoptions-heading">
                             <div>Main Content Options</div>
                             <button type="button"
-                                class="btn-pill btn-shadow btn-wide ml-auto active btn btn-focus btn-sm">Restore Default
+                                class="btn-pill btn-shadow btn-wide ml-auto active btn btn-focus btn-sm">Restore
+                                Default
                             </button>
                         </h3>
                         <div class="p-3">
@@ -491,97 +540,16 @@ if ($result->num_rows > 0) {
                                 </div>
                             </div>
 
+                            <!-- Include FontAwesome for icons -->
+                            <link rel="stylesheet"
+                                href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+
                         </div>
                     </div>
                     <div class="row">
-                        <?php
-                        include('db.php');
 
-                        $current_year = date("Y");
-                        $sql = "SELECT SUM(amount) AS total_expenses FROM expenses";
-                        $stmt = $conn->prepare($sql);
-                        $stmt->execute();
-                        $result = $stmt->get_result();
 
-                        $total_expenses = 0; // Default value
-                        if ($result->num_rows > 0) {
-                            $row = $result->fetch_assoc();
-                            $total_expenses = $row['total_expenses'] ?? 0;
-                        }
-
-                        $stmt->close();
-
-                        ?>
-
-                        <div class="col-md-6 col-xl-4">
-                            <div class="card mb-3 widget-content bg-midnight-bloom">
-                                <div class="widget-content-wrapper text-white">
-                                    <div class="widget-content-left">
-                                        <div class="widget-heading">Total Expenses</div>
-                                        <div class="widget-subheading">Current Year Expenses</div>
-                                    </div>
-                                    <div class="widget-content-right">
-                                        <div class="widget-numbers text-white">
-                                            <span>&#8369; <?php echo number_format($total_expenses, 2); ?></span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <?php
-
-                        $sql = "SELECT COUNT(*) AS total_tenants FROM tenants";
-                        $result = $conn->query($sql);
-
-                        $total_rooms = 0; // Default value
-                        if ($result->num_rows > 0) {
-                            $row = $result->fetch_assoc();
-                            $total_tenants = $row['total_tenants'];
-                        }
-
-                        ?>
-                        <div class="col-md-6 col-xl-4">
-                            <div class="card mb-3 widget-content bg-arielle-smile">
-                                <div class="widget-content-wrapper text-white">
-                                    <div class="widget-content-left">
-                                        <div class="widget-heading">Boarders/Occupants</div>
-                                        <div class="widget-subheading">Total Boarders/Occupants</div>
-                                    </div>
-                                    <div class="widget-content-right">
-                                        <div class="widget-numbers text-white"><span><?php echo $total_tenants ?></span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <?php
-
-                        $sql = "SELECT COUNT(*) AS total_rooms FROM rooms";
-                        $result = $conn->query($sql);
-
-                        $total_rooms = 0; // Default value
-                        if ($result->num_rows > 0) {
-                            $row = $result->fetch_assoc();
-                            $total_rooms = $row['total_rooms'];
-                        }
-
-                        ?>
-
-                        <div class="col-md-6 col-xl-4">
-                            <div class="card mb-3 widget-content bg-grow-early">
-                                <div class="widget-content-wrapper text-white">
-                                    <div class="widget-content-left">
-                                        <div class="widget-heading">Rooms</div>
-                                        <div class="widget-subheading">Total Rooms</div>
-                                    </div>
-                                    <div class="widget-content-right">
-                                        <div class="widget-numbers text-white"><span><?php echo $total_rooms; ?>
-                                                Rooms</span></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                         <div class="d-xl-none d-lg-block col-md-6 col-xl-4">
                             <div class="card mb-3 widget-content bg-premium-dark">
                                 <div class="widget-content-wrapper text-white">
@@ -596,340 +564,181 @@ if ($result->num_rows > 0) {
                             </div>
                         </div>
                     </div>
-                    <?php
-                    // Database query to get monthly income
-                    $sql = "SELECT DATE_FORMAT(baseddate, '%Y-%m') AS month, SUM(amount) AS total_income 
-                    FROM paymenthistory 
-                    GROUP BY month 
-                    ORDER BY month ASC";
-
-                    $result = $conn->query($sql);
-
-                    $months = [];
-                    $income = [];
-
-                    while ($row = $result->fetch_assoc()) {
-                        $months[] = date("F Y", strtotime($row['month'] . "-01")); // Format as "Month Year"
-                        $income[] = $row['total_income'];
-                    }
-                    ?>
                     <div class="row">
-                        <!-- Monthly Income Chart -->
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <div class="mb-3 card shadow-lg rounded">
-                                <div class="card-header bg-primary text-white d-flex align-items-center">
-                                    <i class="fas fa-chart-line me-2"></i>
-                                    <h5 class="mb-0">Monthly Income</h5>
+                                <div class="card-header text-white d-flex align-items-center">
+                                    <i class="fas fa-id-card me-2 fs-5"></i>
+                                    <h5 class="mb-0">Payment</h5>
                                 </div>
                                 <div class="card-body">
-                                    <canvas id="incomeChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Payment History Chart -->
-                        <?php
-                        // Fetch room status data
-                        $sql = "SELECT 
-            SUM(CASE WHEN status = 'Occupied' THEN 1 ELSE 0 END) AS occupied_count,
-            SUM(CASE WHEN status = 'Available' THEN 1 ELSE 0 END) AS available_count
-        FROM rooms";
-
-                        $result = $conn->query($sql);
-                        $row = $result->fetch_assoc();
-                        $occupied = $row['occupied_count'];
-                        $available = $row['available_count'];
-                        ?>
-
-                        <div class="col-md-6">
-                            <div class="mb-3 card shadow-lg rounded">
-                                <div class="card-header bg-success text-white d-flex align-items-center">
-                                    <i class="fas fa-home me-2"></i>
-                                    <h5 class="mb-0">Room Occupancy</h5>
-                                </div>
-                                <div class="card-body">
-                                    <canvas id="roomChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-
-                        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-                        <script>
-                            document.addEventListener("DOMContentLoaded", function () {
-                                var ctx = document.getElementById("roomChart").getContext("2d");
-                                new Chart(ctx, {
-                                    type: "pie",
-                                    data: {
-                                        labels: ["Occupied", "Available"],
-                                        datasets: [{
-                                            data: [<?= $occupied ?>, <?= $available ?>],
-                                            backgroundColor: ["#dc3545", "#28a745"], // Red for occupied, Green for available
-                                            borderWidth: 1
-                                        }]
-                                    },
-                                    options: {
-                                        responsive: true,
-                                        plugins: {
-                                            legend: {
-                                                position: "bottom"
-                                            }
-                                        }
-                                    }
-                                });
-                            });
-                        </script>
-
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3 card shadow-lg rounded">
-                                <div class="card-header bg-info text-white d-flex align-items-center">
-                                    <i class="fas fa-history me-2"></i>
-                                    <h5 class="mb-0">Payment History</h5>
-                                </div>
-                                <div class="card-body">
-                                    <table class="table table-striped table-hover">
-                                        <thead class="table-primary">
-                                            <tr>
-                                                <th>#</th>
-                                                <th>Amount</th>
-                                                <th>Tenant</th>
-                                                <th>Date</th>
-
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php
-
-                                            $sql = "SELECT p.tenantid, p.amount, p.baseddate, t.ID, t.fname, t.lname FROM paymenthistory p
-                                        JOIN tenants t ON p.tenantid = t.ID ORDER BY p.baseddate DESC";
-                                            $result = $conn->query($sql);
-                                            $count = 1;
-
-                                            if ($result->num_rows > 0) {
-                                                while ($row = $result->fetch_assoc()) {
-                                                    echo "<tr>
-                                        <td>{$count}</td>
-                                        <td>₱" . number_format($row['amount'], 2) . "</td>
-                                      <td>" . htmlspecialchars($row['fname'] . ' ' . $row['lname']) . "</td>
-                                        <td>" . date("F d, Y h:i A", strtotime($row['baseddate'])) . "</td>
-                                    
-                                      </tr>";
-                                                    $count++;
-                                                }
-                                            } else {
-                                                echo "<tr><td colspan='5' class='text-center'>No payment records found</td></tr>";
-                                            }
-                                            ?>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3 card shadow-lg rounded">
-                                <div class="card-header bg-warning text-white d-flex align-items-center">
-                                    <i class="fas fa-history me-2"></i>
-                                    <h5 class="mb-0">Online transactions</h5>
-                                </div>
-                                <div class="card-body">
-                                    <table class="table table-striped table-hover table-sm small">
-                                        <thead class="table-primary">
-                                            <tr>
-                                                <th>Wallet Name</th>
-                                                <th>Amount</th>
-                                                <th>Wallet Number</th>
-                                                <th>Transaction ID</th>
-                                                <th>Method</th>
-                                                <th>Date and Time</th>
-                                                <th>Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php
-                                            // Make sure to include your DB connection before this block
-                                            $sql = "SELECT *, user_id FROM payments ORDER BY date_time DESC"; // Fetch latest transactions first
-                                            $result = $conn->query($sql);
-
-                                            if ($result->num_rows > 0) {
-                                                while ($row = $result->fetch_assoc()) {
-                                                    echo "<tr>";
-                                                    echo "<td>" . htmlspecialchars($row['name']) . "</td>";
-                                                    echo "<td>" . htmlspecialchars($row['amount']) . "</td>";
-                                                    echo "<td>" . htmlspecialchars($row['number']) . "</td>";
-                                                    echo "<td>" . htmlspecialchars($row['transaction']) . "</td>";
-                                                    echo "<td>" . strtoupper(htmlspecialchars($row['method'])) . "</td>";
-                                                    echo "<td>" . date("F d, Y - h:i A", strtotime($row['date_time'])) . "</td>";
-
-                                                    // Approve button (disabled if already approved)
-                                                    if ($row['status'] == 'Approved') {
-                                                        echo "<td><button class='btn btn-success btn-sm' disabled>Approved</button></td>";
-                                                    } else {
-                                                        // Pass both payment_id and user_id as data attributes
-                                                        echo "<td>
-                            <button class='btn btn-success btn-sm approve-btn' data-id='{$row['payment_id']}' data-user_id='{$row['user_id']}'>
-                                <i class='fas fa-check-circle'></i>
-                            </button>
-                          </td>";
-                                                    }
-                                                    echo "</tr>";
-                                                }
-                                            } else {
-                                                echo "<tr><td colspan='7' class='text-center text-muted'>No payment records found.</td></tr>";
-                                            }
-                                            $conn->close();
-                                            ?>
-                                        </tbody>
-                                    </table>
-
-                                    <!-- Include SweetAlert2 and jQuery -->
-                                    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-                                    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-                                    <script>
-                                        $(document).ready(function () {
-                                            $(".approve-btn").click(function () {
-                                                var paymentId = $(this).data("id");
-                                                var userId = $(this).data("user_id"); // retrieve the user_id from data attribute
-                                                var button = $(this); // store button reference
-
-                                                Swal.fire({
-                                                    title: "Are you sure?",
-                                                    text: "You are about to approve this payment.",
-                                                    icon: "warning",
-                                                    showCancelButton: true,
-                                                    confirmButtonColor: "#3085d6",
-                                                    cancelButtonColor: "#d33",
-                                                    confirmButtonText: "Yes, approve it!"
-                                                }).then((result) => {
-                                                    if (result.isConfirmed) {
-                                                        $.ajax({
-                                                            url: "approve_payment.php",
-                                                            type: "POST",
-                                                            data: { id: paymentId, user_id: userId },
-                                                            success: function (response) {
-                                                                if (response === "success") {
-                                                                    Swal.fire("Approved!", "The payment has been approved.", "success");
-                                                                    button.replaceWith('<button class="btn btn-success btn-sm" disabled>Approved</button>');
-                                                                    // Optionally update any other parts of the row if needed
-                                                                } else {
-                                                                    Swal.fire("Error!", "Something went wrong.", "error");
-                                                                }
-                                                            }
-                                                        });
-                                                    }
-                                                });
-                                            });
-                                        });
-                                    </script>
-
-
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Include FontAwesome for icons -->
-                    <link rel="stylesheet"
-                        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-
-
-
-
-                    <!-- Chart.js Library -->
-                    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-                    <script>
-                        document.addEventListener("DOMContentLoaded", function () {
-                            var ctx = document.getElementById('incomeChart').getContext('2d');
-                            var incomeChart = new Chart(ctx, {
-                                type: 'bar', // Change to 'line' if needed
-                                data: {
-                                    labels: <?php echo json_encode($months); ?>,
-                                    datasets: [{
-                                        label: 'Total Income (PHP)',
-                                        data: <?php echo json_encode($income); ?>,
-                                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                                        borderColor: 'rgba(54, 162, 235, 1)',
-                                        borderWidth: 2
-                                    }]
-                                },
-                                options: {
-                                    responsive: true,
-                                    plugins: {
-                                        legend: { display: false }
-                                    },
-                                    scales: {
-                                        x: { grid: { display: false } },
-                                        y: { beginAtZero: true }
-                                    }
-                                }
-                            });
-                        });
-                    </script>
-
-
-
-                </div>
-                <!--                     <div class="app-wrapper-footer">
-                        <div class="app-footer">
-                            <div class="app-footer__inner">
-                                <div class="app-footer-left">
-                                    <ul class="nav">
-                                        <li class="nav-item">
-                                            <a href="javascript:void(0);" class="nav-link">
-                                                Footer Link 1
-                                            </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="javascript:void(0);" class="nav-link">
-                                                Footer Link 2
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div class="app-footer-right">
-                                    <ul class="nav">
-                                        <li class="nav-item">
-                                            <a href="javascript:void(0);" class="nav-link">
-                                                Footer Link 3
-                                            </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="javascript:void(0);" class="nav-link">
-                                                <div class="badge badge-success mr-1 ml-0">
-                                                    <small>NEW</small>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3 card shadow-lg rounded">
+                                                <div
+                                                    class="card-header bg-primary text-white d-flex align-items-center">
+                                                    <i class="fas fa-file-invoice-dollar me-2 fs-5"></i>
+                                                    <h5 class="mb-0">Bills Balance</h5>
                                                 </div>
-                                                Footer Link 4
-                                            </a>
-                                        </li>
-                                    </ul>
+                                                <div class="card-body">
+                                                    <?php
+                                                    // Fetch the total bills amount
+                                                    $sql_bills = "SELECT COALESCE(SUM(amount), 0) AS total_bills FROM bills WHERE tenantid = ?";
+                                                    $stmt_bills = $conn->prepare($sql_bills);
+                                                    $stmt_bills->bind_param("i", $user_id);
+                                                    $stmt_bills->execute();
+                                                    $result_bills = $stmt_bills->get_result();
+                                                    $bills = $result_bills->fetch_assoc();
+                                                    $totalBills = $bills['total_bills'];
+
+                                                    // Fetch the total payments made
+                                                    $sql_payments = "SELECT COALESCE(SUM(amount), 0) AS total_payments FROM paymenthistory WHERE tenantid = ?";
+                                                    $stmt_payments = $conn->prepare($sql_payments);
+                                                    $stmt_payments->bind_param("i", $user_id);
+                                                    $stmt_payments->execute();
+                                                    $result_payments = $stmt_payments->get_result();
+                                                    $payments = $result_payments->fetch_assoc();
+                                                    $totalPayments = $payments['total_payments'];
+
+                                                    // Calculate the remaining balance
+                                                    $totalDue = $totalBills - $totalPayments;
+                                                    ?>
+
+                                                    <div
+                                                        class="card-body d-flex justify-content-between align-items-center">
+                                                        <div>
+                                                            <h4 class="fw-bold mb-1">
+                                                                ₱<?php echo number_format($totalDue, 2); ?></h4>
+                                                            <p class="text-white-50 mb-0">Total Due</p>
+
+                                                            <?php if ($totalDue > 0): ?>
+                                                                <span class="badge bg-danger fs-6 mt-2">Unpaid</span>
+                                                            <?php else: ?>
+                                                                <span class="badge bg-success fs-6 mt-2">Paid</span>
+                                                            <?php endif; ?>
+                                                        </div>
+
+                                                        <!-- QR Code Section -->
+                                                        <div class="text-center">
+                                                            <p class="fw-bold mb-1">Scan Here:</p>
+                                                            <img src="qr.webp" alt="QR Code"
+                                                                class="img-fluid rounded shadow" width="100">
+                                                        </div>
+
+                                                    </div>
+
+
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3 card shadow-lg rounded">
+                                                <div
+                                                    class="card-header bg-warning text-white d-flex align-items-center">
+                                                    <i class="fas fa-wallet me-2 fs-5"></i>
+                                                    <h5 class="mb-0">Fill Up Wallet Information</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <form action="process_wallet.php" method="POST">
+                                                        <div class="mb-3">
+                                                            <input type="hidden" name = "user_id" value = "<?php echo $user_id?>">
+                                                            <label for="wallet_name" class="form-label fw-bold">Wallet
+                                                                Name</label>
+                                                            <input type="text" class="form-control" id="wallet_name"
+                                                                name="wallet_name" placeholder="e.g. Juan Dela Cruz"
+                                                                required>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="wallet_name" class="form-label fw-bold">Amount
+                                                            </label>
+                                                            <input type="number" class="form-control" id="wallet_name"
+                                                                name="amount" placeholder="e.g. 1000"
+                                                                required>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="wallet_number" class="form-label fw-bold">Wallet
+                                                                Number</label>
+                                                            <input type="text" class="form-control" id="wallet_number"
+                                                                name="wallet_number" placeholder="e.g. 09123456789"
+                                                                required>
+                                                        </div>
+
+                                                        <div class="mb-3">
+                                                            <label for="transaction_id"
+                                                                class="form-label fw-bold">Transaction ID</label>
+                                                            <input type="text" class="form-control" id="transaction_id"
+                                                                name="transaction_id" placeholder="Enter transaction ID"
+                                                                required>
+                                                        </div>
+
+                                                        <div class="mb-3">
+                                                            <label for="payment_method"
+                                                                class="form-label fw-bold">Payment Method</label>
+                                                            <select class="form-select" id="payment_method"
+                                                                name="payment_method" required>
+                                                                <option value="" disabled selected>Select Payment Method
+                                                                </option>
+                                                                <option value="gcash">GCash</option>
+                                                                <option value="paymaya">PayMaya</option>
+                                                            </select>
+                                                        </div>
+
+                                                        <div class="d-grid">
+                                                            <button type="submit" class="btn btn-success">
+                                                                <i class="fas fa-paper-plane"></i> Submit
+                                                            </button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>   -->
-            </div>
-            <script src="http://maps.google.com/maps/api/js?sensor=true"></script>
-        </div>
-        <script type="text/javascript"
-            src="https://demo.dashboardpack.com/architectui-html-free/assets/scripts/main.js"></script>
+
+                    </div>
+
+
+
+                    <script type="text/javascript"
+                        src="https://demo.dashboardpack.com/architectui-html-free/assets/scripts/main.js"></script>
     </main>
 
-    <footer id="footer" class="footer position-relative light-background">
 
-        <div class="container">
-            <div class="copyright text-center ">
-                <p><strong class="px-1 sitename">ASystems</strong> <span>All Rights Reserved</span></p>
-            </div>
-            <div class="credits">
-                <!-- All the links in the footer should remain intact. -->
-                <!-- You can delete the links only if you've purchased the pro version. -->
-                <!-- Licensing information: https://bootstrapmade.com/license/ -->
-                <!-- Purchase the pro version with working PHP/AJAX contact form: [buy-url] -->
-                Designed by <a href="https://google.com/">Johnrid Morata</a>
-            </div>
-        </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const uploadLinks = document.querySelectorAll(".upload-link");
 
-    </footer>
+            uploadLinks.forEach(link => {
+                link.addEventListener("click", function () {
+                    const userId = this.getAttribute("data-userid");
+                    const fieldName = this.getAttribute("data-field");
+
+                    document.getElementById("modal_user_id").value = userId;
+                    document.getElementById("modal_field_name").value = fieldName;
+                });
+            });
+        });
+    </script>
+
+
+
+    <!--   <footer id="footer" class="footer position-relative light-background foot">
+
+    <div class="container">
+      <div class="copyright text-center ">
+        <p><strong class="px-1 sitename">ASystems</strong> <span>All Rights Reserved</span></p>
+      </div>
+      <div class="credits">
+        Designed by <a href="https://bootstrapmade.com/">Adonnis Pama</a>
+      </div>
+    </div>
+
+  </footer> -->
 
     <!-- Scroll Top -->
     <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i
@@ -938,20 +747,135 @@ if ($result->num_rows > 0) {
     <!-- Preloader -->
     <div id="preloader"></div>
 
-    <!-- Vendor JS Files -->
-    <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="assets/vendor/php-email-form/validate.js"></script>
-    <script src="assets/vendor/aos/aos.js"></script>
-    <script src="assets/vendor/typed.js/typed.umd.js"></script>
-    <script src="assets/vendor/purecounter/purecounter_vanilla.js"></script>
-    <script src="assets/vendor/waypoints/noframework.waypoints.js"></script>
-    <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
-    <script src="assets/vendor/imagesloaded/imagesloaded.pkgd.min.js"></script>
-    <script src="assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
-    <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
+
+
+
+
 
     <!-- Main JS File -->
     <script src="assets/js/main.js"></script>
+    <!-- <script type="text/javascript">
+    function showDiv(select) {
+      if (select.value != 0) {
+        var val = document.getElementById("test").value;
+        // window.location.href = "#item=" + val; 
+        var new_url = "./Occupants.php?item=" + val;
+        window.history.pushState(null, "", new_url);
+        document.getElementById('hidden_div').style.display = "block";
+      } else {
+        document.getElementById('hidden_div').style.display = "none";
+      }
+    } 
+  </script>
+
+  <script>
+    var rowCount = $('#tbl >tbody >tr').length;
+    $("#rowcount").text(rowCount);
+  </script>
+  <script>
+    var within_first_modal = false;
+    $('.btn-second-modal').on('click', function () {
+      if ($(this).hasClass('within-first-modal')) {
+        within_first_modal = true;
+        $('#first-modal').modal('hide');
+      }
+      $('#second-modal').modal('show');
+    });
+
+    $('.btn-second-modal-close').on('click', function () {
+      $('#second-modal').modal('hide');
+      if (within_first_modal) {
+        $('#first-modal').modal('show');
+        within_first_modal = false;
+      }
+    });
+
+    $('.btn-toggle-fade').on('click', function () {
+      if ($('.modal').hasClass('fade')) {
+        $('.modal').removeClass('fade');
+        $(this).removeClass('btn-success');
+      } else {
+        $('.modal').addClass('fade');
+        $(this).addClass('btn-success');
+      }
+    });
+  </script>
+  <script>
+    var table document.getElementById('bills');
+    var total = table.rows.length;
+    var tb = table.tBodies[0].row.length;
+  </script>
+  <script>
+    $(document).ready(function () {
+
+      if (window.location.href.indexOf('#pay') != -1) {
+        $('#pay').modal('show');
+      }
+
+    });
+  </script>
+  <script>
+    $(document).ready(function () {
+
+      if (window.location.href.indexOf('#bayad') != -1) {
+        $('#bayad').modal('show');
+      }
+
+    });
+  </script>
+  <script>
+    const input = document.querySelector('input')
+    const output = document.querySelector('output')
+
+    // Format the input value to ensure 2 decimal places
+    const formatValue = () => {
+      if (input.value !== '' && !isNaN(input.value)) {
+        input.value = Math.abs(Number(input.value)).toFixed(2)
+        updateOutput()
+      }
+    }
+
+    // Show the cents
+    const updateOutput = () => {
+      const value = input.value !== '' ? Math.trunc(Math.abs(Number(input.value) * 100)) : 0
+      output.innerHTML = `cents = ${value}`
+    }
+
+    input.addEventListener('change', formatValue)
+    input.addEventListener('input', updateOutput)
+
+    updateValue()
+    updateOutput()
+  </script>
+  <script>
+    updateSubTotal(); // Initial call
+
+    function updateSubTotal() {
+      var table = document.getElementById("bills");
+      let subTotal = Array.from(table.rows).slice(1).reduce((total, row) => {
+        return total + parseFloat(row.cells[2].innerHTML);
+      }, 0);
+      document.getElementById("totsum").innerHTML = subTotal;
+    }
+
+  </script> -->
+    <?php
+    if (isset($_SESSION['status']) && $_SESSION['status'] != '') {
+        ?>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            Swal.fire({
+                title: "<?php echo $_SESSION['status']; ?>",
+                icon: "<?php echo $_SESSION['status_code']; ?>",
+                confirmButtonText: "<?php echo $_SESSION['status_button'] ?? 'OK'; ?>"
+            });
+        </script>
+        <?php
+        unset($_SESSION['status']);
+        unset($_SESSION['status_code']);
+        unset($_SESSION['status_button']);
+    }
+    ?>
 
 </body>
 

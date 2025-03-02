@@ -682,16 +682,16 @@ VALUES ('$tenid','$amount','$billdate','0')";
                     if ($totalDue > 0) {
                       $formattedTotalDue = number_format($totalDue, 2);
                       echo "
-        <div class='d-flex justify-content-between align-items-center'>
-            <h5 class='text-dark fw-bold'>₱{$formattedTotalDue}</h5>
-            <span class='badge bg-warning text-dark'>Pending Payment</span>
-        </div>
-        <p class='text-muted mt-2'>Please settle your outstanding balance as soon as possible.</p>
-        <div class='text-end'>
-            <a href='payment_page.php' class='btn btn-success btn-sm'>
-                <i class='fas fa-credit-card me-1'></i> Pay Now
-            </a>
-        </div>";
+                      <div class='d-flex justify-content-between align-items-center'>
+                          <h5 class='text-dark fw-bold'>₱{$formattedTotalDue}</h5>
+                          <span class='badge bg-warning text-dark'>Pending Payment</span>
+                      </div>
+                      <p class='text-muted mt-2'>Please settle your outstanding balance as soon as possible.</p>
+                      <div class='text-end'>
+                          <a href='payment_page.php' class='btn btn-success btn-sm'>
+                              <i class='fas fa-credit-card me-1'></i> Pay Now
+                          </a>
+                      </div>";
                     } else {
                       echo "<p class='text-muted text-center'>No pending payments.</p>";
                     }
