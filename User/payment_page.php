@@ -547,23 +547,7 @@ VALUES ('$tenid','$amount','$billdate','0')";
 
                         </div>
                     </div>
-                    <div class="row">
-
-
-                        <div class="d-xl-none d-lg-block col-md-6 col-xl-4">
-                            <div class="card mb-3 widget-content bg-premium-dark">
-                                <div class="widget-content-wrapper text-white">
-                                    <div class="widget-content-left">
-                                        <div class="widget-heading">Room Occupied</div>
-                                        <div class="widget-subheading">Total Occupied Room</div>
-                                    </div>
-                                    <div class="widget-content-right">
-                                        <div class="widget-numbers text-warning"><span>5 Rooms</span></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                   
                     <div class="row">
                         <div class="col-md-12">
                             <div class="mb-3 card shadow-lg rounded">

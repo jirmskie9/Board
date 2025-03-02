@@ -792,7 +792,57 @@ VALUES ('$tenid','$amount','$billdate','0')";
                         type="text" tabindex="5" autocomplete="off" name="puser">
                     </div>
                     <div class="form-group col-sm-5">
-                      <input class="form-control" placeholder="Password" type="password" tabindex="5" name="password">
+                      <input class="form-control" placeholder="Password" type="password" tabindex="5" name="password"
+                        id="passwordInput" pattern="^(?=.*[A-Z])(?=.*\d).{8,}$"
+                        title="Password must be at least 8 characters long and include at least one uppercase letter and one digit">
+                      <div class="password-strength" id="passwordStrength"><label>Password Strength: </label></div>
+                      <div id="strength-bar"></div>
+                      <script>
+                        document.getElementById('passwordInput').addEventListener('input', function () {
+                          var password = document.getElementById('passwordInput').value;
+                          var strengthBadge = document.getElementById('passwordStrength');
+                          var strengthBar = document.getElementById('strength-bar');
+
+                          // Check password strength
+                          var strength = 0;
+                          if (password.match(/[a-z]+/)) {
+                            strength += 1;
+                          }
+                          if (password.match(/[A-Z]+/)) {
+                            strength += 1;
+                          }
+                          if (password.match(/[0-9]+/)) {
+                            strength += 1;
+                          }
+                          if (password.length >= 8) {
+                            strength += 1;
+                          }
+
+                          // Update the strength indicator and color bar
+                          switch (strength) {
+                            case 0:
+                              strengthBadge.innerHTML = 'Password Strength: Very Weak';
+                              strengthBar.className = 'very-weak';
+                              break;
+                            case 1:
+                              strengthBadge.innerHTML = 'Password Strength: Weak';
+                              strengthBar.className = 'weak';
+                              break;
+                            case 2:
+                              strengthBadge.innerHTML = 'Password Strength: Fair';
+                              strengthBar.className = 'fair';
+                              break;
+                            case 3:
+                              strengthBadge.innerHTML = 'Password Strength: Moderate';
+                              strengthBar.className = 'moderate';
+                              break;
+                            case 4:
+                              strengthBadge.innerHTML = 'Password Strength: Strong';
+                              strengthBar.className = 'strong';
+                              break;
+                          }
+                        });
+                      </script>
                     </div>
 
 

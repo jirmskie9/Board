@@ -643,7 +643,6 @@ VALUES ('$tenid','$amount','$billdate','0')";
                   </div>
                 </div>
               </div>
-            </div>
           </div>
           <div class="row">
             <div class="col-md-6">
