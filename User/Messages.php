@@ -4,14 +4,23 @@ session_start();
 
 date_default_timezone_set('Asia/Manila');
 
-$uid = isset($_SESSION['Uid']) ? $_SESSION['Uid'] : 0; // Set to 0 if not defined
-
-if (isset($_GET['Uid'])) {
-    $_SESSION['Uid'] = $_GET['Uid'];
-    $ucids = $_SESSION['Uid'];
-} else {
-    $ucids = 0; // Default to 0 if no user chat ID is provided
+// Ensure 'Uid' session variable is set
+if (!isset($_SESSION['Uid'])) {
+  die("Session 'Uid' is not set. Please log in again.");
 }
+
+$id = $_SESSION['Uid']; // Use 'Uid' session key
+
+// Set 'ucid' session variable if passed in the URL
+if (isset($_GET['ucid'])) {
+  $_SESSION['ucid'] = $_GET['ucid'];
+}
+
+// Default 'ucid' to 0 if not set
+$ucids = $_SESSION['ucid'] ?? 0;
+
+// Fetch user details
+$id = $_SESSION['Uid'];
 $sql = "SELECT * FROM user WHERE ID = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $uid);
