@@ -568,15 +568,17 @@ VALUES ('$tenid','$amount','$billdate','0')";
                         <div class="col-md-6">
                             <div class="mb-3 card shadow-lg rounded">
                                 <div class="card-header bg-primary text-white d-flex align-items-center">
-                                    <i class="fas fa-id-card me-2 fs-5"></i> <!-- Changed icon -->
+                                    <i class="fas fa-id-card me-2 fs-5"></i>
                                     <h5 class="mb-0">Valid ID Uploaded</h5>
                                 </div>
                                 <div class="card-body text-center">
                                     <?php
-                                    $query = "SELECT * FROM applications WHERE user_id = '$user_id' AND status = 'approved'";
+                                    $query = "SELECT * FROM applications WHERE status = 'approved' AND user_id = '$user_id'";
                                     $result = mysqli_query($conn, $query);
                                     if ($row = mysqli_fetch_assoc($result)) {
-                                        echo '<img src="../' . htmlspecialchars($row['valid_id']) . '" class="img-fluid rounded shadow" alt="Valid ID">';
+                                        $valid_id_path = "../uploads/" . htmlspecialchars($row['valid_id']);
+                                        echo '<img src="' . $valid_id_path . '" class="img-fluid rounded shadow mb-3" alt="Valid ID">';
+                                        echo '<br><a href="' . $valid_id_path . '" download class="btn btn-primary"><i class="fas fa-download"></i> Download Valid ID</a>';
                                     } else {
                                         echo '<p class="text-muted">No valid ID uploaded.</p>';
                                     }
@@ -588,15 +590,17 @@ VALUES ('$tenid','$amount','$billdate','0')";
                         <div class="col-md-6">
                             <div class="mb-3 card shadow-lg rounded border">
                                 <div class="card-header bg-success text-white d-flex align-items-center">
-                                    <i class="fas fa-receipt me-2 fs-5"></i> <!-- Changed icon -->
+                                    <i class="fas fa-receipt me-2 fs-5"></i>
                                     <h5 class="mb-0">Proof of Income Uploaded</h5>
                                 </div>
                                 <div class="card-body text-center">
                                     <?php
-                                    $query = "SELECT * FROM applications WHERE user_id = '$user_id' AND status = 'approved'";
+                                    $query = "SELECT * FROM applications WHERE status = 'approved' AND user_id = '$user_id'";
                                     $result = mysqli_query($conn, $query);
                                     if ($row = mysqli_fetch_assoc($result)) {
-                                        echo '<img src="../uploads/' . htmlspecialchars($row['proof']) . '" class="img-fluid rounded shadow" alt="Proof of Income">';
+                                        $proof_path = "../uploads/" . htmlspecialchars($row['proof']);
+                                        echo '<img src="' . $proof_path . '" class="img-fluid rounded shadow mb-3" alt="Proof of Income">';
+                                        echo '<br><a href="' . $proof_path . '" download class="btn btn-success"><i class="fas fa-download"></i> Download Proof of Income</a>';
                                     } else {
                                         echo '<p class="text-muted">No proof of income uploaded.</p>';
                                     }
@@ -604,11 +608,12 @@ VALUES ('$tenid','$amount','$billdate','0')";
                                 </div>
                             </div>
                         </div>
+                    </div>
 
 
 
-                        <script type="text/javascript"
-                            src="https://demo.dashboardpack.com/architectui-html-free/assets/scripts/main.js"></script>
+                    <script type="text/javascript"
+                        src="https://demo.dashboardpack.com/architectui-html-free/assets/scripts/main.js"></script>
     </main>
 
 

@@ -137,7 +137,7 @@ VALUES ('$tenid','$amount','$billdate','0')";
     <nav id="navmenu" class="navmenu">
       <ul>
         <li><a href="Home.php" class="active"><i class="bi bi-house navicon"></i>Home</a></li>
-        <li><a href="Documents.php"  ><i class="bi bi-file-earmark-text navicon"></i> Documents</a></li>
+        <li><a href="Documents.php"><i class="bi bi-file-earmark-text navicon"></i> Documents</a></li>
 
 
         <li><a href="Messages.php"><i class="bi bi-envelope navicon"></i>
@@ -563,16 +563,25 @@ VALUES ('$tenid','$amount','$billdate','0')";
 
             <?php
 
-            $sql = "SELECT COUNT(*) AS total_tenants FROM tenants";
+            $sql = "SELECT date_started FROM lease";
             $result = $conn->query($sql);
 
-            $total_rooms = 0; // Default value
+            $days = 0; // Default value
+            
             if ($result->num_rows > 0) {
               $row = $result->fetch_assoc();
-              $total_tenants = $row['total_tenants'];
-            }
+              $date_started = $row['date_started'];
 
+              // Convert date_started to a DateTime object
+              $start_date = new DateTime($date_started);
+              $current_date = new DateTime(); // Current date
+            
+              // Calculate the difference in days
+              $interval = $start_date->diff($current_date);
+              $days = $interval->days; // Get total days difference
+            }
             ?>
+
             <div class="col-md-6 col-xl-4">
               <div class="card mb-3 widget-content bg-arielle-smile">
                 <div class="widget-content-wrapper text-white">
@@ -581,21 +590,27 @@ VALUES ('$tenid','$amount','$billdate','0')";
                     <div class="widget-subheading">Total Days of Stays</div>
                   </div>
                   <div class="widget-content-right">
-                    <div class="widget-numbers text-white"><span><?php echo $total_tenants ?></span>
+                    <div class="widget-numbers text-white">
+                      <span><?php echo $days; ?></span>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
+
+
+
             <?php
 
-            $sql = "SELECT COUNT(*) AS total_rooms FROM rooms";
+            $my_room = "N/A"; // Default value in case no room is found
+            
+
+            $sql = "SELECT room FROM tenants WHERE id = '$user_id'";
             $result = $conn->query($sql);
 
-            $total_rooms = 0; // Default value
             if ($result->num_rows > 0) {
               $row = $result->fetch_assoc();
-              $total_rooms = $row['total_rooms'];
+              $my_room = $row['room']; // Store the room number
             }
 
             ?>
@@ -608,12 +623,14 @@ VALUES ('$tenid','$amount','$billdate','0')";
                     <div class="widget-subheading">Current room stayed.</div>
                   </div>
                   <div class="widget-content-right">
-                    <div class="widget-numbers text-white"><span><?php echo $total_rooms; ?>
-                        Rooms</span></div>
+                    <div class="widget-numbers text-white">
+                      <span><?php echo $my_room; ?></span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
+
             <div class="d-xl-none d-lg-block col-md-6 col-xl-4">
               <div class="card mb-3 widget-content bg-premium-dark">
                 <div class="widget-content-wrapper text-white">
@@ -633,7 +650,7 @@ VALUES ('$tenid','$amount','$billdate','0')";
               <div class="mb-3 card shadow-lg rounded">
                 <div class="card-header bg-primary text-white d-flex align-items-center">
                   <i class="fas fa-wallet me-2 fs-5"></i>
-                  <h5 class="mb-0">Upcoming Payment</h5>
+                  <h5 class="mb-0">Pending Payment</h5>
                 </div>
                 <div class="card-body">
                   <?php
@@ -785,8 +802,9 @@ VALUES ('$tenid','$amount','$billdate','0')";
               <div class="col-md-6">
                 <div class="mb-3 card shadow-lg rounded">
                   <div class="card-header bg-info text-white d-flex align-items-center">
-                    <i class="fas fa-history me-2"></i>
+                    <i class="fas fa-file-alt me-2"></i>
                     <h5 class="mb-0">Applications</h5>
+
                   </div>
                   <div class="card-body">
                     <div class="table-responsive shadow-sm p-3 bg-white rounded">
@@ -1045,51 +1063,7 @@ VALUES ('$tenid','$amount','$billdate','0')";
                   </div>
                 </div>
                 <div class="row">
-                  <div class="col-md-12">
-                    <div class="mb-3 card shadow-lg rounded">
-                      <div class="card-header bg-info text-white d-flex align-items-center">
-                        <i class="fas fa-history me-2"></i>
-                        <h5 class="mb-0">Utility Bill</h5>
-                      </div>
-                      <div class="card-body">
-                        <table class="table table-striped table-hover">
-                          <thead class="table-primary">
-                            <tr>
-                              <th>#</th>
-                              <th>Amount</th>
 
-                              <th>Payment Date</th>
-
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <?php
-
-                            $sql = "SELECT p.tenantid, p.amount, p.baseddate, t.ID, t.fname, t.lname FROM paymenthistory p
-                                        JOIN tenants t ON p.tenantid = t.ID WHERE p.tenantid = '$user_id' ORDER BY p.baseddate DESC";
-                            $result = $conn->query($sql);
-                            $count = 1;
-
-                            if ($result->num_rows > 0) {
-                              while ($row = $result->fetch_assoc()) {
-                                echo "<tr>
-                                        <td>{$count}</td>
-                                        <td>₱" . number_format($row['amount'], 2) . "</td>
-                                   
-                                        <td>" . date("F d, Y h:i A", strtotime($row['baseddate'])) . "</td>
-                                    
-                                      </tr>";
-                                $count++;
-                              }
-                            } else {
-                              echo "<tr><td colspan='5' class='text-center'>No payment records found</td></tr>";
-                            }
-                            ?>
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
 
                   <script src="http://maps.google.com/maps/api/js?sensor=true"></script>
                 </div>

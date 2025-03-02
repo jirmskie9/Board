@@ -60,103 +60,46 @@ if ($result->num_rows > 0) {
     <link href="https://demo.dashboardpack.com/architectui-html-free/main.css" rel="stylesheet">
     <link href="./logo/balay.jpg" rel="icon">
     <style>
-        /* Modal Overlay (Hidden by Default) */
-        .modal-overlay {
+        /* Modal Styles */
+        .modal {
+            display: none;
+            /* Hidden by default */
             position: fixed;
-            top: 0;
+            z-index: 1000;
             left: 0;
+            top: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            display: none;
-            /* Hidden initially */
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
+            background-color: rgba(0, 0, 0, 0.5);
+            /* Dark background */
         }
 
-        /* Modal Box */
-        .modal {
-            background: white;
+        /* Modal Content */
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
             padding: 20px;
-            width: 400px;
+            width: 40%;
             border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
             position: relative;
-            transform: scale(0.8);
-            /* Initially small */
-            opacity: 0;
-            /* Initially invisible */
-            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
-        }
-
-        /* When modal is active */
-        .modal-overlay.active {
-            display: flex;
-        }
-
-        .modal.active {
-            transform: scale(1);
-            opacity: 1;
         }
 
         /* Close Button */
-        .modal-close {
+        .close-btn {
             position: absolute;
             top: 10px;
             right: 15px;
             font-size: 20px;
             cursor: pointer;
-            color: #555;
-        }
-
-        .modal-close:hover {
-            color: red;
-        }
-
-        /* Modal Header */
-        .modal-header {
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-
-        /* Button Styling */
-        .btn {
-            padding: 10px 15px;
             border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
+            background: none;
         }
 
-        .btn-primary {
-            background-color: #007bff;
-            color: white;
-        }
+       
 
-        .btn-primary:hover {
-            background-color: #0056b3;
-        }
-
-        /* Input Fields */
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            font-weight: bold;
-        }
-
-        input[type="text"],
-        input[type="number"],
-        input[type="date"] {
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
+      
     </style>
 </head>
 
@@ -572,17 +515,16 @@ if ($result->num_rows > 0) {
                 <div class="app-main__inner">
                     <div class="app-page-title">
                         <div class="page-title-wrapper">
-                            <div class="page-title-heading">
-                                <div class="page-title-icon">
-                                    <i class="pe-7s-car icon-gradient bg-mean-fruit">
-                                    </i>
-                                </div>
-                                <div>Welcome to Primos Boardinghouse
-                                    <div class="page-title-subheading">This is an overview of all data in Primos
-                                        Boardinghouse.
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="page-title-heading">
+                <div class="page-title-icon">
+                  <i class="fas fa-home icon-gradient bg-mean-fruit"></i> <!-- Changed to FontAwesome Home Icon -->
+                </div>
+                <div>Welcome to Primos Boardinghouse
+                  <div class="page-title-subheading">
+                    This is an overview of all data in Primos Boardinghouse.
+                  </div>
+                </div>
+              </div>
 
                         </div>
                     </div>
@@ -641,17 +583,14 @@ if ($result->num_rows > 0) {
                                                 <tr>
                                                     <th>Tenant</th>
                                                     <th>Bill Amount</th>
-                                                    <th>Payment Amount</th>
-                                                    <th>Balance</th>
+                                              
+                                                    <th>Room</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <?php
-                                                $query = "SELECT b.tenantid, b.amount, p.tenantid AS payment_tenantid, p.amount AS payment_amount,
-                                                t.fname, t.lname, t.balance, t.ID 
-                                                FROM bills b
-                                                JOIN paymenthistory p ON b.tenantid = p.tenantid
-                                                JOIN tenants t ON b.tenantid = t.ID WHERE type = 'utilities'";
+                                                $query = "SELECT b.tenantid, b.amount, b.type, t.ID, t.fname, t.lname, t.room FROM 
+                                                bills b JOIN tenants t ON b.tenantid = t.ID WHERE b.type = 'utilities'";
 
                                                 $result = mysqli_query($conn, $query);
 
@@ -664,16 +603,19 @@ if ($result->num_rows > 0) {
                                                   <td>" . htmlspecialchars($row['fname']) . " " . htmlspecialchars($row['lname']) . "</td>
 
                                                     <td>₱ " . htmlspecialchars($row['amount']) . "</td>
-                                                    <td>₱ " . htmlspecialchars($row['payment_amount']) . "</td>
-                                                     <td>₱ " . htmlspecialchars($row['balance']) . ".</td>
+                                                  
+                                                     <td>" . htmlspecialchars($row['room']) . "</td>
                                                 </tr>";
                                                 }
                                                 ?>
                                             </tbody>
                                         </table>
                                         <br>
-                                    
+                                      
+                                        <a href="add_utilities.php" class = "btn btn-primary">+ Add Utility Bills</a>
 
+                                        <!-- Modal Structure -->
+             
                                     </div>
                                 </div>
 
@@ -774,7 +716,23 @@ if ($result->num_rows > 0) {
 
     <!-- Main JS File -->
     <script src="assets/js/main.js"></script>
-
+    <?php
+  if (isset($_SESSION['status']) && $_SESSION['status'] != '') {
+    ?>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+      Swal.fire({
+        title: "<?php echo $_SESSION['status']; ?>",
+        icon: "<?php echo $_SESSION['status_code']; ?>",
+        confirmButtonText: "<?php echo $_SESSION['status_button'] ?? 'OK'; ?>"
+      });
+    </script>
+    <?php
+    unset($_SESSION['status']);
+    unset($_SESSION['status_code']);
+    unset($_SESSION['status_button']);
+  }
+  ?>
 </body>
 
 </html>

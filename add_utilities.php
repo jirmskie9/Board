@@ -59,13 +59,44 @@ if ($result->num_rows > 0) {
     <link href="./logo/balay.jpg" rel="icon">
     <link href="https://demo.dashboardpack.com/architectui-html-free/main.css" rel="stylesheet">
     <link href="./logo/balay.jpg" rel="icon">
-    <!-- =======================================================
-  * Template Name: iPortfolio
-  * Template URL: https://bootstrapmade.com/iportfolio-bootstrap-portfolio-websites-template/
-  * Updated: Jun 29 2024 with Bootstrap v5.3.3
-  * Author: BootstrapMade.com
-  * License: https://bootstrapmade.com/license/
-  ======================================================== -->
+    <style>
+        /* Modal Styles */
+        .modal {
+            display: none;
+            /* Hidden by default */
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            /* Dark background */
+        }
+
+        /* Modal Content */
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            width: 40%;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            position: relative;
+        }
+
+        /* Close Button */
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 20px;
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+    </style>
 </head>
 
 <body class="index-page">
@@ -83,16 +114,17 @@ if ($result->num_rows > 0) {
             <h1 class="sitename"><?php echo $fullname ?></h1>
         </a>
 
-     
+
 
         <nav id="navmenu" class="navmenu">
             <ul>
                 <li><a href="./Dashboard.php"><i class="bi bi-house navicon"></i>Dashboard</a></li>
                 <li><a href="./Occupants.php"><i class="bi bi-person navicon"></i> Occupants</a></li>
                 <li><a href="./Rooms.php"><i class="bi bi-door-open navicon"></i> Rooms</a></li>
-                <li><a href="./Utilities.php"><i class="bi bi-lightbulb navicon"></i> <!-- Represents electricity/utilities -->
-                Utility Bills</a></li>
-                <li><a href="./Collection.php" class="active"><i class="bi bi-cash-stack navicon"></i>Rent
+                <li><a href="./Utilities.php" class="active"><i class="bi bi-lightbulb navicon"></i>
+                        <!-- Represents electricity/utilities -->
+                        Utility Bills</a></li>
+                <li><a href="./Collection.php"><i class="bi bi-cash-stack navicon"></i>Rent
                         Collection</a></li>
 
                 <li><a href="./Expenses.php"><i class="bi bi-receipt navicon"></i> Expenses</a></li>
@@ -479,16 +511,17 @@ if ($result->num_rows > 0) {
                 <div class="app-main__inner">
                     <div class="app-page-title">
                         <div class="page-title-wrapper">
-                        <div class="page-title-heading">
-                <div class="page-title-icon">
-                  <i class="fas fa-home icon-gradient bg-mean-fruit"></i> <!-- Changed to FontAwesome Home Icon -->
-                </div>
-                <div>Welcome to Primos Boardinghouse
-                  <div class="page-title-subheading">
-                    This is an overview of all data in Primos Boardinghouse.
-                  </div>
-                </div>
-              </div>
+                            <div class="page-title-heading">
+                                <div class="page-title-icon">
+                                    <i class="pe-7s-car icon-gradient bg-mean-fruit">
+                                    </i>
+                                </div>
+                                <div>Welcome to Primos Boardinghouse
+                                    <div class="page-title-subheading">This is an overview of all data in Primos
+                                        Boardinghouse.
+                                    </div>
+                                </div>
+                            </div>
 
                         </div>
                     </div>
@@ -497,7 +530,7 @@ if ($result->num_rows > 0) {
                         include('db.php');
 
                         $current_year = date("Y");
-                        $sql = "SELECT SUM(balance) AS total_balance FROM tenants";
+                        $sql = "SELECT SUM(amount) AS total FROM bills WHERE type = 'utilities'";
                         $stmt = $conn->prepare($sql);
                         $stmt->execute();
                         $result = $stmt->get_result();
@@ -505,97 +538,144 @@ if ($result->num_rows > 0) {
                         $total_expenses = 0; // Default value
                         if ($result->num_rows > 0) {
                             $row = $result->fetch_assoc();
-                            $total_expenses = $row['total_balance'] ?? 0;
+                            $total_expenses = $row['total'] ?? 0;
                         }
 
                         $stmt->close();
 
                         ?>
 
-                        <div class="col-md-6 col-xl-4">
-                            <div class="card mb-3 widget-content bg-midnight-bloom">
-                                <div class="widget-content-wrapper text-white">
-                                    <div class="widget-content-left">
-                                        <div class="widget-heading">Total Balance</div>
-                                        <div class="widget-subheading">Current Year Expenses</div>
-                                    </div>
-                                    <div class="widget-content-right">
-                                        <div class="widget-numbers text-white">
-                                            <span>&#8369; <?php echo number_format($total_expenses, 2); ?></span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
 
-                        
-                      
+
+
                     </div>
 
                     <div class="row">
                         <!-- Monthly Income Chart -->
-                        <div class="col-md-12">
-                            <div class="mb-3 card shadow-lg rounded">
+                        <div class="col-md-12 d-flex justify-content-center">
+                            <div class="mb-3 card shadow-lg rounded" style="width: 50%;">
                                 <div class="card-header bg-primary text-white d-flex align-items-center">
                                     <i class="fas fa-chart-line me-2"></i>
-                                    <h5 class="mb-0">Rent Collection</h5>
+                                    <h5 class="mb-0">Add Utility Bills for <?php echo date("F Y"); ?></h5>
+
                                 </div>
                                 <div class="card-body">
-                                    <div class="table-responsive">
-                                        <table class="table table-bordered">
-                                            <thead>
-                                                <tr>
-                                                    <th>Tenant</th>
-                                                    <th>Bill Amount</th>
-                                                    <th>Payment Amount</th>
-                                                    <th>Balance</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <?php
-                                                $query = "SELECT b.tenantid, b.amount, p.tenantid AS payment_tenantid, p.amount AS payment_amount, b.type,
-                                                t.fname, t.lname, t.balance, t.ID 
-                                                FROM bills b
-                                                JOIN paymenthistory p ON b.tenantid = p.tenantid
-                                                JOIN tenants t ON b.tenantid = t.ID WHERE b.type = 'rental'";
+                                    <div class="form-group">
 
-                                                $result = mysqli_query($conn, $query);
+                                        <?php
+                                        $query = "SELECT r.Roomnum, r.Occupants, t.ID AS tenant_id
+                                        FROM lease l 
+                                        JOIN tenants t ON l.user_id = t.ID 
+                                        JOIN rooms r ON t.room = r.Roomnum 
+                                        WHERE l.signature IS NOT NULL AND l.signature != ''";
 
-                                                if (!$result) {
-                                                    die("Query failed: " . mysqli_error($conn));
+                                        $result = $conn->query($query);
+
+                                        // Initialize an array to store tenant IDs per room
+                                        $roomData = [];
+
+                                        while ($row = $result->fetch_assoc()) {
+                                            $roomNum = $row['Roomnum'];
+                                            $roomData[$roomNum]['occupants'] = $row['Occupants'];
+
+                                            // Append tenant ID to the room
+                                            $roomData[$roomNum]['tenant_ids'][] = $row['tenant_id'];
+                                        }
+                                        ?>
+
+                                        <input type="hidden" id="roomData"
+                                            value='<?php echo json_encode($roomData); ?>'>
+                                        <form action="insert_bills.php" method="POST">
+                                            <div class="form-group">
+                                                <label for="roomSelect">Select Room</label>
+                                                <select class="form-control" style="width: 100%;" name="roomnum"
+                                                    id="roomSelect">
+                                                    <option value="" disabled selected>Select Room</option>
+                                                    <?php foreach ($roomData as $roomNum => $data): ?>
+                                                        <option value="<?= htmlspecialchars($roomNum) ?>"
+                                                            data-occupants="<?= htmlspecialchars($data['occupants']) ?>">
+                                                            <?= htmlspecialchars($roomNum) ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label>Total Occupants</label>
+                                                <input type="text" id="total_occupant" class="form-control" name = "occupants"
+                                                    style="width: 100%;">
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label for="billAmount">Enter Bill Amount (Combined electricity &
+                                                    water)</label>
+                                                <input type="number" class="form-control" style="width: 100%;"
+                                                    id="billAmount"name = "billAmount" placeholder="Amount">
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label>Bill per Occupant</label>
+                                                <input type="text" id="billPerOccupant" class="form-control"
+                                                    style="width: 100%;" readonly>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <input type="hidden" name="tenantIds" id="tenantIdsInput">
+
+                                            </div>
+                                            <div class="form-group">
+                                                <button class="btn btn-primary" type="submit">Save Bills</button>
+                                            </div>
+                                        </form>
+
+                                        <script>
+                                            let roomData = JSON.parse(document.getElementById('roomData').value);
+
+                                            document.getElementById('roomSelect').addEventListener('change', function () {
+                                                let selectedRoom = this.value;
+                                                let tenantIds = roomData[selectedRoom]?.tenant_ids || [];
+
+                                                document.getElementById('tenantIdsInput').value = tenantIds.join(',');
+
+                                                let totalOccupants = roomData[selectedRoom]?.occupants || 0;
+                                                document.getElementById('total_occupant').value = totalOccupants;
+
+                                                calculateBill();
+                                            });
+
+
+                                            document.getElementById('billAmount').addEventListener('input', function () {
+                                                calculateBill();
+                                            });
+
+                                            function calculateBill() {
+                                                let totalOccupants = parseInt(document.getElementById('total_occupant').value) || 0;
+                                                let billAmount = parseFloat(document.getElementById('billAmount').value) || 0;
+
+                                                if (totalOccupants > 0) {
+                                                    document.getElementById('billPerOccupant').value = (billAmount / totalOccupants).toFixed(2);
+                                                } else {
+                                                    document.getElementById('billPerOccupant').value = '';
                                                 }
+                                            }
+                                        </script>
 
-                                                while ($row = mysqli_fetch_assoc($result)) {
-                                                    echo "<tr>
-                                                  <td>" . htmlspecialchars($row['fname']) . " " . htmlspecialchars($row['lname']) . "</td>
-
-                                                    <td>₱ " . htmlspecialchars($row['amount']) . "</td>
-                                                    <td>₱ " . htmlspecialchars($row['payment_amount']) . "</td>
-                                                     <td>₱ " . htmlspecialchars($row['balance']) . ".</td>
-                                                </tr>";
-                                                }
-                                                ?>
-                                            </tbody>
-                                        </table>
                                     </div>
                                 </div>
-
                             </div>
+
+
                         </div>
+
+                        <!-- Include FontAwesome for icons -->
+                        <link rel="stylesheet"
+                            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
 
 
 
                     </div>
-
-                    <!-- Include FontAwesome for icons -->
-                    <link rel="stylesheet"
-                        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-
-
-
-
-                </div>
-                <!--                     <div class="app-wrapper-footer">
+                    <!--                     <div class="app-wrapper-footer">
                         <div class="app-footer">
                             <div class="app-footer__inner">
                                 <div class="app-footer-left">
@@ -632,11 +712,11 @@ if ($result->num_rows > 0) {
                             </div>
                         </div>
                     </div>   -->
+                </div>
+                <script src="http://maps.google.com/maps/api/js?sensor=true"></script>
             </div>
-            <script src="http://maps.google.com/maps/api/js?sensor=true"></script>
-        </div>
-        <script type="text/javascript"
-            src="https://demo.dashboardpack.com/architectui-html-free/assets/scripts/main.js"></script>
+            <script type="text/javascript"
+                src="https://demo.dashboardpack.com/architectui-html-free/assets/scripts/main.js"></script>
     </main>
 
     <footer id="footer" class="footer position-relative light-background">
@@ -674,7 +754,23 @@ if ($result->num_rows > 0) {
     <script src="assets/vendor/imagesloaded/imagesloaded.pkgd.min.js"></script>
     <script src="assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
     <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
-
+    <?php
+    if (isset($_SESSION['status']) && $_SESSION['status'] != '') {
+        ?>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            Swal.fire({
+                title: "<?php echo $_SESSION['status']; ?>",
+                icon: "<?php echo $_SESSION['status_code']; ?>",
+                confirmButtonText: "<?php echo $_SESSION['status_button'] ?? 'OK'; ?>"
+            });
+        </script>
+        <?php
+        unset($_SESSION['status']);
+        unset($_SESSION['status_code']);
+        unset($_SESSION['status_button']);
+    }
+    ?>
     <!-- Main JS File -->
     <script src="assets/js/main.js"></script>
 

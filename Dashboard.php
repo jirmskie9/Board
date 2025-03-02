@@ -478,17 +478,16 @@ if ($result->num_rows > 0) {
                 <div class="app-main__inner">
                     <div class="app-page-title">
                         <div class="page-title-wrapper">
-                            <div class="page-title-heading">
-                                <div class="page-title-icon">
-                                    <i class="pe-7s-car icon-gradient bg-mean-fruit">
-                                    </i>
-                                </div>
-                                <div>Welcome to Primos Boardinghouse
-                                    <div class="page-title-subheading">This is an overview of all data in Primos
-                                        Boardinghouse.
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="page-title-heading">
+                <div class="page-title-icon">
+                  <i class="fas fa-home icon-gradient bg-mean-fruit"></i> <!-- Changed to FontAwesome Home Icon -->
+                </div>
+                <div>Welcome to Primos Boardinghouse
+                  <div class="page-title-subheading">
+                    This is an overview of all data in Primos Boardinghouse.
+                  </div>
+                </div>
+              </div>
 
                         </div>
                     </div>

@@ -68,17 +68,19 @@ if (isset($_POST['svform'])) {
 
     // Insert into bills
     $sqlx = "INSERT INTO bills (tenantid, amount)
-             SELECT tenants.id, rooms.cost / (SELECT COUNT(*) FROM tenants WHERE room = rooms.Roomnum)
-             FROM tenants 
-             INNER JOIN rooms ON tenants.room = rooms.Roomnum 
-             WHERE tenants.id = '$tenantId'";
+    SELECT tenants.id, rooms.cost
+    FROM tenants 
+    INNER JOIN rooms ON tenants.room = rooms.Roomnum 
+    WHERE tenants.id = '$tenantId'";
+
 
     if ($conn->query($sqlx) === TRUE) {
       // Update balance
       $sqlUpdate = "UPDATE tenants AS t 
-                      INNER JOIN rooms AS r ON t.room = r.Roomnum 
-                      SET t.balance = t.balance + (r.cost / (SELECT COUNT(*) FROM tenants WHERE room = r.Roomnum)) 
-                      WHERE t.id = '$tenantId'";
+      INNER JOIN rooms AS r ON t.room = r.Roomnum 
+      SET t.balance = t.balance + r.cost
+      WHERE t.id = '$tenantId'";
+
 
       if ($conn->query($sqlUpdate) === TRUE) {
 
@@ -436,7 +438,7 @@ VALUES ('$tenid','$amount','$billdate','0')";
       <h1 class="sitename"><?php echo $fullname ?></h1>
     </a>
 
-  
+
 
     <nav id="navmenu" class="navmenu">
       <ul>
@@ -444,7 +446,7 @@ VALUES ('$tenid','$amount','$billdate','0')";
         <li><a href="./Occupants.php" class="active"><i class="bi bi-person navicon"></i> Occupants</a></li>
         <li><a href="./Rooms.php"><i class="bi bi-door-open navicon"></i> Rooms</a></li>
         <li><a href="./Utilities.php"><i class="bi bi-lightbulb navicon"></i> <!-- Represents electricity/utilities -->
-        Utility Bills</a></li>
+            Utility Bills</a></li>
         <li><a href="./Collection.php" class=""><i class="bi bi-cash-stack navicon"></i>Rent Collection</a></li>
         <li><a href="./Expenses.php"><i class="bi bi-receipt navicon"></i> Expenses</a></li>
         <li><a href="./Messages.php"><i class="fa fa-envelope"></i> Messages</a></li>
