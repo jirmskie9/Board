@@ -1,8 +1,8 @@
 <?php
-$host = "u507130350_board"; 
+$host = "localhost"; 
 $user = "u507130350_johnrid"; 
 $pass = "/0pXU13n*pc"; 
-$db_name = "board"; 
+$db_name = "u507130350_board"; 
 
 $conn = new mysqli($host, $user, $pass, $db_name);
 
