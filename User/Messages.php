@@ -1,4 +1,7 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 include('../db.php');
 session_start();
 
@@ -23,7 +26,7 @@ $ucids = $_SESSION['ucid'] ?? 0;
 $id = $_SESSION['Uid'];
 $sql = "SELECT * FROM user WHERE ID = ?";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $uid);
+$stmt->bind_param("i", $id);
 $stmt->execute();
 $result = $stmt->get_result();
 
