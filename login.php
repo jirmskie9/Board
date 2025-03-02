@@ -2,34 +2,42 @@
 session_start();
 include('db.php');
 
-if(isset($_POST['uname']) && isset($_POST['upass'])){
+if (isset($_POST['uname']) && isset($_POST['upass'])) {
     $user = $conn->real_escape_string($_POST['uname']);
     $pass = $conn->real_escape_string($_POST['upass']);
 
-    // Hashing the password (if passwords are stored hashed in the database)
-    // $pass = md5($pass); // Uncomment if passwords are hashed with MD5
+    // Hashing the password if necessary
+    // $pass = md5($pass); // Uncomment if your passwords are hashed with MD5
 
     $sql = "SELECT * FROM user WHERE username='$user' AND password='$pass'";
     $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
-    
         $_SESSION['Uid'] = $row['ID'];
-    
+
+        // Set success message
+        $_SESSION['status'] = "Login Successful!";
+        $_SESSION['status_code'] = "success";
+
+        // Redirect based on user type
         if ($row['Usertype'] == "0") {
-            header("Location: Dashboard.php");
+            $_SESSION['redirect'] = "Dashboard.php";
         } else {
-            header("Location: User/Home.php");
+            $_SESSION['redirect'] = "User/Home.php";
         }
-        exit();
     } else {
-        $_SESSION['error'] = "Invalid username or password!";
-        header("Location: login.php");
-        exit();
+        // Set error message
+        $_SESSION['status'] = "Invalid username or password!";
+        $_SESSION['status_code'] = "error";
+        $_SESSION['redirect'] = "login.php";
     }
 }
 ?>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -677,4 +685,21 @@ function close() {
 //     });
 // }, 5000);
 </script>
+<?php
+  if (isset($_SESSION['status']) && $_SESSION['status'] != '') {
+    ?>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+      Swal.fire({
+        title: "<?php echo $_SESSION['status']; ?>",
+        icon: "<?php echo $_SESSION['status_code']; ?>",
+        confirmButtonText: "<?php echo $_SESSION['status_button'] ?? 'OK'; ?>"
+      });
+    </script>
+    <?php
+    unset($_SESSION['status']);
+    unset($_SESSION['status_code']);
+    unset($_SESSION['status_button']);
+  }
+  ?>
 </html>
