@@ -421,6 +421,40 @@ VALUES ('$tenid','$amount','$billdate','0')";
     font-family: monospace;
     font-size: 1.2em;
   }
+  .password-strength {
+        margin-top: 5px;
+        font-size: 12px;
+    }
+
+    #strength-bar {
+        height: 5px;
+        margin-top: 5px;
+    }
+
+    .very-weak {
+        height: 5px;
+        background-color: #ff4d4d;
+    }
+
+    .weak {
+        background-color: #ffa07a;
+    }
+
+    .fair {
+        background-color: #ffd700;
+    }
+
+    .moderate {
+        background-color: #add8e6;
+    }
+
+    .strong {
+        background-color: #90ee90;
+    }
+
+    .very-strong {
+        background-color: #00cc00;
+    }
 </style>
 
 <body class="index-page">
