@@ -35,6 +35,7 @@ $result = $stmt->get_result();
 if ($result->num_rows > 0) {
   while ($user = $result->fetch_assoc()) {
     $fullname = $user['Fullname'];
+    $user_id = $user['user_id'];
   }
 } else {
   echo "No user found.";
