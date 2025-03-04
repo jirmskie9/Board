@@ -814,7 +814,7 @@ if (isset($_POST['submit'])) {
         while ($row = $result->fetch_assoc()) { ?>
           <div>
             <!-- <form method="Get" name="search-form1" id="search-form1"class="form-search1"> -->
-            <div class="profile" onclick="location.href = './Messages.php?ucid=<?php echo $row['ID']; ?>';">
+            <div class="profile" onclick="location.href = './Messages.php?ucid=<?php echo $user_id; ?>';">
               <div class="avatar" style="background-image: url('./logo/<?php echo $row['imgs']; ?>');"></div>
               <span><?php echo $row['Fullname']; ?></span>
               <input type="text" name="ucid" hidden value="<?php echo $row['ID']; ?>">
