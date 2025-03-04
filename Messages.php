@@ -17,8 +17,6 @@ if (isset($_GET['ucid'])) {
 $ucid = $_SESSION['ucid'] ?? 0;
 
 
-// Default 'ucid' to 0 if not set
-$ucids = $_SESSION['ucid'] ?? 0;
 
 // Fetch user details
 $id = $_SESSION['Uid'];
@@ -818,11 +816,11 @@ if (isset($_POST['submit'])) {
         <?php
         if (isset($_GET['ucid'])) {
           $_SESSION['ucid'] = $_GET['ucid'];
-          $ucids = $_SESSION['ucid'];
+          $ucid = $_SESSION['ucid'];
 
         }
         if ($ucids != 0) {
-          $sql = "SELECT * FROM user where ID='$ucids'";
+          $sql = "SELECT * FROM user where ID='$ucid'";
           $result = $conn->query($sql);
 
           if ($result->num_rows > 0) {
@@ -876,7 +874,7 @@ if (isset($_POST['submit'])) {
             echo $userid;
           } ?>">
           <input class="input1" type="text" id="rec" name="rec" hidden placeholder="To" value="<?php if (isset($_GET['ucid'])) {
-            echo $ucids;
+            echo $ucid;
           } ?>">
           <input type="text" name="msg" class="msg" id="msg">
           <button class="input2" type="submit" id="submit" name="submit"
