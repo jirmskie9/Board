@@ -575,7 +575,7 @@ VALUES ('$tenid','$amount','$billdate','0')";
                             <div class="mb-3 card shadow-lg rounded border">
                                 <div class="card-header bg-success text-white d-flex align-items-center">
                                     <i class="fas fa-receipt me-2 fs-5"></i>
-                                    <h5 class="mb-0">Proof of Income Uploaded</h5>
+                                    <h5 class="mb-0">Birth Certificate Uploaded</h5>
                                 </div>
                                 <div class="card-body text-center">
                                     <?php

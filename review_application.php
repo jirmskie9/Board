@@ -546,9 +546,9 @@ if ($result->num_rows > 0) {
                                             </div>
 
                                             <!-- Proof Document Section -->
-                                            <h4 class="card-title text-primary mt-4 border-bottom pb-2">Proof Document
+                                            <h4 class="card-title text-primary mt-4 border-bottom pb-2">Birth Certificate
                                             </h4>
-                                            <p class="text-muted">Ensure the proof document is clear and matches the
+                                            <p class="text-muted">Ensure the Birht Certificate is clear and matches the
                                                 applicant's details.</p>
                                             <div class="border p-3 rounded text-center bg-white shadow-sm">
                                                 <img src="uploads/<?php echo htmlspecialchars($application['proof']); ?>"
