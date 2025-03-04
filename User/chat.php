@@ -26,7 +26,7 @@ if (isset($_SESSION['ucid'])) {
 $query = "SELECT *, DATE_FORMAT(dt, '%M %d, %Y') as dt, DATE_FORMAT(dt, '%h:%i %p') as tim 
           FROM chats 
           WHERE category='Message' 
-          AND ((receiver='$ucid' AND sender='$id') OR (receiver='$id' AND sender='$ucid')) 
+          AND ((receiver='$id' AND sender='$ucid') OR (receiver='$ucid' AND sender='$id')) 
           ORDER BY dt ASC";
 
 $run = $con->query($query);

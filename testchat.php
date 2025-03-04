@@ -5,15 +5,17 @@ date_default_timezone_set('Asia/Manila');
 
 // Ensure 'Uid' session variable is set
 if (!isset($_SESSION['Uid'])) {
-    die("Session 'Uid' is not set. Please log in again.");
+  die("Session 'Uid' is not set. Please log in again.");
 }
 
 $id = $_SESSION['Uid']; // Use 'Uid' session key
 
 // Set 'ucid' session variable if passed in the URL
 if (isset($_GET['ucid'])) {
-    $_SESSION['ucid'] = $_GET['ucid'];
+  $_SESSION['ucid'] = $_GET['ucid'];
 }
+$ucid = $_SESSION['ucid'] ?? 0;
+
 
 // Default 'ucid' to 0 if not set
 $ucids = $_SESSION['ucid'] ?? 0;
@@ -742,7 +744,7 @@ if (isset($_POST['submit'])) {
     <a href="index.html" class="logo d-flex align-items-center justify-content-center">
       <!-- Uncomment the line below if you also wish to use an image logo -->
       <!-- <img src="assets/img/logo.png" alt=""> -->
-      <h1 class="sitename"><?php echo $fullname?></h1>
+      <h1 class="sitename"><?php echo $fullname ?></h1>
     </a>
 
     <nav id="navmenu" class="navmenu">
@@ -751,7 +753,7 @@ if (isset($_POST['submit'])) {
         <li><a href="./Occupants.php"><i class="bi bi-person navicon"></i> Occupants</a></li>
         <li><a href="./Rooms.php"><i class="bi bi-door-open navicon"></i> Rooms</a></li>
         <li><a href="./Utilities.php"><i class="bi bi-lightbulb navicon"></i> <!-- Represents electricity/utilities -->
-        Utility Bills</a></li>
+            Utility Bills</a></li>
         <li><a href="./Collection.php" class=""><i class="bi bi-cash-stack navicon"></i>Rent Collection</a></li>
         <li><a href="./expenses.php"><i class="bi bi-receipt navicon"></i> Expenses</a></li>
         <li><a href="./Messages.php" class="active"><i class="bi bi-envelope-fill navicon"></i> Messages</a></li>
@@ -765,60 +767,97 @@ if (isset($_POST['submit'])) {
 
   <main class="main">
     <div class="onlines">
-      <div><span style="font-size: 20px;">Chats</span></div>
-      <div class="profile" onclick="location.href = './Messages.php?ucid=0';">
-        <div class="avatar" style="background-image: url('./logo/logo.png');"></div>
-        <span>All</span>
-        <button id="status"><i></i> <span>Online</span></button>
-      </div><br>
+
+      <?php
+      // $dates=date('m d, Y h:i');
+// echo $dates;
+// echo $ucids;
+      ?>
+      <div><span style="font-size: 20px;">Chats</span>
+
+      </div>
+
+      <div>
+        <!-- <form method="Get" name="search-form1" id="search-form1"class="form-search1"> -->
+        <div class="profile" onclick="location.href = './Messages.php?ucid=0';">
+          <div class="avatar" style="background-image: url('./logo/logo.png');"></div>
+          <span>All</span>
+          <input type="text" name="ucid" hidden value="0">
+          <button id="status">
+            <i></i> <span>Online</span>
+          </button>
+        </div><br>
+        <!-- </form> -->
+      </div>
 
       <?php
       $sql = "SELECT * FROM user";
       $result = $conn->query($sql);
+
       if ($result->num_rows > 0) {
         while ($row = $result->fetch_assoc()) { ?>
-          <div class="profile" onclick="location.href = './Messages.php?ucid=<?php echo $row['ID']; ?>';">
-            <div class="avatar" style="background-image: url('./logo/<?php echo $row['imgs']; ?>');"></div>
-            <span><?php echo htmlspecialchars($row['Fullname']); ?></span>
-            <button id="status"><i></i> <span>Online</span></button>
-          </div><br>
-        <?php }
+          <div>
+            <!-- <form method="Get" name="search-form1" id="search-form1"class="form-search1"> -->
+            <div class="profile" onclick="location.href = './Messages.php?ucid=<?php echo $row['ID']; ?>';">
+              <div class="avatar" style="background-image: url('./logo/<?php echo $row['imgs']; ?>');"></div>
+              <span><?php echo $row['Fullname']; ?></span>
+              <input type="text" name="ucid" hidden value="<?php echo $row['ID']; ?>">
+              <button id="status">
+                <i></i> <span>Online</span>
+              </button>
+            </div><br>
+            <!-- </form> -->
+          </div>
+          <?php
+        }
       } ?>
     </div>
-
     <form id="myform" method="POST">
       <div class="chat">
         <div id="preloader"></div>
         <?php
+        if (isset($_GET['ucid'])) {
+          $_SESSION['ucid'] = $_GET['ucid'];
+          $ucids = $_SESSION['ucid'];
+
+        }
         if ($ucids != 0) {
-          $sql = "SELECT * FROM user WHERE ID = ?";
-          $stmt = $conn->prepare($sql);
-          $stmt->bind_param("i", $ucids);
-          $stmt->execute();
-          $result = $stmt->get_result();
+          $sql = "SELECT * FROM user where ID='$ucids'";
+          $result = $conn->query($sql);
 
           if ($result->num_rows > 0) {
-            $row = $result->fetch_assoc();
-            ?>
-            <div class="profile" style="border-bottom: 1px solid;">
-              <div class="avatar" style="background-image: url('./logo/<?php echo $row['imgs']; ?>');"></div>
-              <span><?php echo htmlspecialchars($row['Fullname']); ?></span>
-              <button id="status"><i></i> <span style="color: green">Online</span></button>
-              <div style="float: right;">
-                <div class="select-dropdown">
-                  <select name="types">
-                    <option value="Message">Message</option>
-                    <option value="Announcement">Announcement</option>
-                  </select>
+            // output data of each row
+            while ($row = $result->fetch_assoc()) {
+
+              ?>
+
+
+              <div class="profile" style="border-bottom: 1px solid;">
+                <div class="avatar" style="background-image: url('./logo/<?php echo $row['imgs']; ?>');"></div>
+                <span><?php echo $row['Fullname']; ?></span>
+                <button id="status">
+                  <i></i> <span style="color: green">Online</span>
+                </button>
+                <div style="float: right;">
+                  <div class="select-dropdown">
+                    <select name="types">
+                      <option value="Message">Message</option>
+                      <option value="Announcement">Announcement</option>
+                    </select>
+                  </div>
                 </div>
               </div>
-            </div>
-          <?php }
+              <?php
+            }
+          }
         } else { ?>
           <div class="profile" style="border-bottom: 1px solid;">
             <div class="avatar" style="background-image: url('./logo/logo.png');"></div>
             <span>All</span>
-            <button id="status"><i></i> <span style="color: green">Online</span></button>
+            <button id="status">
+              <i></i> <span style="color: green">Online</span>
+            </button>
+
             <div style="float: right;">
               <div class="select-dropdown">
                 <select name="types">
@@ -828,20 +867,43 @@ if (isset($_POST['submit'])) {
               </div>
             </div>
           </div>
-        <?php } ?>
-
+          <?php
+        }
+        ?>
         <div class="inner_div" id="chathist"></div>
         <div class="mess">
-          <input type="hidden" id="uname" name="uname" value="<?php echo htmlspecialchars($id); ?>">
-          <input type="hidden" id="rec" name="rec" value="<?php echo htmlspecialchars($ucids); ?>">
+          <input class="input1" type="text" id="uname" name="uname" hidden placeholder="From" value="<?php if (isset($_SESSION['userid'])) {
+            echo $userid;
+          } ?>">
+          <input class="input1" type="text" id="rec" name="rec" hidden placeholder="To" value="<?php if (isset($_GET['ucid'])) {
+            echo $ucids;
+          } ?>">
           <input type="text" name="msg" class="msg" id="msg">
           <button class="input2" type="submit" id="submit" name="submit"
-            style="background-color: transparent; color: blue; width: auto; margin: 0; border: none;">
-            <i class="fa fa-paper-plane plane"></i>
-          </button>
+            style="background-color: transparent;color: blue; width: auto;margin: 0; border: none;"><i
+              class="fa fa-paper-plane plane"></i></button>
+
         </div>
-      </div>
+        <!-- <footer>
+    <table>
+    <tr>
+    <th>
+      <input class="input1" type="text"
+          id="uname" name="uname"
+          placeholder="From">
+    </th>
+    <th>
+      <input id="msg"type="text" name="msg"placeholder="Type your message">
+      </input></th>
+    <th>
+      <input class="input2" type="submit"
+      id="submit" name="submit" value="send">
+    </th>      
+    </tr>
+    </table>      
+ </footer> -->
     </form>
+    </div>
   </main>
 
   <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i
