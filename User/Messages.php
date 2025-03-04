@@ -817,7 +817,7 @@ if (isset($_POST['submit'])) {
             <div class="profile" onclick="location.href = './Messages.php?ucid=<?php echo $user_id; ?>';">
               <div class="avatar" style="background-image: url('./logo/<?php echo $row['imgs']; ?>');"></div>
               <span><?php echo $row['Fullname']; ?></span>
-              <input type="text" name="ucid" hidden value="<?php echo $row['ID']; ?>">
+              <input type="text" name="ucid" hidden value="<?php echo $user['user_id'];; ?>">
               <button id="status">
                 <i></i> <span>Online</span>
               </button>
