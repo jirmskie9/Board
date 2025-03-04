@@ -975,7 +975,7 @@ if (isset($_POST['submit'])) {
 
       setInterval(function () {
         $.ajax({
-          url: 'chathistory.php', // URL of the server-side script
+          url: 'chat.php', // URL of the server-side script
           success: function (data) {
             $('#chathist').html(data); // Update the content of the DIV element
           }
