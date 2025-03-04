@@ -8,9 +8,11 @@ session_start();
 date_default_timezone_set('Asia/Manila');
 
 // Ensure 'Uid' session variable is set
-if (!isset($_SESSION['Uid'])) {
-  die("Session 'Uid' is not set. Please log in again.");
+if (isset($_GET['ucid'])) {
+  $_SESSION['ucid'] = $_GET['ucid'];
 }
+$ucid = $_SESSION['ucid'] ?? 0;
+
 
 $id = $_SESSION['Uid']; // Use 'Uid' session key
 
@@ -31,40 +33,40 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 if ($result->num_rows > 0) {
-    while ($user = $result->fetch_assoc()) {
-        $fullname = $user['Fullname'];
-    }
+  while ($user = $result->fetch_assoc()) {
+    $fullname = $user['Fullname'];
+  }
 } else {
-    echo "No user found.";
+  echo "No user found.";
 }
-$host = "localhost"; 
-$user = "u507130350_johnrid"; 
-$pass = "Johnrid123"; 
-$db_name = "u507130350_board"; 
+$host = "localhost";
+$user = "u507130350_johnrid";
+$pass = "Johnrid123";
+$db_name = "u507130350_board";
 // $host = "localhost"; 
 // $user = "root"; 
 // $pass = ""; 
 // $db_name = "board"; 
 
 if (isset($_POST['submit'])) {
-    $link = mysqli_connect($host, $user, $pass, $db_name);
+  $link = mysqli_connect($host, $user, $pass, $db_name);
 
-    if ($link === false) {
-        die("ERROR: Could not connect. " . mysqli_connect_error());
-    }
+  if ($link === false) {
+    die("ERROR: Could not connect. " . mysqli_connect_error());
+  }
 
-    // Escape user inputs for security
-    $r = mysqli_real_escape_string($link, $_POST['rec']);
-    $m = mysqli_real_escape_string($link, $_POST['msg']);
-    $t = mysqli_real_escape_string($link, $_POST['types']);
-    $ts = date('Y-m-d h:ia');
+  // Escape user inputs for security
+  $r = mysqli_real_escape_string($link, $_POST['rec']);
+  $m = mysqli_real_escape_string($link, $_POST['msg']);
+  $t = mysqli_real_escape_string($link, $_POST['types']);
+  $ts = date('Y-m-d h:ia');
 
-    $sql = "INSERT INTO chats (sender, receiver, msg, Category, dt) VALUES ('$id', '$r', '$m', '$t', '$ts')";
-    if (!mysqli_query($link, $sql)) {
-        echo "ERROR: Message not sent!";
-    }
+  $sql = "INSERT INTO chats (sender, receiver, msg, Category, dt) VALUES ('$id', '$r', '$m', '$t', '$ts')";
+  if (!mysqli_query($link, $sql)) {
+    echo "ERROR: Message not sent!";
+  }
 
-    mysqli_close($link);
+  mysqli_close($link);
 }
 ?>
 <!DOCTYPE html>
@@ -755,7 +757,7 @@ if (isset($_POST['submit'])) {
     <a href="index.html" class="logo d-flex align-items-center justify-content-center">
       <!-- Uncomment the line below if you also wish to use an image logo -->
       <!-- <img src="assets/img/logo.png" alt=""> -->
-      <h1 class="sitename"><?php echo $fullname?></h1>
+      <h1 class="sitename"><?php echo $fullname ?></h1>
     </a>
 
     <div class="social-links text-center">
@@ -767,7 +769,7 @@ if (isset($_POST['submit'])) {
     <nav id="navmenu" class="navmenu">
       <ul>
         <li><a href="Home.php"><i class="bi bi-house navicon"></i>Home</a></li>
-        <li><a href="Documents.php" ><i class="bi bi-file-earmark-text navicon"></i> Documents</a></li>
+        <li><a href="Documents.php"><i class="bi bi-file-earmark-text navicon"></i> Documents</a></li>
 
         <li><a href="Messages.php" class="active"><i class="bi bi-envelope navicon"></i> Messages</a></li>
         <li><a href="Maintenance.php"><i class="bi bi-newspaper navicon"></i> Maintenance Request</a></li>
@@ -821,7 +823,7 @@ if (isset($_POST['submit'])) {
             </div><br>
             <!-- </form> -->
           </div>
-        <?php
+          <?php
         }
       } ?>
     </div>
@@ -860,7 +862,7 @@ if (isset($_POST['submit'])) {
                   </div>
                 </div>
               </div>
-            <?php
+              <?php
             }
           }
         } else { ?>
@@ -885,14 +887,12 @@ if (isset($_POST['submit'])) {
         ?>
         <div class="inner_div" id="chathist"></div>
         <div class="mess">
-          <input class="input1" type="text" id="uname" name="uname" hidden placeholder="From"
-            value="<?php if (isset($_SESSION['userid'])) {
-              echo $userid;
-            } ?>">
-          <input class="input1" type="text" id="rec" name="rec" hidden placeholder="To"
-            value="<?php if (isset($_GET['ucid'])) {
-              echo $ucids;
-            } ?>">
+          <input class="input1" type="text" id="uname" name="uname" hidden placeholder="From" value="<?php if (isset($_SESSION['userid'])) {
+            echo $userid;
+          } ?>">
+          <input class="input1" type="text" id="rec" name="rec" hidden placeholder="To" value="<?php if (isset($_GET['ucid'])) {
+            echo $ucids;
+          } ?>">
           <input type="text" name="msg" class="msg" id="msg">
           <button class="input2" type="submit" id="submit" name="submit"
             style="background-color: transparent;color: blue; width: auto;margin: 0; border: none;"><i
