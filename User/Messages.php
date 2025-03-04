@@ -35,7 +35,6 @@ $result = $stmt->get_result();
 if ($result->num_rows > 0) {
   while ($user = $result->fetch_assoc()) {
     $fullname = $user['Fullname'];
-    $user_id = $user['user_id'];
   }
 } else {
   echo "No user found.";
@@ -62,7 +61,7 @@ if (isset($_POST['submit'])) {
   $t = mysqli_real_escape_string($link, $_POST['types']);
   $ts = date('Y-m-d h:ia');
 
-  $sql = "INSERT INTO chats (sender, receiver, msg, Category, dt) VALUES ('$user_id', '$r', '$m', '$t', '$ts')";
+  $sql = "INSERT INTO chats (sender, receiver, msg, Category, dt) VALUES ('$id', '$r', '$m', '$t', '$ts')";
   if (!mysqli_query($link, $sql)) {
     echo "ERROR: Message not sent!";
   }
@@ -814,10 +813,10 @@ if (isset($_POST['submit'])) {
         while ($row = $result->fetch_assoc()) { ?>
           <div>
             <!-- <form method="Get" name="search-form1" id="search-form1"class="form-search1"> -->
-            <div class="profile" onclick="location.href = './Messages.php?ucid=<?php echo $user_id; ?>';">
+            <div class="profile" onclick="location.href = './Messages.php?ucid=<?php echo $row['ID']; ?>';">
               <div class="avatar" style="background-image: url('./logo/<?php echo $row['imgs']; ?>');"></div>
               <span><?php echo $row['Fullname']; ?></span>
-              <input type="text" name="ucid" hidden value="<?php echo $user_id;; ?>">
+              <input type="text" name="ucid" hidden value="<?php echo $row['ID']; ?>">
               <button id="status">
                 <i></i> <span>Online</span>
               </button>

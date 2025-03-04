@@ -17,6 +17,8 @@ if (isset($_GET['ucid'])) {
 $ucid = $_SESSION['ucid'] ?? 0;
 
 
+// Default 'ucid' to 0 if not set
+$ucids = $_SESSION['ucid'] ?? 0;
 
 // Fetch user details
 $id = $_SESSION['Uid'];
@@ -32,7 +34,6 @@ $result = $stmt->get_result();
 if ($result->num_rows > 0) {
   while ($user = $result->fetch_assoc()) {
     $fullname = $user['Fullname'];
-    $user_id = $user['user_id'];
   }
 } else {
   echo "No user found.";
@@ -48,7 +49,7 @@ if (isset($_POST['submit'])) {
   // Use the correct session variable
   $sql = "INSERT INTO chats (sender, receiver, msg, Category, dt) VALUES (?, ?, ?, ?, ?)";
   $stmt = $conn->prepare($sql);
-  $stmt->bind_param("iisss", $user_id, $r, $m, $t, $ts);
+  $stmt->bind_param("iisss", $id, $r, $m, $t, $ts);
 
   if (!$stmt->execute()) {
     echo "<script>alert('ERROR: Message not sent!');</script>";
@@ -817,11 +818,11 @@ if (isset($_POST['submit'])) {
         <?php
         if (isset($_GET['ucid'])) {
           $_SESSION['ucid'] = $_GET['ucid'];
-          $ucid = $_SESSION['ucid'];
+          $ucids = $_SESSION['ucid'];
 
         }
         if ($ucids != 0) {
-          $sql = "SELECT * FROM user where ID='$ucid'";
+          $sql = "SELECT * FROM user where ID='$ucids'";
           $result = $conn->query($sql);
 
           if ($result->num_rows > 0) {
@@ -875,7 +876,7 @@ if (isset($_POST['submit'])) {
             echo $userid;
           } ?>">
           <input class="input1" type="text" id="rec" name="rec" hidden placeholder="To" value="<?php if (isset($_GET['ucid'])) {
-            echo $ucid;
+            echo $ucids;
           } ?>">
           <input type="text" name="msg" class="msg" id="msg">
           <button class="input2" type="submit" id="submit" name="submit"
@@ -974,7 +975,7 @@ if (isset($_POST['submit'])) {
 
       setInterval(function () {
         $.ajax({
-          url: 'chat.php', // URL of the server-side script
+          url: 'chathistory.php', // URL of the server-side script
           success: function (data) {
             $('#chathist').html(data); // Update the content of the DIV element
           }
