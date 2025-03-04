@@ -61,7 +61,7 @@ if (isset($_POST['submit'])) {
   $t = mysqli_real_escape_string($link, $_POST['types']);
   $ts = date('Y-m-d h:ia');
 
-  $sql = "INSERT INTO chats (sender, receiver, msg, Category, dt) VALUES ('$id', '$r', '$m', '$t', '$ts')";
+  $sql = "INSERT INTO chats (sender, receiver, msg, Category, dt) VALUES ('$user_id', '$r', '$m', '$t', '$ts')";
   if (!mysqli_query($link, $sql)) {
     echo "ERROR: Message not sent!";
   }

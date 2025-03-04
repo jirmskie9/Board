@@ -12,6 +12,24 @@ $host = "localhost";
 $user = "u507130350_johnrid"; 
 $pass = "Johnrid123"; 
 $db_name = "u507130350_board"; 
+
+$id = $_SESSION['Uid'];
+$sql = "SELECT * FROM user WHERE ID = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows > 0) {
+  while ($user = $result->fetch_assoc()) {
+    $fullname = $user['Fullname'];
+	$user_id = $user['user_id'];
+  }
+} else {
+  echo "No user found.";
+}
+
+
 // $host = "localhost"; 
 // $user = "root"; 
 // $pass = ""; 

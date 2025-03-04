@@ -47,7 +47,7 @@ if (isset($_POST['submit'])) {
   // Use the correct session variable
   $sql = "INSERT INTO chats (sender, receiver, msg, Category, dt) VALUES (?, ?, ?, ?, ?)";
   $stmt = $conn->prepare($sql);
-  $stmt->bind_param("iisss", $id, $r, $m, $t, $ts);
+  $stmt->bind_param("iisss", $user_id, $r, $m, $t, $ts);
 
   if (!$stmt->execute()) {
     echo "<script>alert('ERROR: Message not sent!');</script>";
