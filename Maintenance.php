@@ -6,8 +6,8 @@ if (isset($_GET['tenantid'])) {
 }
 
 if (!isset($_SESSION['Uid'])) {
-    header("Location: login.php");
-    exit(); // Stop script execution after redirect
+  header("Location: login.php");
+  exit(); // Stop script execution after redirect
 }
 
 $uid = $_SESSION['Uid']; // Use the correct session variable
@@ -20,75 +20,54 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 if ($result->num_rows > 0) {
-    while ($user = $result->fetch_assoc()) {
-        $fullname = $user['Fullname'];
-    }
+  while ($user = $result->fetch_assoc()) {
+    $fullname = $user['Fullname'];
+  }
 } else {
-    echo "No user found.";
+  echo "No user found.";
 }
 
 
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+  // Accept Request
+  if (isset($_POST['acceptreq'])) {
+      $id = $_POST['acceptreq'];
+
+      $stmt = $conn->prepare("UPDATE maintenance SET status='Accepted' WHERE ID=?");
+      $stmt->bind_param("i", $id);
+
+      if ($stmt->execute()) {
+          $_SESSION['status'] = "Request accepted successfully!";
+          $_SESSION['status_code'] = "success";
+          $_SESSION['status_button'] = "Okay";
+      } else {
+          $_SESSION['status'] = "Error updating request: " . $stmt->error;
+          $_SESSION['status_code'] = "error";
+          $_SESSION['status_button'] = "Try Again";
+      }
+      $stmt->close();
 
 
-if (isset($_POST['acceptreq'])) {
-  $id = $_POST['acceptreq'];
-  $sql = "UPDATE Maintenance SET status='Accepted' WHERE id='$id'";
-
-  if ($conn->query($sql) === TRUE) {
-    echo "Record updated successfully";
-  } else {
-    echo "Error updating record: " . $conn->error;
   }
-}
-if (isset($_POST['decreq'])) {
-  $id = $_POST['decreq'];
-  $sql = "UPDATE Maintenance SET status='Declined' WHERE id='$id'";
 
-  if ($conn->query($sql) === TRUE) {
-    echo "Record updated successfully";
-  } else {
-    echo "Error updating record: " . $conn->error;
-  }
-}
-if (isset($_POST['descr'])) {
-  $descr = $_POST['descr'];
-  $tenidx = $_POST['tenidx'];
-  // $lname=$_POST['lname'];
-  //  $mname=$_POST['mname'];
-  //   $address=$_POST['address'];
-  //    $contact=$_POST['contact'];
-  //     $email=$_POST['email'];
-  //      $pname=$_POST['pname'];
-  //       $paddress=$_POST['paddress'];
-  //        $pcontact=$_POST['pcontact'];
-  //         $relation=$_POST['relation'];
-  //          $room=$_POST['room'];
-  $sql = "INSERT INTO maintenance (Description,roomnum,datedone,requestedby)
-VALUES ('$descr','','','$tenidx')";
+  // Decline Request
+  if (isset($_POST['decreq'])) {
+      $id = $_POST['decreq'];
 
-  if ($conn->query($sql) === TRUE) {
-    echo "New record created successfully";
-  } else {
-    echo "Error: " . $sql . "<br>" . $conn->error;
-  }
-}
-if (isset($_POST['tenid'])) {
-  $tenid = $_POST['tenid'];
-  $billdate = $_POST['billdate'];
-  $amount = $_POST['amount'];
-  $sql = "INSERT INTO paymenthistory (tenantid,amount,baseddate,user)
-VALUES ('$tenid','$amount','$billdate','0')";
+      $stmt = $conn->prepare("UPDATE maintenance SET status='Declined' WHERE ID=?");
+      $stmt->bind_param("i", $id);
 
-  if ($conn->query($sql) === TRUE) {
-    $sql = "UPDATE tenants SET balance=balance-'$amount' WHERE ID='$tenid'";
+      if ($stmt->execute()) {
+          $_SESSION['status'] = "Request declined successfully!";
+          $_SESSION['status_code'] = "success";
+          $_SESSION['status_button'] = "Okay";
+      } else {
+          $_SESSION['status'] = "Error updating request: " . $stmt->error;
+          $_SESSION['status_code'] = "error";
+          $_SESSION['status_button'] = "Try Again";
+      }
+      $stmt->close();
 
-    if ($conn->query($sql) === TRUE) {
-      echo "Record updated successfully";
-    } else {
-      echo "Error updating record: " . $conn->error;
-    }
-  } else {
-    echo "Error: " . $sql . "<br>" . $conn->error;
   }
 }
 ?>
@@ -389,22 +368,22 @@ VALUES ('$tenid','$amount','$billdate','0')";
     <a href="index.html" class="logo d-flex align-items-center justify-content-center">
       <!-- Uncomment the line below if you also wish to use an image logo -->
       <!-- <img src="assets/img/logo.png" alt=""> -->
-      <h1 class="sitename"><?php echo $fullname?></h1>
+      <h1 class="sitename"><?php echo $fullname ?></h1>
     </a>
 
- 
+
     <nav id="navmenu" class="navmenu">
       <ul>
         <li><a href="./Dashboard.php"><i class="bi bi-house navicon"></i>Dashboard</a></li>
         <li><a href="./Occupants.php"><i class="bi bi-person navicon"></i> Occupants</a></li>
         <li><a href="./Rooms.php"><i class="bi bi-door-open navicon"></i> Rooms</a></li>
         <li><a href="./Utilities.php"><i class="bi bi-lightbulb navicon"></i> <!-- Represents electricity/utilities -->
-        Utility Bills</a></li>
-        <li><a href="./expenses.php" ><i class="bi bi-receipt navicon"></i> Expenses</a></li>
+            Utility Bills</a></li>
+        <li><a href="./expenses.php"><i class="bi bi-receipt navicon"></i> Expenses</a></li>
         <li><a href="./Collection.php" class=""><i class="bi bi-cash-stack navicon"></i>Rent Collection</a></li>
         <li><a href="./Messages.php"><i class="fa fa-envelope"></i> Messages</a></li>
         <li><a href="./Maintenance.php" class="active"><i class="bi bi-newspaper navicon"></i> Maintenance Request</a>
-        
+
         <li><a href="./logout.php"><i class="bi bi-box-arrow-right navicon"></i> Logout</a></li>
         </li>
       </ul>
@@ -446,7 +425,8 @@ VALUES ('$tenid','$amount','$billdate','0')";
         </thead>
         <tbody>
           <?php
-          $sql = "SELECT *, maintenance.ID as ID, maintenance.Description as de, tenants.room as room, tenants.fname, tenants.lname FROM maintenance JOIN tenants ON maintenance.requestedby=tenants.id";
+          $sql = "SELECT m.ID as maintenance_id, m.description, m.Roomnum, m.daterequest, m.requestedby, m.status, t.ID, 
+          t.fname, t.lname FROM maintenance m JOIN tenants t ON m.requestedby = t.ID";
           $result = $conn->query($sql);
 
           if ($result->num_rows > 0) {
@@ -454,27 +434,27 @@ VALUES ('$tenid','$amount','$billdate','0')";
             while ($row = $result->fetch_assoc()) { ?>
               <tr>
                 <td><?php echo $count++; ?></td>
-                <td><?php echo htmlspecialchars($row['de']); ?></td>
-                <td><span class="badge bg-primary">Room #<?php echo $row['room']; ?></span></td>
+                <td><?php echo htmlspecialchars($row['description']); ?></td>
+                <td><span class="badge bg-primary">Room #<?php echo htmlspecialchars($row['Roomnum']); ?></span></td>
                 <td><?php echo date("F d, Y h:i A", strtotime($row['daterequest'])); ?></td>
                 <td><?php echo htmlspecialchars($row['fname'] . ' ' . $row['lname']); ?></td>
                 <td>
-                  <span
-                    class="badge 
-                            <?php echo ($row['status'] == 'Pending' ? 'bg-warning' : ($row['status'] == 'Completed' ? 'bg-success' : 'bg-danger')); ?>">
-                    <?php echo $row['status']; ?>
+                  <span class="badge 
+                        <?php echo ($row['status'] == 'Pending' ? 'bg-warning' :
+                          ($row['status'] == 'Completed' ? 'bg-success' : 'bg-danger')); ?>">
+                    <?php echo htmlspecialchars($row['status']); ?>
                   </span>
                 </td>
                 <td>
                   <div class="d-flex justify-content-center">
                     <form method="post" class="me-2">
-                      <input type="hidden" name="acceptreq" value="<?php echo $row['ID']; ?>">
+                      <input type="hidden" name="acceptreq" value="<?php echo htmlspecialchars($row['maintenance_id']); ?>">
                       <button type="submit" class="btn btn-success btn-sm" data-bs-toggle="tooltip" title="Accept Request">
                         <i class="fas fa-check"></i>
                       </button>
                     </form>
                     <form method="post">
-                      <input type="hidden" name="decreq" value="<?php echo $row['ID']; ?>">
+                      <input type="hidden" name="decreq" value="<?php echo htmlspecialchars($row['maintenance_id']); ?>">
                       <button type="submit" class="btn btn-danger btn-sm" data-bs-toggle="tooltip" title="Decline Request">
                         <i class="fas fa-times"></i>
                       </button>
@@ -489,7 +469,10 @@ VALUES ('$tenid','$amount','$billdate','0')";
             </tr>
           <?php } ?>
         </tbody>
+
       </table>
+<!-- Font Awesome CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
       <!-- Enable Bootstrap Tooltips -->
       <script>
@@ -893,6 +876,23 @@ VALUES ('$tenid','$amount','$billdate','0')";
     }
 
   </script>
+   <?php
+  if (isset($_SESSION['status']) && $_SESSION['status'] != '') {
+    ?>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+      Swal.fire({
+        title: "<?php echo $_SESSION['status']; ?>",
+        icon: "<?php echo $_SESSION['status_code']; ?>",
+        confirmButtonText: "<?php echo $_SESSION['status_button'] ?? 'OK'; ?>"
+      });
+    </script>
+    <?php
+    unset($_SESSION['status']);
+    unset($_SESSION['status_code']);
+    unset($_SESSION['status_button']);
+  }
+  ?>
 </body>
 
 </html>

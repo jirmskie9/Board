@@ -7,6 +7,7 @@
 session_start();
 $id=$_SESSION['Uid'];
 date_default_timezone_set('Asia/Manila');
+
 $host = "localhost"; 
 $user = "u507130350_johnrid"; 
 $pass = "Johnrid123"; 

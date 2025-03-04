@@ -1,8 +1,8 @@
 <?php
 session_start();
 include('../db.php');
-if(isset($_GET['tenantid'])){
- $_SESSION['tenantid']=$_GET['tenantid'];
+if (isset($_GET['tenantid'])) {
+  $_SESSION['tenantid'] = $_GET['tenantid'];
 }
 $uid = $_SESSION['Uid']; // Use the correct session variable
 
@@ -14,56 +14,58 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 if ($result->num_rows > 0) {
-    while ($user = $result->fetch_assoc()) {
-        $fullname = $user['Fullname'];
-    }
+  while ($user = $result->fetch_assoc()) {
+    $fullname = $user['Fullname'];
+    $user_id = $user['user_id'];
+  }
 } else {
-    echo "No user found.";
+  echo "No user found.";
 }
 
 
 
 
-if(isset($_POST['descr'])){
-  $descr=$_POST['descr'];
-  $tenidx=$_POST['tenidx'];
-   // $lname=$_POST['lname'];
-   //  $mname=$_POST['mname'];
-   //   $address=$_POST['address'];
-   //    $contact=$_POST['contact'];
-   //     $email=$_POST['email'];
-   //      $pname=$_POST['pname'];
-   //       $paddress=$_POST['paddress'];
-   //        $pcontact=$_POST['pcontact'];
-   //         $relation=$_POST['relation'];
-   //          $room=$_POST['room'];
-$sql = "INSERT INTO maintenance (Description,roomnum,datedone,requestedby)
-VALUES ('$descr','','','$tenidx')";
+if (isset($_POST['descr'])) {
+  $descr = $_POST['descr'];
+  $tenidx = $_POST['tenidx'];
+  $roomnum = $_POST['roomNum'];
+  // $lname=$_POST['lname'];
+  //  $mname=$_POST['mname'];
+  //   $address=$_POST['address'];
+  //    $contact=$_POST['contact'];
+  //     $email=$_POST['email'];
+  //      $pname=$_POST['pname'];
+  //       $paddress=$_POST['paddress'];
+  //        $pcontact=$_POST['pcontact'];
+  //         $relation=$_POST['relation'];
+  //          $room=$_POST['room'];
+  $sql = "INSERT INTO maintenance (Description,roomnum,datedone,requestedby)
+VALUES ('$descr','$roomnum','','$tenidx')";
 
-if ($conn->query($sql) === TRUE) {
-  echo "New record created successfully";
-} else {
-  echo "Error: " . $sql . "<br>" . $conn->error;
-}
+  if ($conn->query($sql) === TRUE) {
+    echo "New record created successfully";
+  } else {
+    echo "Error: " . $sql . "<br>" . $conn->error;
+  }
 }
 if (isset($_POST['tenid'])) {
-    $tenid=$_POST['tenid'];
-   $billdate=$_POST['billdate'];
-    $amount=$_POST['amount'];
-$sql = "INSERT INTO paymenthistory (tenantid,amount,baseddate,user)
+  $tenid = $_POST['tenid'];
+  $billdate = $_POST['billdate'];
+  $amount = $_POST['amount'];
+  $sql = "INSERT INTO paymenthistory (tenantid,amount,baseddate,user)
 VALUES ('$tenid','$amount','$billdate','0')";
 
-if ($conn->query($sql) === TRUE) {
-  $sql = "UPDATE tenants SET balance=balance-'$amount' WHERE ID='$tenid'";
+  if ($conn->query($sql) === TRUE) {
+    $sql = "UPDATE tenants SET balance=balance-'$amount' WHERE ID='$tenid'";
 
-if ($conn->query($sql) === TRUE) {
-  echo "Record updated successfully";
-} else {
-  echo "Error updating record: " . $conn->error;
-}
-} else {
-  echo "Error: " . $sql . "<br>" . $conn->error;
-}
+    if ($conn->query($sql) === TRUE) {
+      echo "Record updated successfully";
+    } else {
+      echo "Error updating record: " . $conn->error;
+    }
+  } else {
+    echo "Error: " . $sql . "<br>" . $conn->error;
+  }
 }
 ?>
 <!DOCTYPE html>
@@ -77,15 +79,17 @@ if ($conn->query($sql) === TRUE) {
   <meta content="" name="keywords">
 
   <!-- Favicons -->
-<link href="./logo/balay.jpg" rel="icon">
+  <link href="./logo/balay.jpg" rel="icon">
 
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com" rel="preconnect">
   <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+    rel="stylesheet">
 
   <!-- Vendor CSS Files -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet">
   <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
   <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
   <link href="assets/vendor/aos/aos.css" rel="stylesheet">
@@ -94,8 +98,8 @@ if ($conn->query($sql) === TRUE) {
 
   <!-- Main CSS File -->
   <link href="assets/css/main.css" rel="stylesheet">
- <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet">
- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
   <!-- =======================================================
   * Template Name: iPortfolio
   * Template URL: https://bootstrapmade.com/iportfolio-bootstrap-portfolio-websites-template/
@@ -105,116 +109,153 @@ if ($conn->query($sql) === TRUE) {
   ======================================================== -->
 </head>
 <style>
-
-  .index-page{
+  .index-page {
     overflow-x: hidden;
   }
+
   /* Buttons for sign in form */
- .btn-google {
-    color:white;
+  .btn-google {
+    color: white;
     background-color: #dd4b39;
     border-color: #dd4b39;
-}
-.btn-google:hover, .btn-google:focus, .btn-google:active, .btn-google.active {
+  }
+
+  .btn-google:hover,
+  .btn-google:focus,
+  .btn-google:active,
+  .btn-google.active {
     background-color: #d73925;
     border-color: #c23321;
-    color:white;
-}
-.btn-twitter {
-    color:white;
+    color: white;
+  }
+
+  .btn-twitter {
+    color: white;
     background-color: #55acee;
     border-color: #55acee;
-}
-.btn-twitter:hover, .btn-twitter:focus, .btn-twitter:active, .btn-twitter.active {
+  }
+
+  .btn-twitter:hover,
+  .btn-twitter:focus,
+  .btn-twitter:active,
+  .btn-twitter.active {
     background-color: #3ea1ec;
     border-color: #2795e9;
-    color:white;
-}
-.btn-facebook {
-    color:white;
+    color: white;
+  }
+
+  .btn-facebook {
+    color: white;
     background-color: #3B5998;
     border-color: #3B5998;
-}
-.btn-facebook:hover, .btn-facebook:focus, .btn-facebook:active, .btn-facebook.active {
+  }
+
+  .btn-facebook:hover,
+  .btn-facebook:focus,
+  .btn-facebook:active,
+  .btn-facebook.active {
     background-color: #344e86;
     border-color: #2d4373;
-    color:white;
-}
-.btn-vk {
-    color:white;
+    color: white;
+  }
+
+  .btn-vk {
+    color: white;
     background-color: #36638e;
     border-color: #36638e;
-}
-.btn-vk:hover, .btn-vk:focus, .btn-vk:active, .btn-vk.active {
+  }
+
+  .btn-vk:hover,
+  .btn-vk:focus,
+  .btn-vk:active,
+  .btn-vk.active {
     background-color: #2f567c;
     border-color: #284969;
-    color:white;
-}
-.auth-buttons {
+    color: white;
+  }
+
+  .auth-buttons {
     padding-left: 0px;
-}
-.auth-buttons li {
+  }
+
+  .auth-buttons li {
     list-style: none;
     margin-bottom: 5px;
     float: left;
     margin-right: 5px;
-}
-.close-signin {
+  }
+
+  .close-signin {
     position: absolute;
     right: 20px;
     top: 15px;
     z-index: 3000;
-}
-#via_ue .form-inline .form-group {
+  }
+
+  #via_ue .form-inline .form-group {
     vertical-align: top;
-}
-.foot{
-  position: absolute;
-left: 0;
-bottom: 0;
-height: 100px;
-width: 100%;
-}
-.page-title{
-text-align: center;
-}
-.form-control:focus {
-  box-shadow: none;
-}
+  }
 
-.form-control-underlined {
-  border-width: 0;
-  border-bottom-width: 1px;
-  border-radius: 0;
-  padding-left: 0;
-}
-.form-control::placeholder {
-  font-size: 0.95rem;
-  color: #aaa;
-  font-style: italic;
-}
-.css-serial {
-    counter-reset: serial-number; /* Set the serial number counter to 0 */
-}
+  .foot {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 100px;
+    width: 100%;
+  }
 
-    .css-serial td:first-child:before {
-        counter-increment: serial-number; /* Increment the serial number counter */
-        content: counter(serial-number); /* Display the counter */
-    }
-   #bills {
-    counter-reset: serial-number; /* Set the serial number counter to 0 */
-}
+  .page-title {
+    text-align: center;
+  }
 
-    #bills td:first-child:before {
-        counter-increment: serial-number; /* Increment the serial number counter */
-        content: counter(serial-number); /* Display the counter */
-    }
-    @media (min-width: 1200px) {
+  .form-control:focus {
+    box-shadow: none;
+  }
+
+  .form-control-underlined {
+    border-width: 0;
+    border-bottom-width: 1px;
+    border-radius: 0;
+    padding-left: 0;
+  }
+
+  .form-control::placeholder {
+    font-size: 0.95rem;
+    color: #aaa;
+    font-style: italic;
+  }
+
+  .css-serial {
+    counter-reset: serial-number;
+    /* Set the serial number counter to 0 */
+  }
+
+  .css-serial td:first-child:before {
+    counter-increment: serial-number;
+    /* Increment the serial number counter */
+    content: counter(serial-number);
+    /* Display the counter */
+  }
+
+  #bills {
+    counter-reset: serial-number;
+    /* Set the serial number counter to 0 */
+  }
+
+  #bills td:first-child:before {
+    counter-increment: serial-number;
+    /* Increment the serial number counter */
+    content: counter(serial-number);
+    /* Display the counter */
+  }
+
+  @media (min-width: 1200px) {
     .container {
-        width: 470px;
+      width: 470px;
     }
-}
-.modalDialog {
+  }
+
+  .modalDialog {
     position: fixed;
     top: 0;
     right: 0;
@@ -222,18 +263,20 @@ text-align: center;
     left: 0;
     background: rgba(0, 0, 0, 0.8);
     z-index: 999;
-    opacity:0;
+    opacity: 0;
     -webkit-transition: opacity 100ms ease-in;
     -moz-transition: opacity 100ms ease-in;
     transition: opacity 100ms ease-in;
     pointer-events: none;
     overflow-y: scroll;
-}
-.modalDialog:target {
-    opacity:1;
+  }
+
+  .modalDialog:target {
+    opacity: 1;
     pointer-events: auto;
-}
-.modalDialog > div {
+  }
+
+  .modalDialog>div {
     max-width: 800px;
     width: 48%;
     height: 900px;
@@ -242,8 +285,9 @@ text-align: center;
     padding: 20px;
     border-radius: 3px;
     background: #fff;
-}
-.closex {
+  }
+
+  .closex {
     font-family: Arial, Helvetica, sans-serif;
     background: #f26d7d;
     color: #fff;
@@ -263,46 +307,52 @@ text-align: center;
     -webkit-box-shadow: 1px 1px 3px #000;
     box-shadow: 1px 1px 3px #000;
     padding-top: 5px;
-}
-.closex:hover {
+  }
+
+  .closex:hover {
     background: #fa3f6f;
-}
+  }
 
-div {
-  position: relative;
-}
+  div {
+    position: relative;
+  }
 
-.right span {
-  left: initial;
-  right: .9em;
-}
-input {
-  -moz-appearance: textfield;
-  font: inherit;
-  padding: .6em .9em;
-  border-radius: .6em;
-  border: 1px solid darkgray;
-  padding-inline: 2em .9em;
-  width: 25em;
-}
-input:invalid {
-  border-color: orangered;
-  color: crimson;
-}
-.right input {
-  padding-inline: .9em 2em;
-}
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
+  .right span {
+    left: initial;
+    right: .9em;
+  }
 
-output {
-  font-family: monospace;
-  font-size: 1.2em;
-}
+  input {
+    -moz-appearance: textfield;
+    font: inherit;
+    padding: .6em .9em;
+    border-radius: .6em;
+    border: 1px solid darkgray;
+    padding-inline: 2em .9em;
+    width: 25em;
+  }
+
+  input:invalid {
+    border-color: orangered;
+    color: crimson;
+  }
+
+  .right input {
+    padding-inline: .9em 2em;
+  }
+
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  output {
+    font-family: monospace;
+    font-size: 1.2em;
+  }
 </style>
+
 <body class="index-page">
 
   <header id="header" class="header dark-background d-flex flex-column">
@@ -315,7 +365,7 @@ output {
     <a href="index.html" class="logo d-flex align-items-center justify-content-center">
       <!-- Uncomment the line below if you also wish to use an image logo -->
       <!-- <img src="assets/img/logo.png" alt=""> -->
-      <h1 class="sitename"><?php echo $fullname?></h1>
+      <h1 class="sitename"><?php echo $fullname ?></h1>
     </a>
 
     <div class="social-links text-center">
@@ -325,17 +375,18 @@ output {
     </div>
 
     <nav id="navmenu" class="navmenu">
-<ul>
-        <li><a href="Home.php" ><i class="bi bi-house navicon"></i>Home</a></li>
+      <ul>
+        <li><a href="Home.php"><i class="bi bi-house navicon"></i>Home</a></li>
         <li><a href="Documents.php" class="active"><i class="bi bi-file-earmark-text navicon"></i> Documents</a></li>
 
         <li><a href="Messages.php"><i class="bi bi-envelope navicon"></i> Messages</a></li>
-        <li><a href="Maintenance.php" class="active"><i class="bi bi-newspaper navicon" ></i> Maintenance Request</a></li>
+        <li><a href="Maintenance.php" class="active"><i class="bi bi-newspaper navicon"></i> Maintenance Request</a>
+        </li>
         <li><a href="../logout.php"><i class="bi bi-box-arrow-right navicon"></i> Logout</a></li>
-<!--         <li><a href="#portfolio"><i class="bi bi-receipt navicon"></i> Expenses</a></li>
+        <!--         <li><a href="#portfolio"><i class="bi bi-receipt navicon"></i> Expenses</a></li>
         <li><a href="#services"><i class="bi bi-hdd-stack navicon"></i> History</a></li> -->
       </ul>
-          
+
     </nav>
 
   </header>
@@ -344,95 +395,120 @@ output {
     <div class="page-title">
       <!-- <h1>Boarders/Occupants</h1> -->
     </div>
-                                               <div class="p-1 bg-light rounded rounded-pill shadow-sm mb-4" style="width: 55%; float: left;">
-    <div class="input-group">
-              <input type="search" style="width: 85%;" placeholder="Search Anything here..." aria-describedby="button-addon1" class="form-control border-0 bg-light">
-              <div class="input-group-append">
-                <button id="button-addon1" style="float: right;" type="submit" class="btn btn-link text-primary"><i class="fa fa-search"></i></button>
-              </div>
-            </div>
-          </div>
-          <div style="float: right; margin-top: 5px;padding: 5px;"><button type="button" id="PopoverCustomT-1" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modal-social"><span class="fa fa-plus"></span> Request Maintenance</button></div><br><br><br>
+    <div class="p-1 bg-light rounded rounded-pill shadow-sm mb-4" style="width: 55%; float: left;">
+      <div class="input-group">
+        <input type="search" style="width: 85%;" placeholder="Search Anything here..." aria-describedby="button-addon1"
+          class="form-control border-0 bg-light">
+        <div class="input-group-append">
+          <button id="button-addon1" style="float: right;" type="submit" class="btn btn-link text-primary"><i
+              class="fa fa-search"></i></button>
+        </div>
+      </div>
+    </div>
+    <div style="float: right; margin-top: 5px;padding: 5px;"><button type="button" id="PopoverCustomT-1"
+        class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modal-social"><span class="fa fa-plus"></span>
+        Request Maintenance</button></div><br><br><br>
 
-                                    <div class="table-responsive">
- 
-          
-                                        <table class="align-middle mb-0 table table-borderless table-striped table-hover css-serial" id="tbl">
-                                            <thead>
-                                            <tr>
-                                                <th class="text-center">#</th>
-                                                <th>Maintenance Description</th>
-                                                <th class="text-center">Date & Time</th>
-                                                <th class="text-center">Status</th>
-                                                <!-- <th class="text-center">Payment Date & Time</th> -->
-                                                <!-- <th class="text-center">Actions</th> -->
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                    <?php
-                      $sql = "SELECT * FROM maintenance";
+    <div class="table-responsive">
+
+
+      <table class="align-middle mb-0 table table-borderless table-striped table-hover css-serial" id="tbl">
+        <thead>
+          <tr>
+            <th class="text-center">#</th>
+            <th>Maintenance Description</th>
+            <th class="text-center">Date & Time</th>
+            <th class="text-center">Status</th>
+            <!-- <th class="text-center">Payment Date & Time</th> -->
+            <!-- <th class="text-center">Actions</th> -->
+          </tr>
+        </thead>
+        <tbody>
+          <?php
+          $sql = "SELECT * FROM maintenance";
+          $result = $conn->query($sql);
+
+          if ($result->num_rows > 0) {
+            // output data of each row
+            while ($row = $result->fetch_assoc()) { ?>
+              <tr>
+                <td class="text-center text-muted"></td>
+                <td>
+                  <div class="widget-content p-0">
+                    <div class="widget-content-wrapper">
+
+                      <div class="widget-content-left flex2" style="float:left">
+                        <div class="widget-heading"><?php echo $row['Description']; ?></div>
+                        <!-- <div class="widget-subheading opacity-7">Web Developer</div> -->
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td class="text-center">
+                  <div class="badge badge-warning"> <?php echo $row['daterequest']; ?></div>
+                </td>
+                <td class="text-center">
+                  <?php echo $row['status']; ?>
+                </td>
+              </tr>
+            <?php }
+          } else {
+            // echo "0 results";
+          }
+          ?>
+        </tbody>
+
+      </table>
+
+      <!-- <span>Number of Transactions: </span><span style="color: red;"id="rowcount">0</span> -->
+    </div>
+
+    <div class="modal fade" id="modal-social" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <button type="button" class="close" data-dismiss="modal"><i class="icon-xs-o-md"></i></button>
+          <div class="modal-header">
+            <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close" ><span aria-hidden="true">&times;</span></button> -->
+            <h4 class="modal-title caps"><strong>Request Maintenance</strong></h4>
+          </div>
+          <div class="modal-body">
+
+
+            <div id="via_ue" class="row">
+              <div class="col-xs-12">
+                <p>Maintenance Description</p>
+                <form class="form-inline" method="post" id="signinform" novalidate="novalidate">
+                  <div class="row">
+                    <div class="form-group col-sm-5" style="position:static;">
+                      <input type="hidden" name="tenidx" value="<?php echo $user_id ?>" hidden>
+
+
+                      <input class="form-control" id="descr" placeholder="Ex. Door Knob,Faucet" type="text" name="descr"
+                        tabindex="1" value="">
+                    </div>
+                    <br>
+                    <div class="form-group col-sm-5">
+                      <select name="roomNum" class="form-control" id="roomNum">
+                        <option value="" disabled>-- Select Room --</option>
+                        <?php
+                        $sql = "SELECT roomNum FROM rooms"; // Adjust column name if different
                         $result = $conn->query($sql);
 
                         if ($result->num_rows > 0) {
-                          // output data of each row
-                          while($row = $result->fetch_assoc()) {?>
-                                            <tr>
-                                                <td class="text-center text-muted"></td>
-                                                <td>
-                                                    <div class="widget-content p-0">
-                                                        <div class="widget-content-wrapper">
-
-                                                            <div class="widget-content-left flex2"style="float:left">
-                                                                <div class="widget-heading"><?php echo $row['Description'];?></div>
-                                                                <!-- <div class="widget-subheading opacity-7">Web Developer</div> -->
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td class="text-center">
-                                                    <div class="badge badge-warning"> <?php echo $row['daterequest'];?></div>
-                                                </td>
-                                                <td class="text-center">
-                                               <?php echo $row['status'];?>
-                                                </td>
-                                            </tr>
-                            <?php  }
+                          while ($row = $result->fetch_assoc()) {
+                            echo '<option value="' . htmlspecialchars($row['roomNum']) . '">Room ' . htmlspecialchars($row['roomNum']) . '</option>';
+                          }
                         } else {
-                          // echo "0 results";
+                          echo '<option value="">No rooms available</option>';
                         }
-                      ?>
-                                            </tbody>
+                        ?>
+                      </select>
+                    </div>
 
-                                        </table>
-
-                                        <!-- <span>Number of Transactions: </span><span style="color: red;"id="rowcount">0</span> -->
-                                    </div>
-
-  <div class="modal fade" id="modal-social" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <button type="button" class="close" data-dismiss="modal"><i class="icon-xs-o-md"></i></button>
-        <div class="modal-header">
-          <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close" ><span aria-hidden="true">&times;</span></button> -->
-          <h4 class="modal-title caps"><strong>Request Maintenance</strong></h4>
-        </div>
-        <div class="modal-body">
-
-
-          <div id="via_ue" class="row">
-            <div class="col-xs-12">
-              <p>Maintenance Description</p>
-              <form class="form-inline" method="post" id="signinform" novalidate="novalidate">
-                <div class="row">
-                  <div class="form-group col-sm-5" style="position:static;">
-                    <input type="hidden" name="tenidx" value="<?php echo $uid?>" hidden>
-                    <input class="form-control" id="descr" placeholder="Ex. Door Knob,Faucet" type="text" name="descr" tabindex="1" value="">
                   </div>
-
-                </div>
-              </form>
-            </div>
-<!--             <div class="col-xs-12 col-sm-4">
+                </form>
+              </div>
+              <!--             <div class="col-xs-12 col-sm-4">
               <div style="margin-top:10px;">
                 <a href="#" data-toggle="modal" data-target="#signup_panel" data-dismiss="modal">Регистрация</a>
               </div>
@@ -442,152 +518,160 @@ output {
                 <a href="#" data-toggle="modal" data-target="#pass_reset" data-dismiss="modal">Забыли пароль?</a>
               </div>
             </div> -->
+            </div>
+
           </div>
-          
+          <footer id="footer" class="footer position-relative light-background" style="padding: 10px;">
+            <button class="btn btn-success" style="float: right;" form="signinform">Request</button>
+            <button class="btn btn-danger" data-dismiss="modal" style="float: right;margin-right: 5px; ">Close</button>
+          </footer>
         </div>
-         <footer id="footer" class="footer position-relative light-background" style="padding: 10px;">
-<button class="btn btn-success"  style="float: right;" form="signinform">Request</button>
-<button class="btn btn-danger"  data-dismiss="modal" style="float: right;margin-right: 5px; ">Close</button>
-</footer>
+
       </div>
-
     </div>
-  </div>
 
 
 
-  <div class="modal fade" id="pay" data-backdrop="static" data-keyboard="false">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button> -->
-          <h4 class="modal-title" id="myModalLabel">
-  <?php
-  $tenantid=$_GET['tenantid'];
-                      $sql = "SELECT * FROM tenants where ID='$tenantid'";
-                        $result = $conn->query($sql);
+    <div class="modal fade" id="pay" data-backdrop="static" data-keyboard="false">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button> -->
+            <h4 class="modal-title" id="myModalLabel">
+              <?php
+              $tenantid = $_GET['tenantid'];
+              $sql = "SELECT * FROM tenants where ID='$tenantid'";
+              $result = $conn->query($sql);
 
-                        if ($result->num_rows > 0) {
-                          while($row = $result->fetch_assoc()) {?>
-                            Room #<?php echo $row['room'];?> - <?php echo $row['fname'];?> <?php echo $row['lname'];?>
-                                    <?php  }
-                        } else {
-                          echo "0 resultsx";
-                        }
-                      ?>
-          </h4>
-        </div>
-        <div class="modal-body">
-          <div class="container table-responsive py-5"> 
-<table class="table table-bordered table-hover"id="bills">
-  <thead class="thead-dark">
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col">Month</th>
-      <th scope="col">Amount</th>
-      <!-- <th scope="col">Status</th> -->
-      <th scope="col">Action</th>
-    </tr>
-  </thead>
-  <tbody>
+              if ($result->num_rows > 0) {
+                while ($row = $result->fetch_assoc()) { ?>
+                  Room #<?php echo $row['room']; ?> - <?php echo $row['fname']; ?>     <?php echo $row['lname']; ?>
+                <?php }
+              } else {
+                echo "0 resultsx";
+              }
+              ?>
+            </h4>
+          </div>
+          <div class="modal-body">
+            <div class="container table-responsive py-5">
+              <table class="table table-bordered table-hover" id="bills">
+                <thead class="thead-dark">
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Month</th>
+                    <th scope="col">Amount</th>
+                    <!-- <th scope="col">Status</th> -->
+                    <th scope="col">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
 
 
-                          <?php
-                           $tenantid=$_GET['tenantid'];
-                           // SELECT * FROM terms WHERE id IN (SELECT term_id FROM terms_relation WHERE taxonomy = "categ")
-                      $sql = "SELECT bills.ID,paymenthistory.ID as phid,bills.date,(COALESCE(bills.amount, 0) - COALESCE(paymenthistory.amount, 0))as amounts,bills.pstat FROM bills left join paymenthistory on bills.date=paymenthistory.baseddate where bills.tenantid='$tenantid' group by bills.date";
-                        $result = $conn->query($sql);
+                  <?php
+                  $tenantid = $_GET['tenantid'];
+                  // SELECT * FROM terms WHERE id IN (SELECT term_id FROM terms_relation WHERE taxonomy = "categ")
+                  $sql = "SELECT bills.ID,paymenthistory.ID as phid,bills.date,(COALESCE(bills.amount, 0) - COALESCE(paymenthistory.amount, 0))as amounts,bills.pstat FROM bills left join paymenthistory on bills.date=paymenthistory.baseddate where bills.tenantid='$tenantid' group by bills.date";
+                  $result = $conn->query($sql);
 
-                        if ($result->num_rows > 0) {
-                          while($row = $result->fetch_assoc()) {?>
+                  if ($result->num_rows > 0) {
+                    while ($row = $result->fetch_assoc()) { ?>
 
-  
-                     
-                               <tr>
-      <td scope="row"></td>
-      <td><?php echo date('F',strtotime($row['date']));?></td>
-      <td><?php echo $row['amounts'];?></td>
-      <!-- <td><?php echo $row['pstat'];?></td> -->
-      <td><a href="./Occupants.php?tenantid=<?php echo $tenantid?>&ngi=<?php echo $row['ID'] ?>#pay#bayad" class="btn btn-success" type="button"><span class="fa fa-money"></span></a></td>
-    </tr>
-                        <?php  }
-                        } else {
-                          echo "0 resultsz";
-                        }
-                      ?>
 
-  </tbody>
 
-</table>
-  <?php
-  $tenantid=$_GET['tenantid'];
-                        $sql = "SELECT (COALESCE(sum(bills.amount), 0) - COALESCE(paymenthistory.amount, 0))as fulls FROM bills left join paymenthistory on bills.date=paymenthistory.baseddate where bills.tenantid='$tenantid' group by bills.date limit 1";
-                      // $sql = "SELECT *,sum(amount)as fulls FROM bills where tenantid='$tenantid' group by id limit 1";
-                        $result = $conn->query($sql);
+                      <tr>
+                        <td scope="row"></td>
+                        <td><?php echo date('F', strtotime($row['date'])); ?></td>
+                        <td><?php echo $row['amounts']; ?></td>
+                        <!-- <td><?php echo $row['pstat']; ?></td> -->
+                        <td><a
+                            href="./Occupants.php?tenantid=<?php echo $tenantid ?>&ngi=<?php echo $row['ID'] ?>#pay#bayad"
+                            class="btn btn-success" type="button"><span class="fa fa-money"></span></a></td>
+                      </tr>
+                    <?php }
+                  } else {
+                    echo "0 resultsz";
+                  }
+                  ?>
 
-                        if ($result->num_rows > 0) {
-                          while($row = $result->fetch_assoc()) {?>
-      <tr>
-      <td scope="row"></td>
-      <b><td>Total Balance: </td>
-      <td>&#8369; <span id="totsum"><?php echo number_format($row['fulls']);?></span></td></b>
-    </tr>
-        <?php  }
-                        } else {
-                          echo "0 resultsx";
-                        }
-                      ?>
-</div>
-        </div>
-        <div class="modal-footer">
-<!--           <button type="button" class="btn-second-modal within-first-modal btn btn-primary">
+                </tbody>
+
+              </table>
+              <?php
+              $tenantid = $_GET['tenantid'];
+              $sql = "SELECT (COALESCE(sum(bills.amount), 0) - COALESCE(paymenthistory.amount, 0))as fulls FROM bills left join paymenthistory on bills.date=paymenthistory.baseddate where bills.tenantid='$tenantid' group by bills.date limit 1";
+              // $sql = "SELECT *,sum(amount)as fulls FROM bills where tenantid='$tenantid' group by id limit 1";
+              $result = $conn->query($sql);
+
+              if ($result->num_rows > 0) {
+                while ($row = $result->fetch_assoc()) { ?>
+                  <tr>
+                    <td scope="row"></td>
+                    <b>
+                      <td>Total Balance: </td>
+                      <td>&#8369; <span id="totsum"><?php echo number_format($row['fulls']); ?></span></td>
+                    </b>
+                  </tr>
+                <?php }
+              } else {
+                echo "0 resultsx";
+              }
+              ?>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <!--           <button type="button" class="btn-second-modal within-first-modal btn btn-primary">
             Launch second Modal
           </button> -->
-          <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="modal fade" id="bayad" data-backdrop="static" data-keyboard="false">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title" style="float:left;">Month of   
+    <div class="modal fade" id="bayad" data-backdrop="static" data-keyboard="false">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" style="float:left;">Month of
+              <?php
+              $ngi = $_GET['ngi'];
+
+              $sql = "SELECT * FROM bills where ID='$ngi'";
+              $result = $conn->query($sql);
+
+              if ($result->num_rows > 0) {
+                while ($row = $result->fetch_assoc()) {
+                  $_SESSION['billdate'] = $row['date']; ?>
+                  <?php echo date('F', strtotime($row['date'])); ?>
+                <?php }
+              } else {
+                echo "0 resultsx";
+              }
+              ?>
+            </h4>
+            <!-- <button type="button" class="btn-second-modal-close close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button> -->
+            <!-- <h4 class="modal-title">Second Modal</h4> -->
+          </div>
+          <div class="modal-body">
             <?php
-            $ngi=$_GET['ngi'];
+            $sql = "SELECT bills.ID,paymenthistory.ID as phid,bills.date,(COALESCE(bills.amount, 0) - COALESCE(paymenthistory.amount, 0))as amount,bills.pstat FROM bills left join paymenthistory on bills.date=paymenthistory.baseddate where bills.ID='$ngi' group by bills.date";
+            // $sql = "SELECT * FROM bills where ID='$ngi'";
+            $result = $conn->query($sql);
 
-                      $sql = "SELECT * FROM bills where ID='$ngi'";
-                        $result = $conn->query($sql);
+            if ($result->num_rows > 0) {
+              while ($row = $result->fetch_assoc()) { ?>
+                <b style="font-size: 20px;">Total Amount: <span style="color: salmon">&#8369;
+                    <?php $a = bcadd($row['amount'], '0', 2);
+                    echo number_format($a); ?></span></b>
+              <?php }
 
-                        if ($result->num_rows > 0) {
-                          while($row = $result->fetch_assoc()) {$_SESSION['billdate']=$row['date'];?>
-                            <?php echo date('F',strtotime($row['date']));?>
-                                    <?php  }
-                        } else {
-                          echo "0 resultsx";
-                        }
-                      ?></h4>
-          <!-- <button type="button" class="btn-second-modal-close close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button> -->
-          <!-- <h4 class="modal-title">Second Modal</h4> -->
-        </div>
-        <div class="modal-body">
-          <?php
-                                         $sql = "SELECT bills.ID,paymenthistory.ID as phid,bills.date,(COALESCE(bills.amount, 0) - COALESCE(paymenthistory.amount, 0))as amount,bills.pstat FROM bills left join paymenthistory on bills.date=paymenthistory.baseddate where bills.ID='$ngi' group by bills.date";
-                       // $sql = "SELECT * FROM bills where ID='$ngi'";
-                        $result = $conn->query($sql);
-
-                        if ($result->num_rows > 0) {
-                          while($row = $result->fetch_assoc()) {?>
-                            <b style="font-size: 20px;">Total Amount: <span style="color: salmon">&#8369; <?php $a = bcadd($row['amount'],'0',2); echo number_format($a);?></span></b>
-                                    <?php  }
-                                    
-                        } else {
-                          echo "0 resultsx";
-                        }
-                      ?><br>
-                      <div style="font-size: 16px">
-  <span style="  position: absolute;
+            } else {
+              echo "0 resultsx";
+            }
+            ?><br>
+            <div style="font-size: 16px">
+              <span style="  position: absolute;
   left: .9em;
   top: 0;
   height: 100%;
@@ -595,27 +679,29 @@ output {
   align-items: center;
   pointer-events: none;
   color: dimgray;">&#8369;</span>
- <form method="post" id="pays"onsubmit="return confirm('Are you sure you want to proceed payment?')"> 
-  <input type="text" name="tenid" value="<?php echo  $_SESSION['tenantid']; ?>" hidden>
-  <input type="text" name="billdate" value="<?php echo  $_SESSION['billdate']; ?>"hidden>
-  <input type="number"name="amount" step="0.01" inputmode="decimal" min="0" placeholder="Enter Amount" required></form>
-</div><br>
-<button type="button" class="btn btn-success">Pay Half</button>
-<button type="button" class="btn btn-success">Pay in full</button>
+              <form method="post" id="pays" onsubmit="return confirm('Are you sure you want to proceed payment?')">
+                <input type="text" name="tenid" value="<?php echo $_SESSION['tenantid']; ?>" hidden>
+                <input type="text" name="billdate" value="<?php echo $_SESSION['billdate']; ?>" hidden>
+                <input type="number" name="amount" step="0.01" inputmode="decimal" min="0" placeholder="Enter Amount"
+                  required>
+              </form>
+            </div><br>
+            <button type="button" class="btn btn-success">Pay Half</button>
+            <button type="button" class="btn btn-success">Pay in full</button>
 
-        </div>
-        <div class="modal-footer">
-          <!-- <button type="button" class="btn btn-success">Proceed</button> -->
-          <!-- <button type="button" class="btn-second-modal-close btn btn-default" data-dismiss="modal">Close</button> -->
-          <button type="submit" class="btn btn-success" form="pays" >Proceed Payment</button>
-          <button type="button" class="btn-second-modal-close btn btn-default" data-dismiss="modal">Close</button>
-          <!-- <a href="./Occupants.php?tenantid=<?php echo $tenantid?>#pay" type="button" class="btn btn-danger">Close</a> -->
+          </div>
+          <div class="modal-footer">
+            <!-- <button type="button" class="btn btn-success">Proceed</button> -->
+            <!-- <button type="button" class="btn-second-modal-close btn btn-default" data-dismiss="modal">Close</button> -->
+            <button type="submit" class="btn btn-success" form="pays">Proceed Payment</button>
+            <button type="button" class="btn-second-modal-close btn btn-default" data-dismiss="modal">Close</button>
+            <!-- <a href="./Occupants.php?tenantid=<?php echo $tenantid ?>#pay" type="button" class="btn btn-danger">Close</a> -->
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</div>
-<!--    <div class="modal fade" id="pay" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    </div>
+    <!--    <div class="modal fade" id="pay" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog" style="--bs-modal-width: 585px;">
       <div class="modal-content">
         <div class="modal-header">
@@ -633,12 +719,12 @@ output {
       </div>
     </div>
   </div>-->
-  
-  
-</div>
+
+
+    </div>
   </main>
 
-<!--   <footer id="footer" class="footer position-relative light-background foot">
+  <!--   <footer id="footer" class="footer position-relative light-background foot">
 
     <div class="container">
       <div class="copyright text-center ">
@@ -652,13 +738,14 @@ output {
   </footer> -->
 
   <!-- Scroll Top -->
-  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i
+      class="bi bi-arrow-up-short"></i></a>
 
   <!-- Preloader -->
   <div id="preloader"></div>
 
   <!-- Vendor JS Files -->
-    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
   <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
   <script src="assets/vendor/php-email-form/validate.js"></script>
@@ -671,118 +758,121 @@ output {
   <script src="assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
   <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.0/bootstrap-table.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/extensions/editable/bootstrap-table-editable.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/extensions/export/bootstrap-table-export.js"></script>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/extensions/editable/bootstrap-table-editable.js"></script>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/extensions/export/bootstrap-table-export.js"></script>
   <script src="https://rawgit.com/hhurz/tableExport.jquery.plugin/master/tableExport.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/extensions/filter-control/bootstrap-table-filter-control.js"></script>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/extensions/filter-control/bootstrap-table-filter-control.js"></script>
 
   <!-- Main JS File -->
   <script src="assets/js/main.js"></script>
-<script type="text/javascript">
-function showDiv(select){
-   if(select.value!=0){
-      var val = document.getElementById("test").value;
-    // window.location.href = "#item=" + val; 
-      var new_url="./Occupants.php?item="+val;
-    window.history.pushState(null,"",new_url);
-    document.getElementById('hidden_div').style.display = "block";
-   } else{
-    document.getElementById('hidden_div').style.display = "none";
-   }
-} 
-</script>
+  <script type="text/javascript">
+    function showDiv(select) {
+      if (select.value != 0) {
+        var val = document.getElementById("test").value;
+        // window.location.href = "#item=" + val; 
+        var new_url = "./Occupants.php?item=" + val;
+        window.history.pushState(null, "", new_url);
+        document.getElementById('hidden_div').style.display = "block";
+      } else {
+        document.getElementById('hidden_div').style.display = "none";
+      }
+    } 
+  </script>
 
-<script>
-  var rowCount = $('#tbl >tbody >tr').length;
-$("#rowcount").text(rowCount);
-</script>
-<script>
-  var within_first_modal = false;
-$('.btn-second-modal').on('click', function() {
-  if ($(this).hasClass('within-first-modal')) {
-    within_first_modal = true;
-    $('#first-modal').modal('hide');
-  }
-  $('#second-modal').modal('show');
-});
+  <script>
+    var rowCount = $('#tbl >tbody >tr').length;
+    $("#rowcount").text(rowCount);
+  </script>
+  <script>
+    var within_first_modal = false;
+    $('.btn-second-modal').on('click', function () {
+      if ($(this).hasClass('within-first-modal')) {
+        within_first_modal = true;
+        $('#first-modal').modal('hide');
+      }
+      $('#second-modal').modal('show');
+    });
 
-$('.btn-second-modal-close').on('click', function() {
-  $('#second-modal').modal('hide');
-  if (within_first_modal) {
-    $('#first-modal').modal('show');
-    within_first_modal = false;
-  }
-});
+    $('.btn-second-modal-close').on('click', function () {
+      $('#second-modal').modal('hide');
+      if (within_first_modal) {
+        $('#first-modal').modal('show');
+        within_first_modal = false;
+      }
+    });
 
-$('.btn-toggle-fade').on('click', function() {
-  if ($('.modal').hasClass('fade')) {
-    $('.modal').removeClass('fade');
-    $(this).removeClass('btn-success');
-  } else {
-    $('.modal').addClass('fade');
-    $(this).addClass('btn-success');
-  }
-});
-</script>
-<script>
-  var table document.getElementById('bills');
-  var total=table.rows.length;
-  var tb=table.tBodies[0].row.length;
-</script>
-<script>
-  $(document).ready(function() {
+    $('.btn-toggle-fade').on('click', function () {
+      if ($('.modal').hasClass('fade')) {
+        $('.modal').removeClass('fade');
+        $(this).removeClass('btn-success');
+      } else {
+        $('.modal').addClass('fade');
+        $(this).addClass('btn-success');
+      }
+    });
+  </script>
+  <script>
+    var table document.getElementById('bills');
+    var total = table.rows.length;
+    var tb = table.tBodies[0].row.length;
+  </script>
+  <script>
+    $(document).ready(function () {
 
-  if(window.location.href.indexOf('#pay') != -1) {
-    $('#pay').modal('show');
-  }
+      if (window.location.href.indexOf('#pay') != -1) {
+        $('#pay').modal('show');
+      }
 
-});
-</script>
-<script>
-  $(document).ready(function() {
+    });
+  </script>
+  <script>
+    $(document).ready(function () {
 
-  if(window.location.href.indexOf('#bayad') != -1) {
-    $('#bayad').modal('show');
-  }
+      if (window.location.href.indexOf('#bayad') != -1) {
+        $('#bayad').modal('show');
+      }
 
-});
-</script>
-<script>
-  const input = document.querySelector('input')
-const output = document.querySelector('output')
+    });
+  </script>
+  <script>
+    const input = document.querySelector('input')
+    const output = document.querySelector('output')
 
-// Format the input value to ensure 2 decimal places
-const formatValue = () => {
-  if (input.value !== '' && !isNaN(input.value)) {
-    input.value = Math.abs(Number(input.value)).toFixed(2)
+    // Format the input value to ensure 2 decimal places
+    const formatValue = () => {
+      if (input.value !== '' && !isNaN(input.value)) {
+        input.value = Math.abs(Number(input.value)).toFixed(2)
+        updateOutput()
+      }
+    }
+
+    // Show the cents
+    const updateOutput = () => {
+      const value = input.value !== '' ? Math.trunc(Math.abs(Number(input.value) * 100)) : 0
+      output.innerHTML = `cents = ${value}`
+    }
+
+    input.addEventListener('change', formatValue)
+    input.addEventListener('input', updateOutput)
+
+    updateValue()
     updateOutput()
-  }
-}
+  </script>
+  <script>
+    updateSubTotal(); // Initial call
 
-// Show the cents
-const updateOutput = () => {
-  const value = input.value !== '' ? Math.trunc(Math.abs(Number(input.value) * 100)) : 0
-  output.innerHTML = `cents = ${value}`
-}
+    function updateSubTotal() {
+      var table = document.getElementById("bills");
+      let subTotal = Array.from(table.rows).slice(1).reduce((total, row) => {
+        return total + parseFloat(row.cells[2].innerHTML);
+      }, 0);
+      document.getElementById("totsum").innerHTML = subTotal;
+    }
 
-input.addEventListener('change', formatValue)
-input.addEventListener('input', updateOutput)
-
-updateValue()
-updateOutput()
-</script>
-<script>
-  updateSubTotal(); // Initial call
-
-function updateSubTotal() {
-  var table = document.getElementById("bills");
-  let subTotal = Array.from(table.rows).slice(1).reduce((total, row) => {
-    return total + parseFloat(row.cells[2].innerHTML);
-  }, 0);
-  document.getElementById("totsum").innerHTML =  subTotal;
-}
-
-</script>
+  </script>
 </body>
 
 </html>
