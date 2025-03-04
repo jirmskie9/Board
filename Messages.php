@@ -14,6 +14,8 @@ $id = $_SESSION['Uid']; // Use 'Uid' session key
 if (isset($_GET['ucid'])) {
   $_SESSION['ucid'] = $_GET['ucid'];
 }
+$ucid = $_SESSION['ucid'] ?? 0;
+
 
 // Default 'ucid' to 0 if not set
 $ucids = $_SESSION['ucid'] ?? 0;
