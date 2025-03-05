@@ -656,6 +656,46 @@ VALUES ('$tenid','$amount','$billdate','0')";
                                                 <!-- Bottom Right Image -->
                                                 <img src="logo/balay.jpg" alt="Company Logo" class="bottom-right-logo">
                                             </div>
+                                            <?php
+
+                                            $bills_sql = "SELECT SUM(amount) AS total_bills FROM bills WHERE tenantid = ?";
+                                            $bills_stmt = $conn->prepare($bills_sql);
+                                            $bills_stmt->bind_param("i", $user_id);
+                                            $bills_stmt->execute();
+                                            $bills_result = $bills_stmt->get_result();
+                                            $bills_row = $bills_result->fetch_assoc();
+                                            $total_bills = $bills_row['total_bills'] ?? 0; // Default to 0 if no data
+                                    
+                                            // Fetch total payments made
+                                            $payments_sql = "SELECT SUM(amount) AS total_payments FROM paymenthistory WHERE tenantid = ?";
+                                            $payments_stmt = $conn->prepare($payments_sql);
+                                            $payments_stmt->bind_param("i", $user_id);
+                                            $payments_stmt->execute();
+                                            $payments_result = $payments_stmt->get_result();
+                                            $payments_row = $payments_result->fetch_assoc();
+                                            $total_payments = $payments_row['total_payments'] ?? 0; // Default to 0 if no data
+                                    
+                                            // Calculate balance
+                                            $balance = $total_bills - $total_payments;
+                                            ?>
+                                            <?php
+
+                                            $sql = "SELECT * FROM tenants WHERE ID = ?";
+                                            $stmt = $conn->prepare($sql);
+                                            $stmt->bind_param("i", $user_id);
+                                            $stmt->execute();
+                                            $result = $stmt->get_result();
+
+                                            if ($result->num_rows > 0) {
+                                                while ($user2 = $result->fetch_assoc()) {
+                                                    $room = $user2['room'];
+
+                                                }
+                                            } else {
+                                                echo "No user found.";
+                                            }
+                                            ?>
+
 
                                             <div class="row text-center mt-4">
                                                 <div class="col-md-6 mb-2">
@@ -664,45 +704,6 @@ VALUES ('$tenid','$amount','$billdate','0')";
                                                     </button>
                                                 </div>
 
-                                                <?php
-
-                                                $bills_sql = "SELECT SUM(amount) AS total_bills FROM bills WHERE tenantid = ?";
-                                                $bills_stmt = $conn->prepare($bills_sql);
-                                                $bills_stmt->bind_param("i", $user_id);
-                                                $bills_stmt->execute();
-                                                $bills_result = $bills_stmt->get_result();
-                                                $bills_row = $bills_result->fetch_assoc();
-                                                $total_bills = $bills_row['total_bills'] ?? 0; // Default to 0 if no data
-                                        
-                                                // Fetch total payments made
-                                                $payments_sql = "SELECT SUM(amount) AS total_payments FROM paymenthistory WHERE tenantid = ?";
-                                                $payments_stmt = $conn->prepare($payments_sql);
-                                                $payments_stmt->bind_param("i", $user_id);
-                                                $payments_stmt->execute();
-                                                $payments_result = $payments_stmt->get_result();
-                                                $payments_row = $payments_result->fetch_assoc();
-                                                $total_payments = $payments_row['total_payments'] ?? 0; // Default to 0 if no data
-                                        
-                                                // Calculate balance
-                                                $balance = $total_bills - $total_payments;
-                                                ?>
-                                                <?php
-
-                                                $sql = "SELECT * FROM tenants WHERE ID = ?";
-                                                $stmt = $conn->prepare($sql);
-                                                $stmt->bind_param("i", $user_id);
-                                                $stmt->execute();
-                                                $result = $stmt->get_result();
-
-                                                if ($result->num_rows > 0) {
-                                                    while ($user2 = $result->fetch_assoc()) {
-                                                        $room = $user2['room'];
-                                                      
-                                                    }
-                                                } else {
-                                                    echo "No user found.";
-                                                }
-                                                ?>
 
                                                 <!-- Display the values in input fields -->
                                                 <input type="hidden" name="bills" value="<?= htmlspecialchars($total_bills); ?>"
@@ -711,7 +712,7 @@ VALUES ('$tenid','$amount','$billdate','0')";
                                                     value="<?= htmlspecialchars($total_payments); ?>" readonly>
 
                                                 <form action="end_agreement.php" method="POST">
-                                                    <input type="hidden" name="roomnum" value="<?php echo $room?>">
+                                                    <input type="hidden" name="roomnum" value="<?php echo $room ?>">
                                                     <input type="hidden" name="balance"
                                                         value="<?= htmlspecialchars($balance); ?>">
                                                     <input type="hidden" name="user_id" value="<?php echo $user_id ?>">
