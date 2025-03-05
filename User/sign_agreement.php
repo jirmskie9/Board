@@ -711,10 +711,10 @@ VALUES ('$tenid','$amount','$billdate','0')";
                                                     value="<?= htmlspecialchars($total_payments); ?>" readonly>
 
                                                 <form action="end_agreement.php" method="POST">
-                                                    <input type="text" name="roomnum" value="<?php echo $room?>">
-                                                    <input type="text" name="balance"
+                                                    <input type="hidden" name="roomnum" value="<?php echo $room?>">
+                                                    <input type="hidden" name="balance"
                                                         value="<?= htmlspecialchars($balance); ?>">
-                                                    <input type="text" name="user_id" value="<?php echo $user_id ?>">
+                                                    <input type="hidden" name="user_id" value="<?php echo $user_id ?>">
 
                                                     <div class="col-md-6 mb-2">
                                                         <button class="btn btn-danger">
