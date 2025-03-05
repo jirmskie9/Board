@@ -738,7 +738,7 @@ VALUES ('$tenid','$amount','$billdate','0')";
                   <?php if ($showSignButton): ?>
                     <p class="text-muted">You have a lease agreement.</p>
                     <a href="sign_agreement.php?lease_id=<?php echo $leaseId; ?>" class="btn btn-primary">
-                      <i class="fas fa-pen-nib me-2"></i> Sign Agreement
+                      <i class="fas fa-pen-nib me-2"></i> View Agreement
                     </a>
                   <?php else: ?>
                     <p class="text-muted">No lease agreement pending for signature.</p>

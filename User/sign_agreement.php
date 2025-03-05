@@ -697,7 +697,7 @@ VALUES ('$tenid','$amount','$billdate','0')";
                                             ?>
 
 
-                                            <div class="row text-center mt-4">
+                                            <div class="row text-center">
                                                 <div class="col-md-6 mb-2">
                                                     <button class="btn btn-primary" onclick="printLease()">
                                                         <i class="fas fa-print me-2"></i> Print Lease Agreement
