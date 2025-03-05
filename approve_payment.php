@@ -2,12 +2,16 @@
 session_start();
 include 'db.php';
 
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["id"]) && isset($_POST["user_id"])) {
     $payment_id = $_POST["id"];
     $user_id = $_POST["user_id"];
 
-    // Fetch the approved payment details
-    $sql = "SELECT * FROM payments WHERE payment_id = ?";
+    // Fetch the payment details
+    $sql = "SELECT status, amount FROM payments WHERE payment_id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $payment_id);
     $stmt->execute();
@@ -15,35 +19,47 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["id"]) && isset($_POST[
 
     if ($result->num_rows > 0) {
         $payment = $result->fetch_assoc();
-        $amount = $payment['amount'];
-        $payment_date = date("Y-m-d H:i:s"); // Current date & time
-        $based_date = date("Y-m-d"); // Current date only
 
-        // Update payment status to 'approved'
-        $update_sql = "UPDATE payments SET status = 'approved' WHERE payment_id = ?";
-        $update_stmt = $conn->prepare($update_sql);
-        $update_stmt->bind_param("i", $payment_id);
+        // Check if status is already 'approved'
+        if ($payment['status'] === 'approved') {
+            echo "already_approved";
+            exit();
+        } else {
+            $amount = $payment['amount'];
+            $payment_date = date("Y-m-d H:i:s");
+            $based_date = date("Y-m-d");
 
-        if ($update_stmt->execute()) {
-            // Insert approved payment into paymenthistory
+            // Update payment status to 'approved'
+            $update_sql = "UPDATE payments SET status = 'approved' WHERE payment_id = ?";
+            $update_stmt = $conn->prepare($update_sql);
+            $update_stmt->bind_param("i", $payment_id);
+            if (!$update_stmt->execute()) {
+                echo "update_error";
+                exit();
+            }
+
+            // Insert approved payment into payment history
             $insert_sql = "INSERT INTO paymenthistory (tenantid, amount, baseddate, paymentdate) VALUES (?, ?, ?, ?)";
             $insert_stmt = $conn->prepare($insert_sql);
             $insert_stmt->bind_param("idss", $user_id, $amount, $based_date, $payment_date);
-
-            if ($insert_stmt->execute()) {
-                echo "success";
-            } else {
-                echo "error: " . $conn->error;
+            if (!$insert_stmt->execute()) {
+                echo "insert_error";
+                exit();
             }
+
+            // Close statements
+            $stmt->close();
+            $update_stmt->close();
             $insert_stmt->close();
-        } else {
-            echo "error: " . $conn->error;
+            $conn->close();
+
+            // Return success response to AJAX
+            echo "success";
+            exit();
         }
-        $update_stmt->close();
     } else {
-        echo "error: Payment record not found.";
+        echo "not_found";
+        exit();
     }
-    $stmt->close();
-    $conn->close();
 }
 ?>

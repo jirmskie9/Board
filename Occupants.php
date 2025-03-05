@@ -76,41 +76,37 @@ if (isset($_POST['svform'])) {
 
     if ($conn->query($sqlx) === TRUE) {
       // Update balance
+      // Update balance
       $sqlUpdate = "UPDATE tenants AS t 
-      INNER JOIN rooms AS r ON t.room = r.Roomnum 
-      SET t.balance = t.balance + r.cost
-      WHERE t.id = '$tenantId'";
+INNER JOIN rooms AS r ON t.room = r.Roomnum 
+SET t.balance = t.balance + r.cost
+WHERE t.id = '$tenantId'";
+
 
 
       if ($conn->query($sqlUpdate) === TRUE) {
+        // Insert into user table
+        $sqlUser = "INSERT INTO user (user_id, username, password, Fullname, count) 
+                    VALUES ('$tenantId','$username', '$password', '$fullname', '$lastCount')";
 
-        // ✅ Update the Occupants column in the rooms table (subtract 1)
-        $sqlRoomUpdate = "UPDATE rooms SET Occupants = Occupants - 1 WHERE Roomnum = '$room'";
-
-        if ($conn->query($sqlRoomUpdate) === TRUE) {
-          // Insert into user table
-          $sqlUser = "INSERT INTO user (user_id, username, password, Fullname, count) 
-                            VALUES ('$tenantId','$username', '$password', '$fullname', '$lastCount')";
-
-          if ($conn->query($sqlUser) === TRUE) {
-            $_SESSION['status'] = "Tenant, Room Status, User record, and Application updated successfully!";
-            $_SESSION['status_code'] = "success";
-            $_SESSION['status_button'] = "Okay";
-            header("Location: Occupants.php");
-          } else {
-            echo "Error inserting into user table: " . $conn->error;
-          }
+        if ($conn->query($sqlUser) === TRUE) {
+          $_SESSION['status'] = "Tenant, Room Status, User record, and Application updated successfully!";
+          $_SESSION['status_code'] = "success";
+          $_SESSION['status_button'] = "Okay";
+          header("Location: Occupants.php");
         } else {
-          echo "Error updating room status: " . $conn->error;
+          echo "Error inserting into user table: " . $conn->error;
         }
+
       } else {
         echo "Error updating balance: " . $conn->error;
       }
+
+
+
     } else {
-      echo "Error inserting into bills table: " . $conn->error;
+      echo "Error inserting into tenants table: " . $conn->error;
     }
-  } else {
-    echo "Error inserting into tenants table: " . $conn->error;
   }
 }
 
@@ -421,40 +417,41 @@ VALUES ('$tenid','$amount','$billdate','0')";
     font-family: monospace;
     font-size: 1.2em;
   }
+
   .password-strength {
-        margin-top: 5px;
-        font-size: 12px;
-    }
+    margin-top: 5px;
+    font-size: 12px;
+  }
 
-    #strength-bar {
-        height: 5px;
-        margin-top: 5px;
-    }
+  #strength-bar {
+    height: 5px;
+    margin-top: 5px;
+  }
 
-    .very-weak {
-        height: 5px;
-        background-color: #ff4d4d;
-    }
+  .very-weak {
+    height: 5px;
+    background-color: #ff4d4d;
+  }
 
-    .weak {
-        background-color: #ffa07a;
-    }
+  .weak {
+    background-color: #ffa07a;
+  }
 
-    .fair {
-        background-color: #ffd700;
-    }
+  .fair {
+    background-color: #ffd700;
+  }
 
-    .moderate {
-        background-color: #add8e6;
-    }
+  .moderate {
+    background-color: #add8e6;
+  }
 
-    .strong {
-        background-color: #90ee90;
-    }
+  .strong {
+    background-color: #90ee90;
+  }
 
-    .very-strong {
-        background-color: #00cc00;
-    }
+  .very-strong {
+    background-color: #00cc00;
+  }
 </style>
 
 <body class="index-page">
@@ -479,6 +476,7 @@ VALUES ('$tenid','$amount','$billdate','0')";
         <li><a href="./Dashboard.php"><i class="bi bi-house navicon"></i>Dashboard</a></li>
         <li><a href="./Occupants.php" class="active"><i class="bi bi-person navicon"></i> Occupants</a></li>
         <li><a href="./Rooms.php"><i class="bi bi-door-open navicon"></i> Rooms</a></li>
+        <li><a href="./Documents.php"><i class="bi bi-file-earmark-text navicon"></i> Documents</a></li>
         <li><a href="./Utilities.php"><i class="bi bi-lightbulb navicon"></i> <!-- Represents electricity/utilities -->
             Utility Bills</a></li>
         <li><a href="./Collection.php" class=""><i class="bi bi-cash-stack navicon"></i>Rent Collection</a></li>
@@ -716,7 +714,8 @@ VALUES ('$tenid','$amount','$billdate','0')";
                         <option value="0">Select Room</option>
                         <?php
 
-                        $sql = "SELECT * FROM rooms WHERE Occupants != '0' ORDER BY Roomnum";
+                        $sql = "SELECT * FROM rooms WHERE Occupants > tenants ORDER BY Roomnum";
+
                         $result = $conn->query($sql);
 
                         if ($result->num_rows > 0) {
@@ -749,7 +748,7 @@ VALUES ('$tenid','$amount','$billdate','0')";
                           while ($row = $result->fetch_assoc()) { ?>
                             <p class="">
                               Room Number: <?php echo $row['Roomnum']; ?><br>
-                              Occupants: <br>
+                              Occupants: <?php echo $row['Occupants']?><br>
                               Occupied: 3 <br>
                               Available: 3 <br>
                               Price:

@@ -125,6 +125,7 @@ if ($result->num_rows > 0) {
                 <li><a href="./Dashboard.php"><i class="bi bi-house navicon"></i>Dashboard</a></li>
                 <li><a href="./Occupants.php"><i class="bi bi-person navicon"></i> Occupants</a></li>
                 <li><a href="./Rooms.php"><i class="bi bi-door-open navicon"></i> Rooms</a></li>
+                <li><a href="./Documents.php"><i class="bi bi-file-earmark-text navicon"></i> Documents</a></li>
                 <li><a href="./Utilities.php" class="active"><i class="bi bi-lightbulb navicon"></i>
                         <!-- Represents electricity/utilities -->
                         Utility Bills</a></li>

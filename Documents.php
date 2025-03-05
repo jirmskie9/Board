@@ -59,13 +59,44 @@ if ($result->num_rows > 0) {
     <link href="./logo/balay.jpg" rel="icon">
     <link href="https://demo.dashboardpack.com/architectui-html-free/main.css" rel="stylesheet">
     <link href="./logo/balay.jpg" rel="icon">
-    <!-- =======================================================
-  * Template Name: iPortfolio
-  * Template URL: https://bootstrapmade.com/iportfolio-bootstrap-portfolio-websites-template/
-  * Updated: Jun 29 2024 with Bootstrap v5.3.3
-  * Author: BootstrapMade.com
-  * License: https://bootstrapmade.com/license/
-  ======================================================== -->
+    <style>
+        /* Modal Styles */
+        .modal {
+            display: none;
+            /* Hidden by default */
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            /* Dark background */
+        }
+
+        /* Modal Content */
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            width: 40%;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            position: relative;
+        }
+
+        /* Close Button */
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 20px;
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+    </style>
 </head>
 
 <body class="index-page">
@@ -83,20 +114,22 @@ if ($result->num_rows > 0) {
             <h1 class="sitename"><?php echo $fullname ?></h1>
         </a>
 
-     
+
 
         <nav id="navmenu" class="navmenu">
             <ul>
                 <li><a href="./Dashboard.php"><i class="bi bi-house navicon"></i>Dashboard</a></li>
                 <li><a href="./Occupants.php"><i class="bi bi-person navicon"></i> Occupants</a></li>
                 <li><a href="./Rooms.php"><i class="bi bi-door-open navicon"></i> Rooms</a></li>
-                <li><a href="./Documents.php"><i class="bi bi-file-earmark-text navicon"></i> Documents</a></li>
-                <li><a href="./Utilities.php"><i class="bi bi-lightbulb navicon"></i> <!-- Represents electricity/utilities -->
-                Utility Bills</a></li>
-                <li><a href="./Collection.php" class="active"><i class="bi bi-cash-stack navicon"></i>Rent
+                <li><a href="./Documents.php" class="active"><i class="bi bi-file-earmark-text navicon"></i>
+                        Documents</a></li>
+                <li><a href="./Utilities.php"><i class="bi bi-lightbulb navicon"></i>
+                        <!-- Represents electricity/utilities -->
+                        Utility Bills</a></li>
+                <li><a href="./Collection.php"><i class="bi bi-cash-stack navicon"></i>Rent
                         Collection</a></li>
 
-                        <li><a href="./expenses.php"><i class="bi bi-receipt navicon"></i> Expenses</a></li>
+                <li><a href="./expenses.php"><i class="bi bi-receipt navicon"></i> Expenses</a></li>
                 <li><a href="./Messages.php"><i class="bi bi-envelope-fill navicon"></i> Messages</a></li>
                 <li><a href="./Maintenance.php"><i class="bi bi-newspaper navicon"></i> Maintenance Request</a></li>
                 <li><a href="./logout.php"><i class="bi bi-box-arrow-right navicon"></i> Logout</a></li>
@@ -480,58 +513,21 @@ if ($result->num_rows > 0) {
                 <div class="app-main__inner">
                     <div class="app-page-title">
                         <div class="page-title-wrapper">
-                        <div class="page-title-heading">
-                <div class="page-title-icon">
-                  <i class="fas fa-home icon-gradient bg-mean-fruit"></i> <!-- Changed to FontAwesome Home Icon -->
-                </div>
-                <div>Welcome to Primos Boardinghouse
-                  <div class="page-title-subheading">
-                    This is an overview of all data in Primos Boardinghouse.
-                  </div>
-                </div>
-              </div>
-
-                        </div>
-                    </div>
-                    <div class="row">
-                        <?php
-                        include('db.php');
-
-                        $current_year = date("Y");
-                        $sql = "SELECT SUM(balance) AS total_balance FROM tenants";
-                        $stmt = $conn->prepare($sql);
-                        $stmt->execute();
-                        $result = $stmt->get_result();
-
-                        $total_expenses = 0; // Default value
-                        if ($result->num_rows > 0) {
-                            $row = $result->fetch_assoc();
-                            $total_expenses = $row['total_balance'] ?? 0;
-                        }
-
-                        $stmt->close();
-
-                        ?>
-
-                        <div class="col-md-6 col-xl-4">
-                            <div class="card mb-3 widget-content bg-midnight-bloom">
-                                <div class="widget-content-wrapper text-white">
-                                    <div class="widget-content-left">
-                                        <div class="widget-heading">Total Balance</div>
-                                        <div class="widget-subheading">Current Year Expenses</div>
-                                    </div>
-                                    <div class="widget-content-right">
-                                        <div class="widget-numbers text-white">
-                                            <span>&#8369; <?php echo number_format($total_expenses, 2); ?></span>
-                                        </div>
+                            <div class="page-title-heading">
+                                <div class="page-title-icon">
+                                    <i class="fas fa-home icon-gradient bg-mean-fruit"></i>
+                                    <!-- Changed to FontAwesome Home Icon -->
+                                </div>
+                                <div>Welcome to Primos Boardinghouse
+                                    <div class="page-title-subheading">
+                                        This is an overview of all data in Primos Boardinghouse.
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        
-                      
+                        </div>
                     </div>
+
 
                     <div class="row">
                         <!-- Monthly Income Chart -->
@@ -539,7 +535,7 @@ if ($result->num_rows > 0) {
                             <div class="mb-3 card shadow-lg rounded">
                                 <div class="card-header bg-primary text-white d-flex align-items-center">
                                     <i class="fas fa-chart-line me-2"></i>
-                                    <h5 class="mb-0">Rent Collection</h5>
+                                    <h5 class="mb-0">Documents</h5>
                                 </div>
                                 <div class="card-body">
                                     <div class="table-responsive">
@@ -547,18 +543,17 @@ if ($result->num_rows > 0) {
                                             <thead>
                                                 <tr>
                                                     <th>Tenant</th>
-                                                    <th>Bill Amount</th>
-                                                    <th>Payment Amount</th>
-                                                    <th>Balance</th>
+                                                    <th>Valid ID</th>
+                                                    <th>Birth Certificate</th>
+
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <?php
-                                                $query = "SELECT b.tenantid, b.amount, p.tenantid AS payment_tenantid, p.amount AS payment_amount, b.type,
-                                                t.fname, t.lname, t.balance, t.ID 
-                                                FROM bills b
-                                                JOIN paymenthistory p ON b.tenantid = p.tenantid
-                                                JOIN tenants t ON b.tenantid = t.ID WHERE b.type = 'rental'";
+                                                $query = "SELECT a.app_id, a.user_id, a.proof, a.valid_id, a.status, t.ID,
+              t.fname, t.lname FROM applications a 
+              JOIN tenants t ON a.user_id = t.ID 
+              WHERE a.status = 'approved'";
 
                                                 $result = mysqli_query($conn, $query);
 
@@ -568,16 +563,24 @@ if ($result->num_rows > 0) {
 
                                                 while ($row = mysqli_fetch_assoc($result)) {
                                                     echo "<tr>
-                                                  <td>" . htmlspecialchars($row['fname']) . " " . htmlspecialchars($row['lname']) . "</td>
-
-                                                    <td>₱ " . htmlspecialchars($row['amount']) . "</td>
-                                                    <td>₱ " . htmlspecialchars($row['payment_amount']) . "</td>
-                                                     <td>₱ " . htmlspecialchars($row['balance']) . ".</td>
-                                                </tr>";
+            <td>" . htmlspecialchars($row['fname']) . " " . htmlspecialchars($row['lname']) . "</td>
+            <td>
+                <a href='uploads/" . htmlspecialchars($row['valid_id']) . "' target='_blank'>
+                    <img height='100px' width='100px' src='uploads/" . htmlspecialchars($row['valid_id']) . "'>
+                </a>
+            </td>
+            <td>
+                <a href='uploads/" . htmlspecialchars($row['proof']) . "' target='_blank'>
+                    <img height='100px' width='100px' src='uploads/" . htmlspecialchars($row['proof']) . "'>
+                </a>
+            </td>
+        </tr>";
                                                 }
                                                 ?>
                                             </tbody>
+
                                         </table>
+
                                     </div>
                                 </div>
 
@@ -678,7 +681,23 @@ if ($result->num_rows > 0) {
 
     <!-- Main JS File -->
     <script src="assets/js/main.js"></script>
-
+    <?php
+    if (isset($_SESSION['status']) && $_SESSION['status'] != '') {
+        ?>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            Swal.fire({
+                title: "<?php echo $_SESSION['status']; ?>",
+                icon: "<?php echo $_SESSION['status_code']; ?>",
+                confirmButtonText: "<?php echo $_SESSION['status_button'] ?? 'OK'; ?>"
+            });
+        </script>
+        <?php
+        unset($_SESSION['status']);
+        unset($_SESSION['status_code']);
+        unset($_SESSION['status_button']);
+    }
+    ?>
 </body>
 
 </html>

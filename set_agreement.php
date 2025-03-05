@@ -45,6 +45,7 @@ if (isset($_GET['app_id'])) {
             $fname = $row['fname'];
             $lname = $row['lname'];
             $cost = $row['Cost'];
+            $roomNum = $row['Roomnum'];
         }
     } else {
         header("Location: Occupants.php");
@@ -152,6 +153,7 @@ if (isset($_GET['app_id'])) {
                     <form action="save_agreement.php" method="POST" onsubmit="saveContent()">
                         <input type="hidden" name="user_id" value="<?php echo $user_id; ?>">
                         <input type="hidden" name="app_id" value="<?php echo $app_id; ?>">
+                        <input type="hidden" name = "roomnum" value = "<?php echo $roomNum ?>">
                         <textarea name="agreement_content" id="agreement_content" style="display:none;"></textarea>
 
                         <div id="agreementContent" class="p-3 bg-white rounded shadow-sm">

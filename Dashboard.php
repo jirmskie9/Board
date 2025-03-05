@@ -60,40 +60,40 @@ if ($result->num_rows > 0) {
     <link href="https://demo.dashboardpack.com/architectui-html-free/main.css" rel="stylesheet">
     <link href="./logo/balay.jpg" rel="icon">
     <style>
-          .password-strength {
-        margin-top: 5px;
-        font-size: 12px;
-    }
+        .password-strength {
+            margin-top: 5px;
+            font-size: 12px;
+        }
 
-    #strength-bar {
-        height: 5px;
-        margin-top: 5px;
-    }
+        #strength-bar {
+            height: 5px;
+            margin-top: 5px;
+        }
 
-    .very-weak {
-        height: 5px;
-        background-color: #ff4d4d;
-    }
+        .very-weak {
+            height: 5px;
+            background-color: #ff4d4d;
+        }
 
-    .weak {
-        background-color: #ffa07a;
-    }
+        .weak {
+            background-color: #ffa07a;
+        }
 
-    .fair {
-        background-color: #ffd700;
-    }
+        .fair {
+            background-color: #ffd700;
+        }
 
-    .moderate {
-        background-color: #add8e6;
-    }
+        .moderate {
+            background-color: #add8e6;
+        }
 
-    .strong {
-        background-color: #90ee90;
-    }
+        .strong {
+            background-color: #90ee90;
+        }
 
-    .very-strong {
-        background-color: #00cc00;
-    }
+        .very-strong {
+            background-color: #00cc00;
+        }
     </style>
     <!-- =======================================================
   * Template Name: iPortfolio
@@ -126,6 +126,8 @@ if ($result->num_rows > 0) {
                 <li><a href="./Dashboard.php" class="active"><i class="bi bi-house navicon"></i>Dashboard</a></li>
                 <li><a href="./Occupants.php"><i class="bi bi-person navicon"></i> Occupants</a></li>
                 <li><a href="./Rooms.php"><i class="bi bi-door-open navicon"></i> Rooms</a></li>
+                <li><a href="./Documents.php"><i class="bi bi-file-earmark-text navicon"></i> Documents</a></li>
+
                 <li><a href="./Utilities.php"><i class="bi bi-lightbulb navicon"></i>
                         <!-- Represents electricity/utilities -->
                         Utility Bills</a></li>
@@ -618,7 +620,7 @@ if ($result->num_rows > 0) {
                                 </div>
                             </div>
                         </div>
-                       
+
                     </div>
                     <?php
                     // Database query to get monthly income
@@ -653,16 +655,24 @@ if ($result->num_rows > 0) {
 
                         <!-- Payment History Chart -->
                         <?php
-                        // Fetch room status data
-                        $sql = "SELECT 
-            SUM(CASE WHEN status = 'Occupied' THEN 1 ELSE 0 END) AS occupied_count,
-            SUM(CASE WHEN status = 'Available' THEN 1 ELSE 0 END) AS available_count
-        FROM rooms";
+                      
+                        error_reporting(E_ALL);
+                        ini_set('display_errors', 1);
 
-                        $result = $conn->query($sql);
-                        $row = $result->fetch_assoc();
-                        $occupied = $row['occupied_count'];
-                        $available = $row['available_count'];
+                        // Fetch total occupants and tenants
+                        $query = "SELECT SUM(occupants) AS total_occupants, SUM(tenants) AS total_tenants FROM rooms";
+                        $result = $conn->query($query);
+
+                        $total_occupants = 0;
+                        $total_tenants = 0;
+
+                        if ($result && $row = $result->fetch_assoc()) {
+                            $total_occupants = intval($row['total_occupants']);
+                            $total_tenants = intval($row['total_tenants']);
+                        }
+
+                        // Calculate available slots
+                        $total_available = $total_occupants - $total_tenants;
                         ?>
 
                         <div class="col-md-6">
@@ -680,14 +690,18 @@ if ($result->num_rows > 0) {
                         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
                         <script>
                             document.addEventListener("DOMContentLoaded", function () {
+                                // Get PHP values and pass to JavaScript
+                                var occupied = <?php echo $total_tenants; ?>;
+                                var available = <?php echo max($total_available, 0); ?>; // Ensure no negative values
+
                                 var ctx = document.getElementById("roomChart").getContext("2d");
-                                new Chart(ctx, {
+                                var roomChart = new Chart(ctx, {
                                     type: "pie",
                                     data: {
                                         labels: ["Occupied", "Available"],
                                         datasets: [{
-                                            data: [<?= $occupied ?>, <?= $available ?>],
-                                            backgroundColor: ["#dc3545", "#28a745"], // Red for occupied, Green for available
+                                            data: [occupied, available],
+                                            backgroundColor: ["#28a745", "#dc3545"], // Green for occupied, red for available
                                             borderWidth: 1
                                         }]
                                     },
@@ -814,8 +828,8 @@ if ($result->num_rows > 0) {
                                         $(document).ready(function () {
                                             $(".approve-btn").click(function () {
                                                 var paymentId = $(this).data("id");
-                                                var userId = $(this).data("user_id"); // retrieve the user_id from data attribute
-                                                var button = $(this); // store button reference
+                                                var userId = $(this).data("user_id");
+                                                var button = $(this);
 
                                                 Swal.fire({
                                                     title: "Are you sure?",
@@ -832,19 +846,26 @@ if ($result->num_rows > 0) {
                                                             type: "POST",
                                                             data: { id: paymentId, user_id: userId },
                                                             success: function (response) {
-                                                                if (response === "success") {
+                                                                if (response.trim() === "success") {
                                                                     Swal.fire("Approved!", "The payment has been approved.", "success");
                                                                     button.replaceWith('<button class="btn btn-success btn-sm" disabled>Approved</button>');
-                                                                    // Optionally update any other parts of the row if needed
+                                                                } else if (response.trim() === "already_approved") {
+                                                                    Swal.fire("Warning!", "Payment is already approved.", "warning");
+                                                                } else if (response.trim() === "not_found") {
+                                                                    Swal.fire("Error!", "Payment record not found.", "error");
                                                                 } else {
                                                                     Swal.fire("Error!", "Something went wrong.", "error");
                                                                 }
+                                                            },
+                                                            error: function () {
+                                                                Swal.fire("Error!", "AJAX request failed.", "error");
                                                             }
                                                         });
                                                     }
                                                 });
                                             });
                                         });
+
                                     </script>
 
 

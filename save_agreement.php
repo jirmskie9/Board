@@ -11,13 +11,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $user_id = isset($_POST['user_id']) ? $_POST['user_id'] : null;
     $app_id = isset($_POST['app_id']) ? $_POST['app_id'] : null;
     $agreement_content = isset($_POST['agreement_content']) ? $_POST['agreement_content'] : null;
+    $roomnum = isset($_POST['roomnum']) ? $_POST['roomnum'] : null;
 
     // Debugging: Log received values
     error_log("Received user_id: " . $user_id);
     error_log("Received app_id: " . $app_id);
+    error_log("Received roomnum: " . $roomnum);
 
     // Check for missing values
-    if (empty($user_id) || empty($app_id) || empty($agreement_content)) {
+    if (empty($user_id) || empty($app_id) || empty($agreement_content) || empty($roomnum)) {
         $_SESSION['status'] = "Missing required fields!";
         $_SESSION['status_code'] = "error";
         header("Location: Occupants.php");
@@ -46,10 +48,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             throw new Exception("Applications Update Error: " . mysqli_error($conn));
         }
 
+        // ✅ Update rooms table: Increment tenants count
+        $stmt3 = mysqli_prepare($conn, "UPDATE rooms SET tenants = tenants + 1 WHERE Roomnum = ?");
+        mysqli_stmt_bind_param($stmt3, "s", $roomnum);
+        if (!mysqli_stmt_execute($stmt3)) {
+            throw new Exception("Rooms Update Error: " . mysqli_error($conn));
+        }
+
         // Commit transaction
         mysqli_commit($conn);
 
-        $_SESSION['status'] = "Agreement saved and application approved!";
+        $_SESSION['status'] = "Agreement saved, application approved, and room updated!";
         $_SESSION['status_code'] = "success";
     } catch (Exception $e) {
         mysqli_rollback($conn);

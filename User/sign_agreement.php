@@ -559,8 +559,8 @@ VALUES ('$tenid','$amount','$billdate','0')";
                                         This is an overview of all data in Primos Boardinghouse.
                                     </div>
                                 </div>
-                               
-                              <!-- #region -->
+
+                                <!-- #region -->
                                 <div class="modal fade" id="exampleModal" tabindex="-1"
                                     aria-labelledby="exampleModalLabel" aria-hidden="true">
                                     <div class="modal-dialog">
@@ -657,117 +657,179 @@ VALUES ('$tenid','$amount','$billdate','0')";
                                                 <img src="logo/balay.jpg" alt="Company Logo" class="bottom-right-logo">
                                             </div>
 
-                                            <!-- Print Button -->
-                                            <div class="text-center mt-4">
-                                                <button class="btn btn-primary" onclick="printLease()">
-                                                    <i class="fas fa-print me-2"></i> Print Lease Agreement
-                                                </button>
+                                            <div class="row text-center mt-4">
+                                                <div class="col-md-6 mb-2">
+                                                    <button class="btn btn-primary" onclick="printLease()">
+                                                        <i class="fas fa-print me-2"></i> Print Lease Agreement
+                                                    </button>
+                                                </div>
+
+                                                <?php
+
+                                                $bills_sql = "SELECT SUM(amount) AS total_bills FROM bills WHERE tenantid = ?";
+                                                $bills_stmt = $conn->prepare($bills_sql);
+                                                $bills_stmt->bind_param("i", $user_id);
+                                                $bills_stmt->execute();
+                                                $bills_result = $bills_stmt->get_result();
+                                                $bills_row = $bills_result->fetch_assoc();
+                                                $total_bills = $bills_row['total_bills'] ?? 0; // Default to 0 if no data
+                                        
+                                                // Fetch total payments made
+                                                $payments_sql = "SELECT SUM(amount) AS total_payments FROM paymenthistory WHERE tenantid = ?";
+                                                $payments_stmt = $conn->prepare($payments_sql);
+                                                $payments_stmt->bind_param("i", $user_id);
+                                                $payments_stmt->execute();
+                                                $payments_result = $payments_stmt->get_result();
+                                                $payments_row = $payments_result->fetch_assoc();
+                                                $total_payments = $payments_row['total_payments'] ?? 0; // Default to 0 if no data
+                                        
+                                                // Calculate balance
+                                                $balance = $total_bills - $total_payments;
+                                                ?>
+                                                <?php
+
+                                                $sql = "SELECT * FROM tenants WHERE ID = ?";
+                                                $stmt = $conn->prepare($sql);
+                                                $stmt->bind_param("i", $user_id);
+                                                $stmt->execute();
+                                                $result = $stmt->get_result();
+
+                                                if ($result->num_rows > 0) {
+                                                    while ($user2 = $result->fetch_assoc()) {
+                                                        $room = $user2['room'];
+                                                      
+                                                    }
+                                                } else {
+                                                    echo "No user found.";
+                                                }
+                                                ?>
+
+                                                <!-- Display the values in input fields -->
+                                                <input type="text" name="bills" value="<?= htmlspecialchars($total_bills); ?>"
+                                                    readonly>
+                                                <input type="text" name="amount"
+                                                    value="<?= htmlspecialchars($total_payments); ?>" readonly>
+
+                                                <form action="end_agreement.php" method="POST">
+                                                    <input type="text" name="roomnum" value="<?php echo $room?>">
+                                                    <input type="text" name="balance"
+                                                        value="<?= htmlspecialchars($balance); ?>">
+                                                    <input type="text" name="user_id" value="<?php echo $user_id ?>">
+
+                                                    <div class="col-md-6 mb-2">
+                                                        <button class="btn btn-danger">
+                                                            <i class="fas fa-times-circle me-2"></i> End Lease Agreement
+                                                        </button>
+                                                </form>
                                             </div>
 
-                                            <!-- JavaScript for Printing -->
-                                            <script>
-                                                function printLease() {
-                                                    var printContent = document.getElementById("lease-print-section").innerHTML;
-                                                    var originalContent = document.body.innerHTML;
+                                        </div>
 
-                                                    document.body.innerHTML = printContent;
-                                                    window.print();
-                                                    document.body.innerHTML = originalContent;
-                                                    location.reload(); // Reload to restore event listeners
-                                                }
-                                            </script>
 
-                                            <!-- CSS for Bottom Right Image -->
-                                            <style>
-                                                .bottom-right-logo {
-                                                    position: absolute;
-                                                    bottom: 10px;
-                                                    right: 10px;
-                                                    width: 100px;
-                                                    /* Adjust size as needed */
-                                                    opacity: 0.8;
-                                                    /* Slight transparency */
-                                                }
-                                            </style>
+                                        <!-- JavaScript for Printing -->
+                                        <script>
+                                            function printLease() {
+                                                var printContent = document.getElementById("lease-print-section").innerHTML;
+                                                var originalContent = document.body.innerHTML;
 
-                                        <?php } else {
+                                                document.body.innerHTML = printContent;
+                                                window.print();
+                                                document.body.innerHTML = originalContent;
+                                                location.reload(); // Reload to restore event listeners
+                                            }
+                                        </script>
+
+                                        <!-- CSS for Bottom Right Image -->
+                                        <style>
+                                            .bottom-right-logo {
+                                                position: absolute;
+                                                bottom: 10px;
+                                                right: 10px;
+                                                width: 100px;
+                                                /* Adjust size as needed */
+                                                opacity: 0.8;
+                                                /* Slight transparency */
+                                            }
+                                        </style>
+
+                                    <?php } else {
                                             echo "<div class='alert alert-warning text-center'>No lease agreement found.</div>";
                                         }
                                     } else {
                                         echo "<div class='alert alert-danger text-center fw-bold'>User ID not found.</div>";
                                     } ?>
-                                </div>
-
-
-
-                                <script>
-                                    let canvas = document.getElementById("signature-pad");
-                                    let ctx = canvas.getContext("2d");
-                                    let drawing = false;
-
-                                    canvas.addEventListener("mousedown", (e) => {
-                                        drawing = true;
-                                        ctx.beginPath();
-                                        ctx.moveTo(e.offsetX, e.offsetY);
-                                    });
-
-                                    canvas.addEventListener("mousemove", (e) => {
-                                        if (!drawing) return;
-                                        ctx.lineTo(e.offsetX, e.offsetY);
-                                        ctx.stroke();
-                                    });
-
-                                    canvas.addEventListener("mouseup", () => {
-                                        drawing = false;
-                                    });
-
-                                    document.getElementById("clear-signature").addEventListener("click", () => {
-                                        ctx.clearRect(0, 0, canvas.width, canvas.height);
-                                    });
-
-
-                                    document.getElementById("save-signature").addEventListener("click", () => {
-                                        let canvas = document.getElementById("signature-pad");
-                                        let dataURL = canvas.toDataURL("image/png");
-
-                                        fetch("save_signature.php", {
-                                            method: "POST",
-                                            body: JSON.stringify({ image: dataURL, user_id: <?php echo $user_id; ?> }),
-                                            headers: { "Content-Type": "application/json" }
-                                        })
-                                            .then(response => response.json())
-                                            .then(data => {
-                                                if (data.success) {
-                                                    alert("Signature saved successfully!");
-                                                    location.reload();
-                                                } else {
-                                                    alert("Error saving signature.");
-                                                }
-                                            });
-                                    });
-
-                                </script>
-
-                                <style>
-                                    #signature-pad {
-                                        border: 2px solid #000;
-                                        cursor: crosshair;
-                                    }
-                                </style>
-
-
-
-
-
-
-
                             </div>
+
+
+
+                            <script>
+                                let canvas = document.getElementById("signature-pad");
+                                let ctx = canvas.getContext("2d");
+                                let drawing = false;
+
+                                canvas.addEventListener("mousedown", (e) => {
+                                    drawing = true;
+                                    ctx.beginPath();
+                                    ctx.moveTo(e.offsetX, e.offsetY);
+                                });
+
+                                canvas.addEventListener("mousemove", (e) => {
+                                    if (!drawing) return;
+                                    ctx.lineTo(e.offsetX, e.offsetY);
+                                    ctx.stroke();
+                                });
+
+                                canvas.addEventListener("mouseup", () => {
+                                    drawing = false;
+                                });
+
+                                document.getElementById("clear-signature").addEventListener("click", () => {
+                                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                                });
+
+
+                                document.getElementById("save-signature").addEventListener("click", () => {
+                                    let canvas = document.getElementById("signature-pad");
+                                    let dataURL = canvas.toDataURL("image/png");
+
+                                    fetch("save_signature.php", {
+                                        method: "POST",
+                                        body: JSON.stringify({ image: dataURL, user_id: <?php echo $user_id; ?> }),
+                                        headers: { "Content-Type": "application/json" }
+                                    })
+                                        .then(response => response.json())
+                                        .then(data => {
+                                            if (data.success) {
+                                                alert("Signature saved successfully!");
+                                                location.reload();
+                                            } else {
+                                                alert("Error saving signature.");
+                                            }
+                                        });
+                                });
+
+                            </script>
+
+                            <style>
+                                #signature-pad {
+                                    border: 2px solid #000;
+                                    cursor: crosshair;
+                                }
+                            </style>
+
+
+
+
+
+
+
                         </div>
                     </div>
+                </div>
 
 
 
-                    <!--                     <div class="app-wrapper-footer">
+                <!--                     <div class="app-wrapper-footer">
                         <div class="app-footer">
                             <div class="app-footer__inner">
                                 <div class="app-footer-left">
@@ -804,11 +866,11 @@ VALUES ('$tenid','$amount','$billdate','0')";
                             </div>
                         </div>
                     </div>   -->
-                </div>
-                <script src="http://maps.google.com/maps/api/js?sensor=true"></script>
             </div>
-            <script type="text/javascript"
-                src="https://demo.dashboardpack.com/architectui-html-free/assets/scripts/main.js"></script>
+            <script src="http://maps.google.com/maps/api/js?sensor=true"></script>
+        </div>
+        <script type="text/javascript"
+            src="https://demo.dashboardpack.com/architectui-html-free/assets/scripts/main.js"></script>
     </main>
 
 

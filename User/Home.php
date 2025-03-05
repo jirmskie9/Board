@@ -22,7 +22,8 @@ if ($result->num_rows > 0) {
     $fullname = $user['Fullname'];
   }
 } else {
-  echo "No user found.";
+  header("Location: ../login.php");
+  exit();
 }
 
 if (isset($_POST['svform'])) {

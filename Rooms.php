@@ -343,6 +343,7 @@ VALUES ('$rn', '$ro', '$rc')";
         <li><a href="./Dashboard.php"><i class="bi bi-house navicon"></i>Dashboard</a></li>
         <li><a href="./Occupants.php"><i class="bi bi-person navicon"></i> Occupants</a></li>
         <li><a href="./Rooms.php" class="active"><i class="bi bi-door-open navicon"></i> Rooms</a></li>
+        <li><a href="./Documents.php"><i class="bi bi-file-earmark-text navicon"></i> Documents</a></li>
         <li><a href="./Utilities.php"><i class="bi bi-lightbulb navicon"></i> <!-- Represents electricity/utilities -->
         Utility Bills</a></li>
         <li><a href="./Collection.php" class=""><i class="bi bi-cash-stack navicon"></i>Rent Collection</a></li>
@@ -417,9 +418,10 @@ VALUES ('$rn', '$ro', '$rc')";
                           </h4>
                           <p class="">
                             Occupants: <?php echo $row['Occupants']; ?> <br>
-
+                            Tenants: <?php echo $row['tenants']; ?> <br>
                             Price: <?php echo $row['Cost']; ?>
                           </p>
+                          
                         </div>
                         <div class="card-read-more text-center p-2">
                           <img src="<?php echo $statusImage; ?>" alt="Room Status" class="img-fluid rounded shadow-sm"
