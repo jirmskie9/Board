@@ -705,9 +705,9 @@ VALUES ('$tenid','$amount','$billdate','0')";
                                                 ?>
 
                                                 <!-- Display the values in input fields -->
-                                                <input type="text" name="bills" value="<?= htmlspecialchars($total_bills); ?>"
+                                                <input type="hidden" name="bills" value="<?= htmlspecialchars($total_bills); ?>"
                                                     readonly>
-                                                <input type="text" name="amount"
+                                                <input type="hidden" name="amount"
                                                     value="<?= htmlspecialchars($total_payments); ?>" readonly>
 
                                                 <form action="end_agreement.php" method="POST">
