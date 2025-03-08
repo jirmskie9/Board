@@ -561,26 +561,29 @@ VALUES ('$tenid','$amount','$billdate','0')";
                 </div>
               </div>
             </div>
-
             <?php
-
             $sql = "SELECT date_started FROM lease";
             $result = $conn->query($sql);
 
             $days = 0; // Default value
-            
-            if ($result->num_rows > 0) {
-              $row = $result->fetch_assoc();
-              $date_started = $row['date_started'];
 
-              // Convert date_started to a DateTime object
-              $start_date = new DateTime($date_started);
-              $current_date = new DateTime(); // Current date
-            
-              // Calculate the difference in days
-              $interval = $start_date->diff($current_date);
-              $days = $interval->days; // Get total days difference
+            if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            $date_started = $row['date_started'];
+
+            // Convert date_started to a DateTime object
+            $start_date = new DateTime($date_started);
+            $current_date = new DateTime();
+
+            // Normalize both dates to midnight (00:00:00) to get accurate full-day difference
+            $start_date->setTime(0, 0, 0);
+            $current_date->setTime(0, 0, 0);
+
+            // Calculate the difference in days
+            $interval = $start_date->diff($current_date);
+            $days = $interval->days; // Get total days difference
             }
+
             ?>
 
             <div class="col-md-6 col-xl-4">
@@ -598,6 +601,7 @@ VALUES ('$tenid','$amount','$billdate','0')";
                 </div>
               </div>
             </div>
+
 
 
 
@@ -644,44 +648,44 @@ VALUES ('$tenid','$amount','$billdate','0')";
                   </div>
                 </div>
               </div>
-          </div>
-          <div class="row">
-            <div class="col-md-6">
-              <div class="mb-3 card shadow-lg rounded">
-                <div class="card-header bg-primary text-white d-flex align-items-center">
-                  <i class="fas fa-wallet me-2 fs-5"></i>
-                  <h5 class="mb-0">Pending Payment</h5>
-                </div>
-                <div class="card-body">
-                  <?php
-                  if (isset($user_id)) {
-                    // Fetch the total amount from bills
-                    $sql_bills = "SELECT COALESCE(SUM(amount), 0) AS total_bills FROM bills WHERE tenantid = ?";
-                    $stmt_bills = $conn->prepare($sql_bills);
-                    $stmt_bills->bind_param("i", $user_id);
-                    $stmt_bills->execute();
-                    $result_bills = $stmt_bills->get_result();
-                    $bills = $result_bills->fetch_assoc();
-                    $totalBills = $bills['total_bills'];
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3 card shadow-lg rounded">
+                  <div class="card-header bg-primary text-white d-flex align-items-center">
+                    <i class="fas fa-wallet me-2 fs-5"></i>
+                    <h5 class="mb-0">Pending Payment</h5>
+                  </div>
+                  <div class="card-body">
+                    <?php
+                    if (isset($user_id)) {
+                      // Fetch the total amount from bills
+                      $sql_bills = "SELECT COALESCE(SUM(amount), 0) AS total_bills FROM bills WHERE tenantid = ?";
+                      $stmt_bills = $conn->prepare($sql_bills);
+                      $stmt_bills->bind_param("i", $user_id);
+                      $stmt_bills->execute();
+                      $result_bills = $stmt_bills->get_result();
+                      $bills = $result_bills->fetch_assoc();
+                      $totalBills = $bills['total_bills'];
 
-                    // Fetch the total amount paid from paymenthistory
-                    $sql_payments = "SELECT COALESCE(SUM(amount), 0) AS total_payments FROM paymenthistory WHERE tenantid = ?";
-                    $stmt_payments = $conn->prepare($sql_payments);
-                    $stmt_payments->bind_param("i", $user_id);
-                    $stmt_payments->execute();
-                    $result_payments = $stmt_payments->get_result();
-                    $payments = $result_payments->fetch_assoc();
-                    $totalPayments = $payments['total_payments'];
+                      // Fetch the total amount paid from paymenthistory
+                      $sql_payments = "SELECT COALESCE(SUM(amount), 0) AS total_payments FROM paymenthistory WHERE tenantid = ?";
+                      $stmt_payments = $conn->prepare($sql_payments);
+                      $stmt_payments->bind_param("i", $user_id);
+                      $stmt_payments->execute();
+                      $result_payments = $stmt_payments->get_result();
+                      $payments = $result_payments->fetch_assoc();
+                      $totalPayments = $payments['total_payments'];
 
-                    // Calculate the remaining balance
-                    $totalDue = $totalBills - $totalPayments;
+                      // Calculate the remaining balance
+                      $totalDue = $totalBills - $totalPayments;
 
-                    $stmt_bills->close();
-                    $stmt_payments->close();
+                      $stmt_bills->close();
+                      $stmt_payments->close();
 
-                    if ($totalDue > 0) {
-                      $formattedTotalDue = number_format($totalDue, 2);
-                      echo "
+                      if ($totalDue > 0) {
+                        $formattedTotalDue = number_format($totalDue, 2);
+                        echo "
                       <div class='d-flex justify-content-between align-items-center'>
                           <h5 class='text-dark fw-bold'>₱{$formattedTotalDue}</h5>
                           <span class='badge bg-warning text-dark'>Pending Payment</span>
@@ -692,337 +696,337 @@ VALUES ('$tenid','$amount','$billdate','0')";
                               <i class='fas fa-credit-card me-1'></i> Pay Now
                           </a>
                       </div>";
+                      } else {
+                        echo "<p class='text-muted text-center'>No pending payments.</p>";
+                      }
                     } else {
-                      echo "<p class='text-muted text-center'>No pending payments.</p>";
+                      echo "<p class='text-danger text-center'>User ID not found.</p>";
                     }
-                  } else {
-                    echo "<p class='text-danger text-center'>User ID not found.</p>";
-                  }
-                  ?>
+                    ?>
 
+                  </div>
                 </div>
               </div>
-            </div>
 
 
 
-            <div class="col-md-6">
-              <?php
-              // Ensure user ID is set
-              if (isset($uid)) {
-                // Fetch lease agreement content
-                $sql = "SELECT lease_id FROM lease WHERE user_id = ?";
-                $stmt = $conn->prepare($sql);
-                $stmt->bind_param("i", $user_id); // Changed $user_id to $uid to match the variable name
-                $stmt->execute();
-                $result = $stmt->get_result();
-                $lease = $result->fetch_assoc();
+              <div class="col-md-6">
+                <?php
+                // Ensure user ID is set
+                if (isset($uid)) {
+                  // Fetch lease agreement content
+                  $sql = "SELECT lease_id FROM lease WHERE user_id = ?";
+                  $stmt = $conn->prepare($sql);
+                  $stmt->bind_param("i", $user_id); // Changed $user_id to $uid to match the variable name
+                  $stmt->execute();
+                  $result = $stmt->get_result();
+                  $lease = $result->fetch_assoc();
 
-                if ($lease) {
-                  $leaseId = $lease['lease_id'];
-                  $showSignButton = true;
+                  if ($lease) {
+                    $leaseId = $lease['lease_id'];
+                    $showSignButton = true;
+                  } else {
+                    $showSignButton = false;
+                  }
                 } else {
                   $showSignButton = false;
                 }
-              } else {
-                $showSignButton = false;
-              }
-              ?>
+                ?>
 
-              <div class="mb-3 card shadow-lg rounded border">
-                <div class="card-header bg-success text-white d-flex align-items-center">
-                  <i class="fas fa-file-signature me-2 fs-5"></i>
-                  <h5 class="mb-0">Lease Agreement</h5>
-                </div>
-                <div class="card-body text-center">
-                  <?php if ($showSignButton): ?>
-                    <p class="text-muted">You have a lease agreement.</p>
-                    <a href="sign_agreement.php?lease_id=<?php echo $leaseId; ?>" class="btn btn-primary">
-                      <i class="fas fa-pen-nib me-2"></i> View Agreement
-                    </a>
-                  <?php else: ?>
-                    <p class="text-muted">No lease agreement pending for signature.</p>
-                  <?php endif; ?>
+                <div class="mb-3 card shadow-lg rounded border">
+                  <div class="card-header bg-success text-white d-flex align-items-center">
+                    <i class="fas fa-file-signature me-2 fs-5"></i>
+                    <h5 class="mb-0">Lease Agreement</h5>
+                  </div>
+                  <div class="card-body text-center">
+                    <?php if ($showSignButton): ?>
+                      <p class="text-muted">You have a lease agreement.</p>
+                      <a href="sign_agreement.php?lease_id=<?php echo $leaseId; ?>" class="btn btn-primary">
+                        <i class="fas fa-pen-nib me-2"></i> View Agreement
+                      </a>
+                    <?php else: ?>
+                      <p class="text-muted">No lease agreement pending for signature.</p>
+                    <?php endif; ?>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <!-- Include FontAwesome for icons -->
-            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-
+              <!-- Include FontAwesome for icons -->
+              <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
 
 
-            <div class="row">
-              <div class="col-md-6">
-                <div class="mb-3 card shadow-lg rounded">
-                  <div class="card-header bg-info text-white d-flex align-items-center">
-                    <i class="fas fa-history me-2"></i>
-                    <h5 class="mb-0">Payment History</h5>
-                  </div>
-                  <div class="card-body">
-                    <table class="table table-striped table-hover">
-                      <thead class="table-primary">
-                        <tr>
-                          <th>#</th>
-                          <th>Amount</th>
 
-                          <th>Payment Date</th>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3 card shadow-lg rounded">
+                    <div class="card-header bg-info text-white d-flex align-items-center">
+                      <i class="fas fa-history me-2"></i>
+                      <h5 class="mb-0">Payment History</h5>
+                    </div>
+                    <div class="card-body">
+                      <table class="table table-striped table-hover">
+                        <thead class="table-primary">
+                          <tr>
+                            <th>#</th>
+                            <th>Amount</th>
 
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <?php
+                            <th>Payment Date</th>
 
-                        $sql = "SELECT p.tenantid, p.amount, p.baseddate, t.ID, t.fname, t.lname FROM paymenthistory p
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <?php
+
+                          $sql = "SELECT p.tenantid, p.amount, p.baseddate, t.ID, t.fname, t.lname FROM paymenthistory p
                                         JOIN tenants t ON p.tenantid = t.ID WHERE p.tenantid = '$user_id' ORDER BY p.baseddate DESC";
-                        $result = $conn->query($sql);
-                        $count = 1;
+                          $result = $conn->query($sql);
+                          $count = 1;
 
-                        if ($result->num_rows > 0) {
-                          while ($row = $result->fetch_assoc()) {
-                            echo "<tr>
+                          if ($result->num_rows > 0) {
+                            while ($row = $result->fetch_assoc()) {
+                              echo "<tr>
                                         <td>{$count}</td>
                                         <td>₱" . number_format($row['amount'], 2) . "</td>
                                    
                                         <td>" . date("F d, Y h:i A", strtotime($row['baseddate'])) . "</td>
                                     
                                       </tr>";
-                            $count++;
-                          }
-                        } else {
-                          echo "<tr><td colspan='5' class='text-center'>No payment records found</td></tr>";
-                        }
-                        ?>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="mb-3 card shadow-lg rounded">
-                  <div class="card-header bg-info text-white d-flex align-items-center">
-                    <i class="fas fa-file-alt me-2"></i>
-                    <h5 class="mb-0">Applications</h5>
-
-                  </div>
-                  <div class="card-body">
-                    <div class="table-responsive shadow-sm p-3 bg-white rounded">
-
-
-                      <table class="table table-bordered table-striped">
-                        <thead style="background-color: #e9ecef;"> <!-- Table header styling -->
-                          <tr>
-                            <th>Proof</th>
-                            <th>Valid ID</th>
-                            <th>Status</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <?php
-                          $sql = "SELECT * FROM applications WHERE status = 'pending' AND user_id = '$user_id'";
-                          $result = $conn->query($sql);
-
-                          if ($result->num_rows > 0) {
-                            while ($row = $result->fetch_assoc()) {
-                              echo "<tr>";
-                              echo "<td><a href='#' class='upload-link' data-userid='{$row['user_id']}' data-field='proof'>Upload Proof of Income</a></td>";
-                              echo "<td><a href='#' class='upload-link' data-userid='{$row['user_id']}' data-field='valid_id'>Upload Valid ID</a></td>";
-                              echo "<td><span style='background-color: #ffc107; color: black; padding: 5px 10px; border-radius: 5px;'>{$row['status']}</span></td>";
-                              echo "</tr>";
+                              $count++;
                             }
                           } else {
-                            echo "<tr><td colspan='3' style='text-align: center;'>No pending applications found.</td></tr>";
+                            echo "<tr><td colspan='5' class='text-center'>No payment records found</td></tr>";
                           }
                           ?>
                         </tbody>
                       </table>
-
-                      <!-- Modal (No Bootstrap) -->
-                      <!-- Modal -->
-                      <div id="uploadModal" class="modal">
-                        <div class="modal-content">
-                          <span class="close" onclick="closeModal()">&times;</span>
-                          <h2 class="modal-title">Upload Document</h2>
-                          <p class="modal-description">Please upload the required document below.</p>
-
-                          <form action="upload_application_file.php" method="POST" enctype="multipart/form-data">
-                            <input type="hidden" name="user_id" id="modal_user_id">
-                            <input type="hidden" name="field_name" id="modal_field_name">
-
-                            <label for="file_upload" class="file-label">Choose File</label>
-                            <input type="file" name="file_upload" id="file_upload" class="file-input" required>
-
-                            <div class="modal-footer">
-                              <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-                              <button type="submit" class="btn btn-primary">Upload</button>
-                            </div>
-                          </form>
-                        </div>
-                      </div>
-
-
-                      <!-- Modal Styling (No Bootstrap) -->
-                      <style>
-                        /* --- MODAL STYLING --- */
-
-                        .modal {
-                          display: none;
-                          /* Ensure modal is hidden initially */
-                          position: fixed;
-                          z-index: 1000;
-                          left: 0;
-                          top: 0;
-                          width: 100%;
-                          height: 100%;
-                          background-color: rgba(0, 0, 0, 0.5);
-                          justify-content: center;
-                          align-items: center;
-                        }
-
-                        /* Modal Content */
-                        .modal-content {
-                          background: white;
-                          width: 400px;
-                          padding: 25px;
-                          border-radius: 12px;
-                          box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
-                          text-align: center;
-                          position: relative;
-                          animation: fadeIn 0.3s ease-in-out;
-                        }
-
-                        /* Fade-in Animation */
-                        @keyframes fadeIn {
-                          from {
-                            opacity: 0;
-                            transform: translateY(-10px);
-                          }
-
-                          to {
-                            opacity: 1;
-                            transform: translateY(0);
-                          }
-                        }
-
-                        /* Close Button */
-                        .close {
-                          position: absolute;
-                          top: 12px;
-                          right: 18px;
-                          font-size: 24px;
-                          cursor: pointer;
-                          color: #555;
-                          transition: 0.3s;
-                        }
-
-                        .close:hover {
-                          color: red;
-                        }
-
-                        /* Modal Title */
-                        .modal-title {
-                          font-size: 22px;
-                          font-weight: bold;
-                          margin-bottom: 8px;
-                          color: #333;
-                        }
-
-                        /* Modal Description */
-                        .modal-description {
-                          font-size: 14px;
-                          color: #666;
-                          margin-bottom: 15px;
-                        }
-
-                        /* File Input */
-                        .file-label {
-                          font-size: 14px;
-                          font-weight: bold;
-                          display: block;
-                          margin-bottom: 8px;
-                          color: #444;
-                        }
-
-                        .file-input {
-                          width: 100%;
-                          padding: 10px;
-                          border: 1px solid #ccc;
-                          border-radius: 6px;
-                          font-size: 14px;
-                        }
-
-                        /* Modal Footer (Buttons) */
-                        .modal-footer {
-                          margin-top: 20px;
-                          display: flex;
-                          justify-content: space-between;
-                        }
-
-                        /* Buttons */
-                        .btn {
-                          padding: 10px 16px;
-                          border: none;
-                          cursor: pointer;
-                          border-radius: 6px;
-                          font-size: 14px;
-                          transition: 0.3s;
-                        }
-
-                        .btn-secondary {
-                          background-color: #6c757d;
-                          color: white;
-                        }
-
-                        .btn-secondary:hover {
-                          background-color: #5a6268;
-                        }
-
-                        .btn-primary {
-                          background-color: #007bff;
-                          color: white;
-                        }
-
-                        .btn-primary:hover {
-                          background-color: #0056b3;
-                        }
-                      </style>
-
-                      <!-- JavaScript for Modal (No Bootstrap) -->
-                      <script>
-                        function openModal(userId, field) {
-                          document.getElementById('modal_user_id').value = userId;
-                          document.getElementById('modal_field_name').value = field;
-                          document.getElementById('uploadModal').style.display = 'flex';
-                        }
-
-                        function closeModal() {
-                          document.getElementById('uploadModal').style.display = 'none';
-                        }
-
-                        // Close modal when clicking outside the content
-                        window.onclick = function (event) {
-                          var modal = document.getElementById('uploadModal');
-                          if (event.target === modal) {
-                            modal.style.display = 'none';
-                          }
-                        };
-
-                        // Attach event listeners to links
-                        document.querySelectorAll('.upload-link').forEach(link => {
-                          link.addEventListener('click', function (e) {
-                            e.preventDefault();
-                            openModal(this.getAttribute('data-userid'), this.getAttribute('data-field'));
-                          });
-                        });
-                      </script>
-
-
-
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3 card shadow-lg rounded">
+                    <div class="card-header bg-info text-white d-flex align-items-center">
+                      <i class="fas fa-file-alt me-2"></i>
+                      <h5 class="mb-0">Applications</h5>
 
                     </div>
+                    <div class="card-body">
+                      <div class="table-responsive shadow-sm p-3 bg-white rounded">
 
-                    <!--                     <div class="app-wrapper-footer">
+
+                        <table class="table table-bordered table-striped">
+                          <thead style="background-color: #e9ecef;"> <!-- Table header styling -->
+                            <tr>
+                              <th>Proof</th>
+                              <th>Valid ID</th>
+                              <th>Status</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <?php
+                            $sql = "SELECT * FROM applications WHERE status = 'pending' AND user_id = '$user_id'";
+                            $result = $conn->query($sql);
+
+                            if ($result->num_rows > 0) {
+                              while ($row = $result->fetch_assoc()) {
+                                echo "<tr>";
+                                echo "<td><a href='#' class='upload-link' data-userid='{$row['user_id']}' data-field='proof'>Upload Proof of Income</a></td>";
+                                echo "<td><a href='#' class='upload-link' data-userid='{$row['user_id']}' data-field='valid_id'>Upload Valid ID</a></td>";
+                                echo "<td><span style='background-color: #ffc107; color: black; padding: 5px 10px; border-radius: 5px;'>{$row['status']}</span></td>";
+                                echo "</tr>";
+                              }
+                            } else {
+                              echo "<tr><td colspan='3' style='text-align: center;'>No pending applications found.</td></tr>";
+                            }
+                            ?>
+                          </tbody>
+                        </table>
+
+                        <!-- Modal (No Bootstrap) -->
+                        <!-- Modal -->
+                        <div id="uploadModal" class="modal">
+                          <div class="modal-content">
+                            <span class="close" onclick="closeModal()">&times;</span>
+                            <h2 class="modal-title">Upload Document</h2>
+                            <p class="modal-description">Please upload the required document below.</p>
+
+                            <form action="upload_application_file.php" method="POST" enctype="multipart/form-data">
+                              <input type="hidden" name="user_id" id="modal_user_id">
+                              <input type="hidden" name="field_name" id="modal_field_name">
+
+                              <label for="file_upload" class="file-label">Choose File</label>
+                              <input type="file" name="file_upload" id="file_upload" class="file-input" required>
+
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Upload</button>
+                              </div>
+                            </form>
+                          </div>
+                        </div>
+
+
+                        <!-- Modal Styling (No Bootstrap) -->
+                        <style>
+                          /* --- MODAL STYLING --- */
+
+                          .modal {
+                            display: none;
+                            /* Ensure modal is hidden initially */
+                            position: fixed;
+                            z-index: 1000;
+                            left: 0;
+                            top: 0;
+                            width: 100%;
+                            height: 100%;
+                            background-color: rgba(0, 0, 0, 0.5);
+                            justify-content: center;
+                            align-items: center;
+                          }
+
+                          /* Modal Content */
+                          .modal-content {
+                            background: white;
+                            width: 400px;
+                            padding: 25px;
+                            border-radius: 12px;
+                            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+                            text-align: center;
+                            position: relative;
+                            animation: fadeIn 0.3s ease-in-out;
+                          }
+
+                          /* Fade-in Animation */
+                          @keyframes fadeIn {
+                            from {
+                              opacity: 0;
+                              transform: translateY(-10px);
+                            }
+
+                            to {
+                              opacity: 1;
+                              transform: translateY(0);
+                            }
+                          }
+
+                          /* Close Button */
+                          .close {
+                            position: absolute;
+                            top: 12px;
+                            right: 18px;
+                            font-size: 24px;
+                            cursor: pointer;
+                            color: #555;
+                            transition: 0.3s;
+                          }
+
+                          .close:hover {
+                            color: red;
+                          }
+
+                          /* Modal Title */
+                          .modal-title {
+                            font-size: 22px;
+                            font-weight: bold;
+                            margin-bottom: 8px;
+                            color: #333;
+                          }
+
+                          /* Modal Description */
+                          .modal-description {
+                            font-size: 14px;
+                            color: #666;
+                            margin-bottom: 15px;
+                          }
+
+                          /* File Input */
+                          .file-label {
+                            font-size: 14px;
+                            font-weight: bold;
+                            display: block;
+                            margin-bottom: 8px;
+                            color: #444;
+                          }
+
+                          .file-input {
+                            width: 100%;
+                            padding: 10px;
+                            border: 1px solid #ccc;
+                            border-radius: 6px;
+                            font-size: 14px;
+                          }
+
+                          /* Modal Footer (Buttons) */
+                          .modal-footer {
+                            margin-top: 20px;
+                            display: flex;
+                            justify-content: space-between;
+                          }
+
+                          /* Buttons */
+                          .btn {
+                            padding: 10px 16px;
+                            border: none;
+                            cursor: pointer;
+                            border-radius: 6px;
+                            font-size: 14px;
+                            transition: 0.3s;
+                          }
+
+                          .btn-secondary {
+                            background-color: #6c757d;
+                            color: white;
+                          }
+
+                          .btn-secondary:hover {
+                            background-color: #5a6268;
+                          }
+
+                          .btn-primary {
+                            background-color: #007bff;
+                            color: white;
+                          }
+
+                          .btn-primary:hover {
+                            background-color: #0056b3;
+                          }
+                        </style>
+
+                        <!-- JavaScript for Modal (No Bootstrap) -->
+                        <script>
+                          function openModal(userId, field) {
+                            document.getElementById('modal_user_id').value = userId;
+                            document.getElementById('modal_field_name').value = field;
+                            document.getElementById('uploadModal').style.display = 'flex';
+                          }
+
+                          function closeModal() {
+                            document.getElementById('uploadModal').style.display = 'none';
+                          }
+
+                          // Close modal when clicking outside the content
+                          window.onclick = function (event) {
+                            var modal = document.getElementById('uploadModal');
+                            if (event.target === modal) {
+                              modal.style.display = 'none';
+                            }
+                          };
+
+                          // Attach event listeners to links
+                          document.querySelectorAll('.upload-link').forEach(link => {
+                            link.addEventListener('click', function (e) {
+                              e.preventDefault();
+                              openModal(this.getAttribute('data-userid'), this.getAttribute('data-field'));
+                            });
+                          });
+                        </script>
+
+
+
+
+                      </div>
+
+                      <!--                     <div class="app-wrapper-footer">
                         <div class="app-footer">
                             <div class="app-footer__inner">
                                 <div class="app-footer-left">
@@ -1060,15 +1064,15 @@ VALUES ('$tenid','$amount','$billdate','0')";
                         </div>
                     </div>   -->
 
+                    </div>
                   </div>
-                </div>
-                <div class="row">
+                  <div class="row">
 
 
-                  <script src="http://maps.google.com/maps/api/js?sensor=true"></script>
-                </div>
-                <script type="text/javascript"
-                  src="https://demo.dashboardpack.com/architectui-html-free/assets/scripts/main.js"></script>
+                    <script src="http://maps.google.com/maps/api/js?sensor=true"></script>
+                  </div>
+                  <script type="text/javascript"
+                    src="https://demo.dashboardpack.com/architectui-html-free/assets/scripts/main.js"></script>
   </main>
 
 
