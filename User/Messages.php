@@ -38,14 +38,14 @@ if ($result->num_rows > 0) {
 } else {
   echo "No user found.";
 }
-// $host = "localhost";
-// $user = "u507130350_johnrid";
-// $pass = "Johnrid123";
-// $db_name = "u507130350_board";
 $host = "localhost";
-$user = "root";
-$pass = "";
-$db_name = "board";
+$user = "u507130350_johnrid";
+$pass = "Johnrid123";
+$db_name = "u507130350_board";
+// $host = "localhost";
+// $user = "root";
+// $pass = "";
+// $db_name = "board";
 
 if (isset($_POST['submit'])) {
   $link = mysqli_connect($host, $user, $pass, $db_name);
