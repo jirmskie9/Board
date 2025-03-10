@@ -642,6 +642,40 @@ if ($result->num_rows > 0) {
                                 </div>
                                 <div class="card-body">
                                     <div class="table-responsive">
+                                        <?php
+                                        // Define the number of records per page
+                                        $records_per_page = 10;
+
+                                        // Get the current page number from URL, default to 1
+                                        $page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int) $_GET['page'] : 1;
+
+                                        // Calculate the starting record for the query
+                                        $offset = ($page - 1) * $records_per_page;
+
+                                        // Query to count total records
+                                        $total_query = "SELECT COUNT(*) AS total FROM logs WHERE user_id != 0";
+                                        $total_result = mysqli_query($conn, $total_query);
+                                        $total_row = mysqli_fetch_assoc($total_result);
+                                        $total_records = $total_row['total'];
+
+                                        // Calculate total pages
+                                        $total_pages = ceil($total_records / $records_per_page);
+
+                                        // Fetch logs with pagination
+                                        $query = "SELECT l.id, l.user_id, l.date_time, t.ID, t.fname, t.lname 
+          FROM logs l
+          JOIN tenants t ON l.user_id = t.ID 
+          WHERE l.user_id != 0 
+          ORDER BY l.date_time DESC 
+          LIMIT $records_per_page OFFSET $offset";
+
+                                        $result = mysqli_query($conn, $query);
+
+                                        if (!$result) {
+                                            die("Query failed: " . mysqli_error($conn));
+                                        }
+                                        ?>
+
                                         <table class="table table-bordered">
                                             <thead>
                                                 <tr>
@@ -650,68 +684,29 @@ if ($result->num_rows > 0) {
                                                     <th>Date Time</th>
                                                 </tr>
                                             </thead>
-                                            <?php
-                                            // Define the number of records per page
-                                            $records_per_page = 10;
-
-                                            // Get the current page number from URL, default to 1
-                                            $page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int) $_GET['page'] : 1;
-
-                                            // Calculate the starting record for the query
-                                            $offset = ($page - 1) * $records_per_page;
-
-                                            // Query to count total records
-                                            $total_query = "SELECT COUNT(*) AS total FROM logs WHERE user_id != 0";
-                                            $total_result = mysqli_query($conn, $total_query);
-                                            $total_row = mysqli_fetch_assoc($total_result);
-                                            $total_records = $total_row['total'];
-
-                                            // Calculate total pages
-                                            $total_pages = ceil($total_records / $records_per_page);
-
-                                            // Fetch logs with pagination
-                                            $query = "SELECT l.id, l.user_id, l.date_time, t.ID, t.fname, t.lname 
-          FROM logs l
-          JOIN tenants t ON l.user_id = t.ID 
-          WHERE l.user_id != 0 
-          ORDER BY l.date_time DESC 
-          LIMIT $records_per_page OFFSET $offset";
-
-                                            $result = mysqli_query($conn, $query);
-
-                                            if (!$result) {
-                                                die("Query failed: " . mysqli_error($conn));
-                                            }
-                                            ?>
-
-                                            <table>
-                                                <tbody>
-                                                    <?php while ($row = mysqli_fetch_assoc($result)): ?>
-                                                        <?php $formatted_date = date("F j, Y, g:i A", strtotime($row['date_time'])); ?>
-                                                        <tr>
-                                                            <td><img src="logs.png" height="50" width="50"></td>
-                                                            <td><?= htmlspecialchars($row['fname']) . " " . htmlspecialchars($row['lname']); ?>
-                                                            </td>
-                                                            <td><?= htmlspecialchars($formatted_date); ?></td>
-                                                        </tr>
-                                                    <?php endwhile; ?>
-                                                </tbody>
-                                            </table>
-
-                                            <!-- Pagination Links -->
-                                            <div>
-                                                <?php if ($page > 1): ?>
-                                                    <a href="?page=<?= $page - 1; ?>">Previous</a>
-                                                <?php endif; ?>
-
-                                                <span>Page <?= $page; ?> of <?= $total_pages; ?></span>
-
-                                                <?php if ($page < $total_pages): ?>
-                                                    <a href="?page=<?= $page + 1; ?>">Next</a>
-                                                <?php endif; ?>
-                                            </div>
-
+                                            <tbody>
+                                                <?php while ($row = mysqli_fetch_assoc($result)): ?>
+                                                    <?php $formatted_date = date("F j, Y, g:i A", strtotime($row['date_time'])); ?>
+                                                    <tr>
+                                                        <td><img src="logs.png" height="50" width="50"></td>
+                                                        <td><?= htmlspecialchars($row['fname']) . " " . htmlspecialchars($row['lname']); ?>
+                                                        </td>
+                                                        <td><?= htmlspecialchars($formatted_date); ?></td>
+                                                    </tr>
+                                                <?php endwhile; ?>
+                                            </tbody>
                                         </table>
+                                        <div>
+                                            <?php if ($page > 1): ?>
+                                                <a href="?page=<?= $page - 1; ?>">Previous</a>
+                                            <?php endif; ?>
+
+                                            <span>Page <?= $page; ?> of <?= $total_pages; ?></span>
+
+                                            <?php if ($page < $total_pages): ?>
+                                                <a href="?page=<?= $page + 1; ?>">Next</a>
+                                            <?php endif; ?>
+                                        </div>
 
 
 
