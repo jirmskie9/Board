@@ -2,7 +2,9 @@
 session_start();
 include('db.php');
 
-if(isset($_POST['uname']) && isset($_POST['upass'])){
+date_default_timezone_set("Asia/Manila"); // Set timezone to Asia/Manila
+
+if (isset($_POST['uname']) && isset($_POST['upass'])) {
     $user = $conn->real_escape_string($_POST['uname']);
     $pass = $conn->real_escape_string($_POST['upass']);
 
@@ -14,9 +16,28 @@ if(isset($_POST['uname']) && isset($_POST['upass'])){
 
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
-    
         $_SESSION['Uid'] = $row['ID'];
-    
+
+        // Insert login record into logs table
+        $user_id = $row['ID'];
+        $date_time = date("Y-m-d H:i:s"); // Get current date and time
+
+        // Debugging Step 1: Print the variables
+        echo "User ID: $user_id <br>";
+        echo "Date Time: $date_time <br>";
+
+        $log_query = "INSERT INTO logs (user_id, date_time) VALUES ('$user_id', '$date_time')";
+        
+        // Debugging Step 2: Print the SQL query
+        echo "Query: $log_query <br>";
+
+        if (!mysqli_query($conn, $log_query)) {
+            die("Log insertion failed: " . mysqli_error($conn)); // Debugging Step 3: Show MySQL error
+        } else {
+            echo "Log inserted successfully! <br>";
+        }
+
+        // Redirect based on user type
         if ($row['Usertype'] == "0") {
             header("Location: Dashboard.php");
         } else {

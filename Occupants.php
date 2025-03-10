@@ -483,6 +483,7 @@ VALUES ('$tenid','$amount','$billdate','0')";
         <li><a href="./expenses.php"><i class="bi bi-receipt navicon"></i> Expenses</a></li>
         <li><a href="./Messages.php"><i class="fa fa-envelope"></i> Messages</a></li>
         <li><a href="./Maintenance.php"><i class="bi bi-newspaper navicon"></i> Maintenance Request</a></li>
+        <li><a href="./user.php"><i class="bi bi-people navicon"></i> Users Management</a></li>
         <li><a href="./logout.php"><i class="bi bi-box-arrow-right navicon"></i> Logout</a></li>
       </ul>
 

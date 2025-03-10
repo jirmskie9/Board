@@ -60,48 +60,43 @@ if ($result->num_rows > 0) {
     <link href="https://demo.dashboardpack.com/architectui-html-free/main.css" rel="stylesheet">
     <link href="./logo/balay.jpg" rel="icon">
     <style>
-        .password-strength {
-            margin-top: 5px;
-            font-size: 12px;
+        /* Modal Styles */
+        .modal {
+            display: none;
+            /* Hidden by default */
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            /* Dark background */
         }
 
-        #strength-bar {
-            height: 5px;
-            margin-top: 5px;
+        /* Modal Content */
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            width: 40%;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            position: relative;
         }
 
-        .very-weak {
-            height: 5px;
-            background-color: #ff4d4d;
-        }
-
-        .weak {
-            background-color: #ffa07a;
-        }
-
-        .fair {
-            background-color: #ffd700;
-        }
-
-        .moderate {
-            background-color: #add8e6;
-        }
-
-        .strong {
-            background-color: #90ee90;
-        }
-
-        .very-strong {
-            background-color: #00cc00;
+        /* Close Button */
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 20px;
+            cursor: pointer;
+            border: none;
+            background: none;
         }
     </style>
-    <!-- =======================================================
-  * Template Name: iPortfolio
-  * Template URL: https://bootstrapmade.com/iportfolio-bootstrap-portfolio-websites-template/
-  * Updated: Jun 29 2024 with Bootstrap v5.3.3
-  * Author: BootstrapMade.com
-  * License: https://bootstrapmade.com/license/
-  ======================================================== -->
 </head>
 
 <body class="index-page">
@@ -123,21 +118,21 @@ if ($result->num_rows > 0) {
 
         <nav id="navmenu" class="navmenu">
             <ul>
-                <li><a href="./Dashboard.php" class="active"><i class="bi bi-house navicon"></i>Dashboard</a></li>
+                <li><a href="./Dashboard.php"><i class="bi bi-house navicon"></i>Dashboard</a></li>
                 <li><a href="./Occupants.php"><i class="bi bi-person navicon"></i> Occupants</a></li>
                 <li><a href="./Rooms.php"><i class="bi bi-door-open navicon"></i> Rooms</a></li>
-                <li><a href="./Documents.php"><i class="bi bi-file-earmark-text navicon"></i> Documents</a></li>
-
+                <li><a href="./Documents.php"><i class="bi bi-file-earmark-text navicon"></i>
+                        Documents</a></li>
                 <li><a href="./Utilities.php"><i class="bi bi-lightbulb navicon"></i>
                         <!-- Represents electricity/utilities -->
                         Utility Bills</a></li>
-                <li><a href="./Collection.php" class=""><i class="bi bi-cash-stack navicon"></i>Rent Collection</a></li>
+                <li><a href="./Collection.php"><i class="bi bi-cash-stack navicon"></i>Rent
+                        Collection</a></li>
 
                 <li><a href="./expenses.php"><i class="bi bi-receipt navicon"></i> Expenses</a></li>
                 <li><a href="./Messages.php"><i class="bi bi-envelope-fill navicon"></i> Messages</a></li>
                 <li><a href="./Maintenance.php"><i class="bi bi-newspaper navicon"></i> Maintenance Request</a></li>
-                <li><a href="./user.php"><i class="bi bi-people navicon"></i> Users Management</a></li>
-
+                <li><a href="./user.php" class="active"><i class="bi bi-people navicon"></i> Users Management</a></li>
                 <li><a href="./logout.php"><i class="bi bi-box-arrow-right navicon"></i> Logout</a></li>
             </ul>
 
@@ -533,386 +528,170 @@ if ($result->num_rows > 0) {
 
                         </div>
                     </div>
-                    <div class="row">
-                        <?php
-                        include('db.php');
 
-                        $current_year = date("Y");
-                        $sql = "SELECT SUM(amount) AS total_expenses FROM expenses";
-                        $stmt = $conn->prepare($sql);
-                        $stmt->execute();
-                        $result = $stmt->get_result();
 
-                        $total_expenses = 0; // Default value
-                        if ($result->num_rows > 0) {
-                            $row = $result->fetch_assoc();
-                            $total_expenses = $row['total_expenses'] ?? 0;
-                        }
-
-                        $stmt->close();
-
-                        ?>
-
-                        <div class="col-md-6 col-xl-4">
-                            <div class="card mb-3 widget-content bg-midnight-bloom">
-                                <div class="widget-content-wrapper text-white">
-                                    <div class="widget-content-left">
-                                        <div class="widget-heading">Total Expenses</div>
-                                        <div class="widget-subheading">Current Year Expenses</div>
-                                    </div>
-                                    <div class="widget-content-right">
-                                        <div class="widget-numbers text-white">
-                                            <span>&#8369; <?php echo number_format($total_expenses, 2); ?></span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <?php
-
-                        $sql = "SELECT COUNT(*) AS total_tenants FROM tenants";
-                        $result = $conn->query($sql);
-
-                        $total_rooms = 0; // Default value
-                        if ($result->num_rows > 0) {
-                            $row = $result->fetch_assoc();
-                            $total_tenants = $row['total_tenants'];
-                        }
-
-                        ?>
-                        <div class="col-md-6 col-xl-4">
-                            <div class="card mb-3 widget-content bg-arielle-smile">
-                                <div class="widget-content-wrapper text-white">
-                                    <div class="widget-content-left">
-                                        <div class="widget-heading">Boarders/Occupants</div>
-                                        <div class="widget-subheading">Total Boarders/Occupants</div>
-                                    </div>
-                                    <div class="widget-content-right">
-                                        <div class="widget-numbers text-white"><span><?php echo $total_tenants ?></span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <?php
-
-                        $sql = "SELECT COUNT(*) AS total_rooms FROM rooms";
-                        $result = $conn->query($sql);
-
-                        $total_rooms = 0; // Default value
-                        if ($result->num_rows > 0) {
-                            $row = $result->fetch_assoc();
-                            $total_rooms = $row['total_rooms'];
-                        }
-
-                        ?>
-
-                        <div class="col-md-6 col-xl-4">
-                            <div class="card mb-3 widget-content bg-grow-early">
-                                <div class="widget-content-wrapper text-white">
-                                    <div class="widget-content-left">
-                                        <div class="widget-heading">Rooms</div>
-                                        <div class="widget-subheading">Total Rooms</div>
-                                    </div>
-                                    <div class="widget-content-right">
-                                        <div class="widget-numbers text-white"><span><?php echo $total_rooms; ?>
-                                                Rooms</span></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                    <?php
-                    // Database query to get monthly income
-                    $sql = "SELECT DATE_FORMAT(baseddate, '%Y-%m') AS month, SUM(amount) AS total_income 
-                    FROM paymenthistory 
-                    GROUP BY month 
-                    ORDER BY month ASC";
-
-                    $result = $conn->query($sql);
-
-                    $months = [];
-                    $income = [];
-
-                    while ($row = $result->fetch_assoc()) {
-                        $months[] = date("F Y", strtotime($row['month'] . "-01")); // Format as "Month Year"
-                        $income[] = $row['total_income'];
-                    }
-                    ?>
                     <div class="row">
                         <!-- Monthly Income Chart -->
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <div class="mb-3 card shadow-lg rounded">
                                 <div class="card-header bg-primary text-white d-flex align-items-center">
                                     <i class="fas fa-chart-line me-2"></i>
-                                    <h5 class="mb-0">Monthly Income</h5>
+                                    <h5 class="mb-0">Manage Users</h5>
                                 </div>
                                 <div class="card-body">
-                                    <canvas id="incomeChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th></th>
+                                                    <th>Username</th>
+                                                    <th>Fullname</th>
+                                                    <th>User Type</th>
+                                                    <th>Set Default Password</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php
+                                                $query = "SELECT ID, Username, Fullname FROM user WHERE Usertype != 0";
+                                                $result = mysqli_query($conn, $query);
 
-                        <!-- Payment History Chart -->
-                        <?php
-                      
-                        error_reporting(E_ALL);
-                        ini_set('display_errors', 1);
+                                                if (!$result) {
+                                                    die("Query failed: " . mysqli_error($conn));
+                                                }
 
-                        // Fetch total occupants and tenants
-                        $query = "SELECT SUM(occupants) AS total_occupants, SUM(tenants) AS total_tenants FROM rooms";
-                        $result = $conn->query($query);
+                                                while ($row = mysqli_fetch_assoc($result)) {
+                                                    echo "<tr>
+                                                    <td><img src='profile.png' height='50' width='50'></td>
+                                                    <td>" . htmlspecialchars($row['Username']) . "</td>
+                                                    <td>" . htmlspecialchars($row['Fullname']) . "</td>
+                                                    <td>Tenant</td>
+                                                    <td>
+                                                        <form action='default_password.php' method='POST' class='reset-form'>
+                                                            <input type='hidden' name='user_id' value='" . $row['ID'] . "'>
+                                                            <button type='button' class='btn btn-outline-primary reset-password'>
+                                                                <i class='fas fa-sync-alt'></i> Set to Default Password
+                                                            </button>
+                                                        </form>
+                                                    </td>
+                                                </tr>";
+                                                }
+                                                ?>
+                                            </tbody>
+                                        </table>
 
-                        $total_occupants = 0;
-                        $total_tenants = 0;
+                                        <!-- Include SweetAlert and jQuery -->
+                                        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                                        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-                        if ($result && $row = $result->fetch_assoc()) {
-                            $total_occupants = intval($row['total_occupants']);
-                            $total_tenants = intval($row['total_tenants']);
-                        }
+                                        <script>
+                                            $(document).ready(function () {
+                                                $(".reset-password").click(function () {
+                                                    var form = $(this).closest("form");
 
-                        // Calculate available slots
-                        $total_available = $total_occupants - $total_tenants;
-                        ?>
+                                                    Swal.fire({
+                                                        title: "Are you sure?",
+                                                        text: "This will reset the password to '1234'.",
+                                                        icon: "warning",
+                                                        showCancelButton: true,
+                                                        confirmButtonColor: "#3085d6",
+                                                        cancelButtonColor: "#d33",
+                                                        confirmButtonText: "Yes, reset it!"
+                                                    }).then((result) => {
+                                                        if (result.isConfirmed) {
+                                                            form.submit();
+                                                        }
+                                                    });
+                                                });
+                                            });
+                                        </script>
+                                        <?php
 
-                        <div class="col-md-6">
-                            <div class="mb-3 card shadow-lg rounded">
-                                <div class="card-header bg-success text-white d-flex align-items-center">
-                                    <i class="fas fa-home me-2"></i>
-                                    <h5 class="mb-0">Room Occupancy</h5>
-                                </div>
-                                <div class="card-body">
-                                    <canvas id="roomChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-
-                        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-                        <script>
-                            document.addEventListener("DOMContentLoaded", function () {
-                                // Get PHP values and pass to JavaScript
-                                var occupied = <?php echo $total_tenants; ?>;
-                                var available = <?php echo max($total_available, 0); ?>; // Ensure no negative values
-
-                                var ctx = document.getElementById("roomChart").getContext("2d");
-                                var roomChart = new Chart(ctx, {
-                                    type: "pie",
-                                    data: {
-                                        labels: ["Occupied", "Available"],
-                                        datasets: [{
-                                            data: [occupied, available],
-                                            backgroundColor: ["#28a745", "#dc3545"], // Green for occupied, red for available
-                                            borderWidth: 1
-                                        }]
-                                    },
-                                    options: {
-                                        responsive: true,
-                                        plugins: {
-                                            legend: {
-                                                position: "bottom"
-                                            }
+                                        if (isset($_SESSION['message'])) {
+                                            echo "<script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>";
+                                            echo "<script>
+        Swal.fire({
+            title: '" . ($_SESSION['message_type'] == 'success' ? 'Success!' : 'Error!') . "',
+            text: '" . $_SESSION['message'] . "',
+            icon: '" . $_SESSION['message_type'] . "'
+        });
+    </script>";
+                                            unset($_SESSION['message']);
+                                            unset($_SESSION['message_type']);
                                         }
-                                    }
-                                });
-                            });
-                        </script>
+                                        ?>
+
+
+                                        </table>
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+
 
                     </div>
                     <div class="row">
-                        <div class="col-md-6">
+                        <!-- Monthly Income Chart -->
+                        <div class="col-md-12">
                             <div class="mb-3 card shadow-lg rounded">
                                 <div class="card-header bg-info text-white d-flex align-items-center">
-                                    <i class="fas fa-history me-2"></i>
-                                    <h5 class="mb-0">Payment History</h5>
+                                    <i class="fas fa-chart-line me-2"></i>
+                                    <h5 class="mb-0">User Logs</h5>
                                 </div>
                                 <div class="card-body">
-                                    <table class="table table-striped table-hover">
-                                        <thead class="table-primary">
-                                            <tr>
-                                                <th>#</th>
-                                                <th>Amount</th>
-                                                <th>Tenant</th>
-                                                <th>Date</th>
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th></th>
+                                                    <th>Fullname</th>
+                                                    <th>Date Time</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php
+                                                $query = "SELECT l.id, l.user_id, l.date_time, t.ID, t.fname, t.lname 
+                  FROM logs l
+                  JOIN tenants t ON l.user_id = t.ID 
+                  WHERE l.user_id != 0 ORDER BY l.date_time DESC";
+                                                $result = mysqli_query($conn, $query);
 
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php
+                                                if (!$result) {
+                                                    die("Query failed: " . mysqli_error($conn));
+                                                }
 
-                                            $sql = "SELECT p.tenantid, p.amount, p.baseddate, t.ID, t.fname, t.lname FROM paymenthistory p
-                                        JOIN tenants t ON p.tenantid = t.ID ORDER BY p.baseddate DESC";
-                                            $result = $conn->query($sql);
-                                            $count = 1;
+                                                while ($row = mysqli_fetch_assoc($result)) {
+                                                    // Format date_time to a readable format (e.g., March 10, 2025, 10:30 AM)
+                                                    $formatted_date = date("F j, Y, g:i A", strtotime($row['date_time']));
 
-                                            if ($result->num_rows > 0) {
-                                                while ($row = $result->fetch_assoc()) {
                                                     echo "<tr>
-                                        <td>{$count}</td>
-                                        <td>₱" . number_format($row['amount'], 2) . "</td>
-                                      <td>" . htmlspecialchars($row['fname'] . ' ' . $row['lname']) . "</td>
-                                        <td>" . date("F d, Y h:i A", strtotime($row['baseddate'])) . "</td>
-                                    
-                                      </tr>";
-                                                    $count++;
+                    <td><img src='logs.png' height='50' width='50'></td>
+                    <td>" . htmlspecialchars($row['fname']) . " " . htmlspecialchars($row['lname']) . "</td>
+                    <td>" . htmlspecialchars($formatted_date) . "</td>
+                  </tr>";
                                                 }
-                                            } else {
-                                                echo "<tr><td colspan='5' class='text-center'>No payment records found</td></tr>";
-                                            }
-                                            ?>
-                                        </tbody>
-                                    </table>
+                                                ?>
+                                            </tbody>
+                                        </table>
+
+
+
+                                    </div>
                                 </div>
+
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="mb-3 card shadow-lg rounded">
-                                <div class="card-header bg-warning text-white d-flex align-items-center">
-                                    <i class="fas fa-history me-2"></i>
-                                    <h5 class="mb-0">Online transactions</h5>
-                                </div>
-                                <div class="card-body">
-                                    <table class="table table-striped table-hover table-sm small">
-                                        <thead class="table-primary">
-                                            <tr>
-                                                <th>Wallet Name</th>
-                                                <th>Amount</th>
-                                                <th>Wallet Number</th>
-                                                <th>Transaction ID</th>
-                                                <th>Method</th>
-                                                <th>Date and Time</th>
-                                                <th>Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php
-                                            // Make sure to include your DB connection before this block
-                                            $sql = "SELECT *, user_id FROM payments ORDER BY date_time DESC"; // Fetch latest transactions first
-                                            $result = $conn->query($sql);
-
-                                            if ($result->num_rows > 0) {
-                                                while ($row = $result->fetch_assoc()) {
-                                                    echo "<tr>";
-                                                    echo "<td>" . htmlspecialchars($row['name']) . "</td>";
-                                                    echo "<td>" . htmlspecialchars($row['amount']) . "</td>";
-                                                    echo "<td>" . htmlspecialchars($row['number']) . "</td>";
-                                                    echo "<td>" . htmlspecialchars($row['transaction']) . "</td>";
-                                                    echo "<td>" . strtoupper(htmlspecialchars($row['method'])) . "</td>";
-                                                    echo "<td>" . date("F d, Y - h:i A", strtotime($row['date_time'])) . "</td>";
-
-                                                    // Approve button (disabled if already approved)
-                                                    if ($row['status'] == 'Approved') {
-                                                        echo "<td><button class='btn btn-success btn-sm' disabled>Approved</button></td>";
-                                                    } else {
-                                                        // Pass both payment_id and user_id as data attributes
-                                                        echo "<td>
-                            <button class='btn btn-success btn-sm approve-btn' data-id='{$row['payment_id']}' data-user_id='{$row['user_id']}'>
-                                <i class='fas fa-check-circle'></i>
-                            </button>
-                          </td>";
-                                                    }
-                                                    echo "</tr>";
-                                                }
-                                            } else {
-                                                echo "<tr><td colspan='7' class='text-center text-muted'>No payment records found.</td></tr>";
-                                            }
-                                            $conn->close();
-                                            ?>
-                                        </tbody>
-                                    </table>
-
-                                    <!-- Include SweetAlert2 and jQuery -->
-                                    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-                                    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-                                    <script>
-                                        $(document).ready(function () {
-                                            $(".approve-btn").click(function () {
-                                                var paymentId = $(this).data("id");
-                                                var userId = $(this).data("user_id");
-                                                var button = $(this);
-
-                                                Swal.fire({
-                                                    title: "Are you sure?",
-                                                    text: "You are about to approve this payment.",
-                                                    icon: "warning",
-                                                    showCancelButton: true,
-                                                    confirmButtonColor: "#3085d6",
-                                                    cancelButtonColor: "#d33",
-                                                    confirmButtonText: "Yes, approve it!"
-                                                }).then((result) => {
-                                                    if (result.isConfirmed) {
-                                                        $.ajax({
-                                                            url: "approve_payment.php",
-                                                            type: "POST",
-                                                            data: { id: paymentId, user_id: userId },
-                                                            success: function (response) {
-                                                                if (response.trim() === "success") {
-                                                                    Swal.fire("Approved!", "The payment has been approved.", "success");
-                                                                    button.replaceWith('<button class="btn btn-success btn-sm" disabled>Approved</button>');
-                                                                } else if (response.trim() === "already_approved") {
-                                                                    Swal.fire("Warning!", "Payment is already approved.", "warning");
-                                                                } else if (response.trim() === "not_found") {
-                                                                    Swal.fire("Error!", "Payment record not found.", "error");
-                                                                } else {
-                                                                    Swal.fire("Error!", "Something went wrong.", "error");
-                                                                }
-                                                            },
-                                                            error: function () {
-                                                                Swal.fire("Error!", "AJAX request failed.", "error");
-                                                            }
-                                                        });
-                                                    }
-                                                });
-                                            });
-                                        });
-
-                                    </script>
 
 
-                                </div>
-                            </div>
-                        </div>
+
                     </div>
 
                     <!-- Include FontAwesome for icons -->
                     <link rel="stylesheet"
                         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
-
-
-
-                    <!-- Chart.js Library -->
-                    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-                    <script>
-                        document.addEventListener("DOMContentLoaded", function () {
-                            var ctx = document.getElementById('incomeChart').getContext('2d');
-                            var incomeChart = new Chart(ctx, {
-                                type: 'bar', // Change to 'line' if needed
-                                data: {
-                                    labels: <?php echo json_encode($months); ?>,
-                                    datasets: [{
-                                        label: 'Total Income (PHP)',
-                                        data: <?php echo json_encode($income); ?>,
-                                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                                        borderColor: 'rgba(54, 162, 235, 1)',
-                                        borderWidth: 2
-                                    }]
-                                },
-                                options: {
-                                    responsive: true,
-                                    plugins: {
-                                        legend: { display: false }
-                                    },
-                                    scales: {
-                                        x: { grid: { display: false } },
-                                        y: { beginAtZero: true }
-                                    }
-                                }
-                            });
-                        });
-                    </script>
 
 
 
@@ -999,7 +778,23 @@ if ($result->num_rows > 0) {
 
     <!-- Main JS File -->
     <script src="assets/js/main.js"></script>
-
+    <?php
+    if (isset($_SESSION['status']) && $_SESSION['status'] != '') {
+        ?>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            Swal.fire({
+                title: "<?php echo $_SESSION['status']; ?>",
+                icon: "<?php echo $_SESSION['status_code']; ?>",
+                confirmButtonText: "<?php echo $_SESSION['status_button'] ?? 'OK'; ?>"
+            });
+        </script>
+        <?php
+        unset($_SESSION['status']);
+        unset($_SESSION['status_code']);
+        unset($_SESSION['status_button']);
+    }
+    ?>
 </body>
 
 </html>

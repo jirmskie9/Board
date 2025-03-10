@@ -83,7 +83,7 @@ if ($result->num_rows > 0) {
             <h1 class="sitename"><?php echo $fullname ?></h1>
         </a>
 
-     
+
 
         <nav id="navmenu" class="navmenu">
             <ul>
@@ -91,14 +91,16 @@ if ($result->num_rows > 0) {
                 <li><a href="./Occupants.php"><i class="bi bi-person navicon"></i> Occupants</a></li>
                 <li><a href="./Rooms.php"><i class="bi bi-door-open navicon"></i> Rooms</a></li>
                 <li><a href="./Documents.php"><i class="bi bi-file-earmark-text navicon"></i> Documents</a></li>
-                <li><a href="./Utilities.php"><i class="bi bi-lightbulb navicon"></i> <!-- Represents electricity/utilities -->
-                Utility Bills</a></li>
+                <li><a href="./Utilities.php"><i class="bi bi-lightbulb navicon"></i>
+                        <!-- Represents electricity/utilities -->
+                        Utility Bills</a></li>
                 <li><a href="./Collection.php" class="active"><i class="bi bi-cash-stack navicon"></i>Rent
                         Collection</a></li>
 
-                        <li><a href="./expenses.php"><i class="bi bi-receipt navicon"></i> Expenses</a></li>
+                <li><a href="./expenses.php"><i class="bi bi-receipt navicon"></i> Expenses</a></li>
                 <li><a href="./Messages.php"><i class="bi bi-envelope-fill navicon"></i> Messages</a></li>
                 <li><a href="./Maintenance.php"><i class="bi bi-newspaper navicon"></i> Maintenance Request</a></li>
+                <li><a href="./user.php"><i class="bi bi-people navicon"></i> Users Management</a></li>
                 <li><a href="./logout.php"><i class="bi bi-box-arrow-right navicon"></i> Logout</a></li>
             </ul>
 
@@ -480,123 +482,110 @@ if ($result->num_rows > 0) {
                 <div class="app-main__inner">
                     <div class="app-page-title">
                         <div class="page-title-wrapper">
-                        <div class="page-title-heading">
-                <div class="page-title-icon">
-                  <i class="fas fa-home icon-gradient bg-mean-fruit"></i> <!-- Changed to FontAwesome Home Icon -->
-                </div>
-                <div>Welcome to Primos Boardinghouse
-                  <div class="page-title-subheading">
-                    This is an overview of all data in Primos Boardinghouse.
-                  </div>
-                </div>
-              </div>
+                            <div class="page-title-heading">
+                                <div class="page-title-icon">
+                                    <i class="fas fa-home icon-gradient bg-mean-fruit"></i>
+                                    <!-- Changed to FontAwesome Home Icon -->
+                                </div>
+                                <div>Welcome to Primos Boardinghouse
+                                    <div class="page-title-subheading">
+                                        This is an overview of all data in Primos Boardinghouse.
+                                    </div>
+                                </div>
+                            </div>
 
                         </div>
                     </div>
                     <div class="row">
                         <?php
-                        include('db.php');
+                        // Initialize total payment collection
+                        $total_payment_amount = 0;
 
-                        $current_year = date("Y");
-                        $sql = "SELECT SUM(balance) AS total_balance FROM tenants";
-                        $stmt = $conn->prepare($sql);
-                        $stmt->execute();
-                        $result = $stmt->get_result();
+                        // Query to fetch total payment amount
+                        $query_total = "SELECT SUM(amount) AS total_payment FROM paymenthistory";
+                        $result_total = mysqli_query($conn, $query_total);
 
-                        $total_expenses = 0; // Default value
-                        if ($result->num_rows > 0) {
-                            $row = $result->fetch_assoc();
-                            $total_expenses = $row['total_balance'] ?? 0;
+                        if ($result_total) {
+                            $row_total = mysqli_fetch_assoc($result_total);
+                            $total_payment_amount = $row_total['total_payment'] ?? 0; // Ensure no null value
+                        } else {
+                            die("Query failed: " . mysqli_error($conn));
                         }
 
-                        $stmt->close();
+                        // Query to fetch individual payment history
+                        $query_payments = "SELECT t.fname, t.lname, t.room, p.amount AS payment_amount, r.Roomnum 
+                   FROM paymenthistory p
+                   JOIN tenants t ON p.tenantid = t.ID
+                   JOIN rooms r ON t.room = r.Roomnum
+                   ORDER BY p.id DESC"; // Order by latest payments
+                        
+                        $result_payments = mysqli_query($conn, $query_payments);
 
+                        if (!$result_payments) {
+                            die("Query failed: " . mysqli_error($conn));
+                        }
                         ?>
 
+                        <!-- Display Total Collection -->
                         <div class="col-md-6 col-xl-4">
                             <div class="card mb-3 widget-content bg-midnight-bloom">
                                 <div class="widget-content-wrapper text-white">
                                     <div class="widget-content-left">
-                                        <div class="widget-heading">Total Balance</div>
-                                        <div class="widget-subheading">Current Year Expenses</div>
-                                    </div>
-                                    <div class="widget-content-right">
-                                        <div class="widget-numbers text-white">
-                                            <span>&#8369; <?php echo number_format($total_expenses, 2); ?></span>
+                                        <div class="widget-heading">
+                                            Total Collection: ₱ <?php echo number_format($total_payment_amount, 2); ?>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        
-                      
-                    </div>
 
-                    <div class="row">
-                        <!-- Monthly Income Chart -->
-                        <div class="col-md-12">
-                            <div class="mb-3 card shadow-lg rounded">
-                                <div class="card-header bg-primary text-white d-flex align-items-center">
-                                    <i class="fas fa-chart-line me-2"></i>
-                                    <h5 class="mb-0">Rent Collection</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="table-responsive">
-                                        <table class="table table-bordered">
+                        <!-- Rent Collection Table -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3 card shadow-lg rounded">
+                                    <div class="card-header bg-primary text-white d-flex align-items-center">
+                                        <i class="fas fa-chart-line me-2"></i>
+                                        <h5 class="mb-0">Rent Collection</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                        <table class="table table-bordered"> 
                                             <thead>
                                                 <tr>
                                                     <th>Tenant</th>
-                                                    <th>Bill Amount</th>
                                                     <th>Payment Amount</th>
-                                                    <th>Balance</th>
+                                                    <th>Room Number</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <?php
-                                                $query = "SELECT b.tenantid, b.amount, p.tenantid AS payment_tenantid, p.amount AS payment_amount, b.type,
-                                                t.fname, t.lname, t.balance, t.ID 
-                                                FROM bills b
-                                                JOIN paymenthistory p ON b.tenantid = p.tenantid
-                                                JOIN tenants t ON b.tenantid = t.ID WHERE b.type = 'rental'";
-
-                                                $result = mysqli_query($conn, $query);
-
-                                                if (!$result) {
-                                                    die("Query failed: " . mysqli_error($conn));
-                                                }
-
-                                                while ($row = mysqli_fetch_assoc($result)) {
+                                                while ($row = mysqli_fetch_assoc($result_payments)) {
                                                     echo "<tr>
-                                                  <td>" . htmlspecialchars($row['fname']) . " " . htmlspecialchars($row['lname']) . "</td>
-
-                                                    <td>₱ " . htmlspecialchars($row['amount']) . "</td>
-                                                    <td>₱ " . htmlspecialchars($row['payment_amount']) . "</td>
-                                                     <td>₱ " . htmlspecialchars($row['balance']) . ".</td>
-                                                </tr>";
+                                                        <td>" . htmlspecialchars($row['fname']) . " " . htmlspecialchars($row['lname']) . "</td>
+                                                        <td>₱ " . number_format($row['payment_amount'], 2) . "</td>
+                                                        <td>" . $row['Roomnum'] . "</td>
+                                                    </tr>";
                                                 }
                                                 ?>
                                             </tbody>
                                         </table>
+                                        </div>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
 
 
+                        <!-- Include FontAwesome for icons -->
+                        <link rel="stylesheet"
+                            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+
+
 
                     </div>
-
-                    <!-- Include FontAwesome for icons -->
-                    <link rel="stylesheet"
-                        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-
-
-
-
-                </div>
-                <!--                     <div class="app-wrapper-footer">
+                    <!--                     <div class="app-wrapper-footer">
                         <div class="app-footer">
                             <div class="app-footer__inner">
                                 <div class="app-footer-left">
@@ -633,11 +622,11 @@ if ($result->num_rows > 0) {
                             </div>
                         </div>
                     </div>   -->
+                </div>
+                <script src="http://maps.google.com/maps/api/js?sensor=true"></script>
             </div>
-            <script src="http://maps.google.com/maps/api/js?sensor=true"></script>
-        </div>
-        <script type="text/javascript"
-            src="https://demo.dashboardpack.com/architectui-html-free/assets/scripts/main.js"></script>
+            <script type="text/javascript"
+                src="https://demo.dashboardpack.com/architectui-html-free/assets/scripts/main.js"></script>
     </main>
 
     <footer id="footer" class="footer position-relative light-background">

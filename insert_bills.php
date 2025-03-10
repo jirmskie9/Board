@@ -5,38 +5,42 @@ include 'db.php';
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $roomnum = $_POST['roomnum'];
     $billAmount = floatval($_POST['billAmount']);
-    $totalOccupants = $_POST['occupants'];
-    $tenantIds = explode(',', $_POST['tenantIds']); // Convert to array
+    $totalTenants = isset($_POST['tenants']) ? intval($_POST['tenants']) : 0; // Use 'tenants' instead of 'occupants'
+    $tenantIds = isset($_POST['tenantIds']) ? explode(',', $_POST['tenantIds']) : []; // Convert to array
 
-    // Ensure at least one tenant is selected
-    if (empty($tenantIds) || $billAmount <= 0) {
+    // Validate inputs
+    if (empty($tenantIds) || $billAmount <= 0 || $totalTenants <= 0) {
         $_SESSION['status'] = "Invalid input. Please try again!";
         $_SESSION['status_code'] = "error";
         $_SESSION['status_button'] = "Okay";
-        header("Location: add_utilities.php"); // Adjust the redirect page as needed
+        header("Location: add_utilities.php"); 
         exit();
     }
 
-    $billPerOccupant = $billAmount / $totalOccupants;
+    $billPerTenant = $billAmount / $totalTenants;
 
-    // Prepare SQL statement
+    // Prepare SQL statement for inserting bills
     $stmt = $conn->prepare("INSERT INTO bills (tenantid, amount, date, type) VALUES (?, ?, NOW(), 'utilities')");
 
     foreach ($tenantIds as $tenantId) {
-        $stmt->bind_param("id", $tenantId, $billPerOccupant);
+        $stmt->bind_param("id", $tenantId, $billPerTenant);
         $stmt->execute();
+
+        // Update tenant balance
+        $updateStmt = $conn->prepare("UPDATE tenants SET balance = balance + ? WHERE id = ?");
+        $updateStmt->bind_param("di", $billPerTenant, $tenantId);
+        $updateStmt->execute();
+        $updateStmt->close();
     }
 
-    // Close statement & connection
     $stmt->close();
     $conn->close();
 
-    // Set success message
     $_SESSION['status'] = "Bills saved successfully!";
     $_SESSION['status_code'] = "success";
     $_SESSION['status_button'] = "Okay";
 
-    header("Location: Utilities.php"); // Adjust to your actual page
+    header("Location: Utilities.php");
     exit();
 }
 ?>

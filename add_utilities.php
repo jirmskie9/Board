@@ -563,11 +563,11 @@ if ($result->num_rows > 0) {
                                     <div class="form-group">
 
                                         <?php
-                                        $query = "SELECT r.Roomnum, r.Occupants, t.ID AS tenant_id
-                                        FROM lease l 
-                                        JOIN tenants t ON l.user_id = t.ID 
-                                        JOIN rooms r ON t.room = r.Roomnum 
-                                        WHERE l.signature IS NOT NULL AND l.signature != ''";
+                                        $query = "SELECT r.Roomnum, r.tenants, t.ID AS tenant_id
+                  FROM lease l 
+                  JOIN tenants t ON l.user_id = t.ID 
+                  JOIN rooms r ON t.room = r.Roomnum 
+                  WHERE l.signature IS NOT NULL AND l.signature != ''";
 
                                         $result = $conn->query($query);
 
@@ -576,8 +576,8 @@ if ($result->num_rows > 0) {
 
                                         while ($row = $result->fetch_assoc()) {
                                             $roomNum = $row['Roomnum'];
-                                            $roomData[$roomNum]['occupants'] = $row['Occupants'];
-
+                                            $roomData[$roomNum]['tenants'] = $row['tenants']; // Use 'tenants' instead of 'occupants'
+                                        
                                             // Append tenant ID to the room
                                             $roomData[$roomNum]['tenant_ids'][] = $row['tenant_id'];
                                         }
@@ -593,7 +593,7 @@ if ($result->num_rows > 0) {
                                                     <option value="" disabled selected>Select Room</option>
                                                     <?php foreach ($roomData as $roomNum => $data): ?>
                                                         <option value="<?= htmlspecialchars($roomNum) ?>"
-                                                            data-occupants="<?= htmlspecialchars($data['occupants']) ?>">
+                                                            data-tenants="<?= htmlspecialchars($data['tenants']) ?>">
                                                             <?= htmlspecialchars($roomNum) ?>
                                                         </option>
                                                     <?php endforeach; ?>
@@ -601,28 +601,28 @@ if ($result->num_rows > 0) {
                                             </div>
 
                                             <div class="form-group">
-                                                <label>Total Occupants</label>
-                                                <input type="text" id="total_occupant" class="form-control" name = "occupants"
-                                                    style="width: 100%;">
+                                                <label>Total Tenants</label>
+                                                <input type="text" id="total_tenants" class="form-control"
+                                                    name="tenants" style="width: 100%;" readonly>
                                             </div>
 
                                             <div class="form-group">
                                                 <label for="billAmount">Enter Bill Amount (Combined electricity &
                                                     water)</label>
                                                 <input type="number" class="form-control" style="width: 100%;"
-                                                    id="billAmount"name = "billAmount" placeholder="Amount">
+                                                    id="billAmount" name="billAmount" placeholder="Amount">
                                             </div>
 
                                             <div class="form-group">
-                                                <label>Bill per Occupant</label>
-                                                <input type="text" id="billPerOccupant" class="form-control"
+                                                <label>Bill per Tenant</label>
+                                                <input type="text" id="billPerTenant" class="form-control"
                                                     style="width: 100%;" readonly>
                                             </div>
 
                                             <div class="form-group">
                                                 <input type="hidden" name="tenantIds" id="tenantIdsInput">
-
                                             </div>
+
                                             <div class="form-group">
                                                 <button class="btn btn-primary" type="submit">Save Bills</button>
                                             </div>
@@ -637,31 +637,31 @@ if ($result->num_rows > 0) {
 
                                                 document.getElementById('tenantIdsInput').value = tenantIds.join(',');
 
-                                                let totalOccupants = roomData[selectedRoom]?.occupants || 0;
-                                                document.getElementById('total_occupant').value = totalOccupants;
+                                                let totalTenants = roomData[selectedRoom]?.tenants || 0;
+                                                document.getElementById('total_tenants').value = totalTenants;
 
                                                 calculateBill();
                                             });
-
 
                                             document.getElementById('billAmount').addEventListener('input', function () {
                                                 calculateBill();
                                             });
 
                                             function calculateBill() {
-                                                let totalOccupants = parseInt(document.getElementById('total_occupant').value) || 0;
+                                                let totalTenants = parseInt(document.getElementById('total_tenants').value) || 0;
                                                 let billAmount = parseFloat(document.getElementById('billAmount').value) || 0;
 
-                                                if (totalOccupants > 0) {
-                                                    document.getElementById('billPerOccupant').value = (billAmount / totalOccupants).toFixed(2);
+                                                if (totalTenants > 0) {
+                                                    document.getElementById('billPerTenant').value = (billAmount / totalTenants).toFixed(2);
                                                 } else {
-                                                    document.getElementById('billPerOccupant').value = '';
+                                                    document.getElementById('billPerTenant').value = '';
                                                 }
                                             }
                                         </script>
 
                                     </div>
                                 </div>
+
                             </div>
 
 

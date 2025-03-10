@@ -15,7 +15,7 @@ $id = $_SESSION['Uid']; // Use 'Uid' session key
 
 // Set 'ucid' session variable if passed in the URL
 if (isset($_GET['ucid'])) {
-    $_SESSION['ucid'] = $_GET['ucid'];
+  $_SESSION['ucid'] = $_GET['ucid'];
 }
 
 // Default 'ucid' to 0 if not set
@@ -38,14 +38,14 @@ if ($result->num_rows > 0) {
 } else {
   echo "No user found.";
 }
+// $host = "localhost";
+// $user = "u507130350_johnrid";
+// $pass = "Johnrid123";
+// $db_name = "u507130350_board";
 $host = "localhost";
-$user = "u507130350_johnrid";
-$pass = "Johnrid123";
-$db_name = "u507130350_board";
-// $host = "localhost"; 
-// $user = "root"; 
-// $pass = ""; 
-// $db_name = "board"; 
+$user = "root";
+$pass = "";
+$db_name = "board";
 
 if (isset($_POST['submit'])) {
   $link = mysqli_connect($host, $user, $pass, $db_name);
@@ -254,6 +254,28 @@ if (isset($_POST['submit'])) {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
     transition: 0.3s;
     padding: .1in;
+    position: relative;
+    /* Ensure relative positioning for the pseudo-element */
+    z-index: 1;
+  }
+
+  /* Background Image with Opacity */
+  .chat::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('../chatbg2.png');
+    /* Your background image */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.5;
+    /* Adjust opacity here */
+    z-index: -1;
+    /* Sends background behind content */
   }
 
   .avatar {
@@ -380,11 +402,27 @@ if (isset($_POST['submit'])) {
     }
 
     .mess {
-      position: absolute;
-      bottom: 3;
-      width: 43%;
-      height: 6vh;
-      margin: auto;
+      display: flex;
+      align-items: center;
+      /* Ensures items align properly */
+      position: relative;
+      /* Prevents interference from ::before */
+      z-index: 2;
+      /* Keeps it above the background */
+    }
+
+    .msg {
+      flex: 1;
+      /* Allows input to take available space */
+    }
+
+    .input2 {
+      background-color: transparent;
+      color: blue;
+      width: 100%;
+      margin: 0;
+      border: none;
+      cursor: pointer;
     }
 
     .chat {
@@ -490,16 +528,12 @@ if (isset($_POST['submit'])) {
   }
 
   main .message {
+    background: #007bff;
     padding: 10px;
-    color: #000;
-    margin-left: 15px;
-    background-color: #58b666;
-    line-height: 20px;
-    max-width: 90%;
+    border-radius: 10px;
+    max-width: 60%;
+    color: white;
     display: inline-block;
-    text-align: left;
-    border-radius: 5px;
-    clear: both;
   }
 
   main .triangle1 {
@@ -514,17 +548,13 @@ if (isset($_POST['submit'])) {
   }
 
   main .message1 {
+    background: rgb(0, 255, 106);
     padding: 10px;
-    color: #000;
-    margin-right: 15px;
-    background-color: #6fbced;
-    line-height: 20px;
-    max-width: 90%;
+    border-radius: 10px;
+    max-width: 60%;
+    color: black;
     display: inline-block;
-    text-align: left;
-    border-radius: 5px;
     float: right;
-    clear: both;
   }
 
   main footer {
@@ -574,7 +604,7 @@ if (isset($_POST['submit'])) {
     background-color: black;
     border: 2px solid white;
   }
-  }
+
 
   main footer textarea::placeholder {
     color: #ddd;

@@ -384,6 +384,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <li><a href="./Collection.php" class=""><i class="bi bi-cash-stack navicon"></i>Rent Collection</a></li>
         <li><a href="./Messages.php"><i class="fa fa-envelope"></i> Messages</a></li>
         <li><a href="./Maintenance.php" class="active"><i class="bi bi-newspaper navicon"></i> Maintenance Request</a>
+        <li><a href="./user.php"><i class="bi bi-people navicon"></i> Users Management</a></li>
 
         <li><a href="./logout.php"><i class="bi bi-box-arrow-right navicon"></i> Logout</a></li>
         </li>

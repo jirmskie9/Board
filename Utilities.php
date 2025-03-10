@@ -135,6 +135,7 @@ if ($result->num_rows > 0) {
                         <li><a href="./expenses.php" ><i class="bi bi-receipt navicon"></i> Expenses</a></li>
                 <li><a href="./Messages.php"><i class="bi bi-envelope-fill navicon"></i> Messages</a></li>
                 <li><a href="./Maintenance.php"><i class="bi bi-newspaper navicon"></i> Maintenance Request</a></li>
+                <li><a href="./user.php"><i class="bi bi-people navicon"></i> Users Management</a></li>
                 <li><a href="./logout.php"><i class="bi bi-box-arrow-right navicon"></i> Logout</a></li>
             </ul>
 
@@ -575,7 +576,7 @@ if ($result->num_rows > 0) {
                             <div class="mb-3 card shadow-lg rounded">
                                 <div class="card-header bg-primary text-white d-flex align-items-center">
                                     <i class="fas fa-chart-line me-2"></i>
-                                    <h5 class="mb-0">Utility Bills Collection</h5>
+                                    <h5 class="mb-0">Utility Bills</h5>
                                 </div>
                                 <div class="card-body">
                                     <div class="table-responsive">

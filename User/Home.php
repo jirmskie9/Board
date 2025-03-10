@@ -528,39 +528,7 @@ VALUES ('$tenid','$amount','$billdate','0')";
             </div>
           </div>
           <div class="row">
-            <?php
-
-            $current_year = date("Y");
-            $sql = "SELECT SUM(amount) AS total_expenses FROM expenses";
-            $stmt = $conn->prepare($sql);
-            $stmt->execute();
-            $result = $stmt->get_result();
-
-            $total_expenses = 0; // Default value
-            if ($result->num_rows > 0) {
-              $row = $result->fetch_assoc();
-              $total_expenses = $row['total_expenses'] ?? 0;
-            }
-
-            $stmt->close();
-
-            ?>
-
-            <div class="col-md-6 col-xl-4">
-              <div class="card mb-3 widget-content bg-midnight-bloom">
-                <div class="widget-content-wrapper text-white">
-                  <div class="widget-content-left">
-                    <div class="widget-heading">Current Balance</div>
-                    <!-- <div class="widget-subheading">Current Year Expenses</div> -->
-                  </div>
-                  <div class="widget-content-right">
-                    <div class="widget-numbers text-white">
-                      <span>&#8369; <?php echo number_format($total_expenses, 2); ?></span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+           
             <?php
             $sql = "SELECT date_started FROM lease";
             $result = $conn->query($sql);

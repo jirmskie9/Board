@@ -5,14 +5,14 @@ date_default_timezone_set('Asia/Manila');
 
 // Ensure 'Uid' session variable is set
 if (!isset($_SESSION['Uid'])) {
-    die("Session 'Uid' is not set. Please log in again.");
+  die("Session 'Uid' is not set. Please log in again.");
 }
 
 $id = $_SESSION['Uid']; // Use 'Uid' session key
 
 // Set 'ucid' session variable if passed in the URL
 if (isset($_GET['ucid'])) {
-    $_SESSION['ucid'] = $_GET['ucid'];
+  $_SESSION['ucid'] = $_GET['ucid'];
 }
 
 // Default 'ucid' to 0 if not set
@@ -240,7 +240,31 @@ if (isset($_POST['submit'])) {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
     transition: 0.3s;
     padding: .1in;
+    position: relative;
+    /* Ensure relative positioning for the pseudo-element */
+    z-index: 1;
   }
+
+  /* Background Image with Opacity */
+  .chat::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('chatbg2.png');
+    /* Your background image */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.5;
+    /* Adjust opacity here */
+    z-index: -1;
+    /* Sends background behind content */
+  }
+
+
 
   .avatar {
     width: 150px;
@@ -314,11 +338,27 @@ if (isset($_POST['submit'])) {
 
   @media screen and (min-width: 450px) {
     .mess {
-      position: absolute;
-      bottom: 3;
-      width: 55%;
-      height: 4vh;
-      margin: auto;
+      display: flex;
+      align-items: center;
+      /* Ensures items align properly */
+      position: relative;
+      /* Prevents interference from ::before */
+      z-index: 2;
+      /* Keeps it above the background */
+    }
+
+    .msg {
+      flex: 1;
+      /* Allows input to take available space */
+    }
+
+    .input2 {
+      background-color: transparent;
+      color: blue;
+      width: 100%;
+      margin: 0;
+      border: none;
+      cursor: pointer;
     }
 
     main .inner_div {
@@ -476,16 +516,12 @@ if (isset($_POST['submit'])) {
   }
 
   main .message {
+    background: #007bff;
     padding: 10px;
-    color: #000;
-    margin-left: 15px;
-    background-color: #58b666;
-    line-height: 20px;
-    max-width: 90%;
+    border-radius: 10px;
+    max-width: 60%;
+    color: white;
     display: inline-block;
-    text-align: left;
-    border-radius: 5px;
-    clear: both;
   }
 
   main .triangle1 {
@@ -500,17 +536,13 @@ if (isset($_POST['submit'])) {
   }
 
   main .message1 {
+    background: rgb(0, 255, 106);
     padding: 10px;
-    color: #000;
-    margin-right: 15px;
-    background-color: #6fbced;
-    line-height: 20px;
-    max-width: 90%;
+    border-radius: 10px;
+    max-width: 60%;
+    color: black;
     display: inline-block;
-    text-align: left;
-    border-radius: 5px;
     float: right;
-    clear: both;
   }
 
   main footer {
@@ -742,7 +774,7 @@ if (isset($_POST['submit'])) {
     <a href="index.html" class="logo d-flex align-items-center justify-content-center">
       <!-- Uncomment the line below if you also wish to use an image logo -->
       <!-- <img src="assets/img/logo.png" alt=""> -->
-      <h1 class="sitename"><?php echo $fullname?></h1>
+      <h1 class="sitename"><?php echo $fullname ?></h1>
     </a>
 
     <nav id="navmenu" class="navmenu">
@@ -752,11 +784,12 @@ if (isset($_POST['submit'])) {
         <li><a href="./Rooms.php"><i class="bi bi-door-open navicon"></i> Rooms</a></li>
         <li><a href="./Documents.php"><i class="bi bi-file-earmark-text navicon"></i> Documents</a></li>
         <li><a href="./Utilities.php"><i class="bi bi-lightbulb navicon"></i> <!-- Represents electricity/utilities -->
-        Utility Bills</a></li>
+            Utility Bills</a></li>
         <li><a href="./Collection.php" class=""><i class="bi bi-cash-stack navicon"></i>Rent Collection</a></li>
         <li><a href="./expenses.php"><i class="bi bi-receipt navicon"></i> Expenses</a></li>
         <li><a href="./Messages.php" class="active"><i class="bi bi-envelope-fill navicon"></i> Messages</a></li>
         <li><a href="./Maintenance.php"><i class="bi bi-newspaper navicon"></i> Maintenance Request</a></li>
+        <li><a href="./user.php"><i class="bi bi-people navicon"></i> Users Management</a></li>
         <li><a href="./logout.php"><i class="bi bi-box-arrow-right navicon"></i> Logout</a></li>
       </ul>
 
