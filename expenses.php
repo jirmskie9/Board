@@ -25,6 +25,7 @@ if (isset($_POST["submit_expense"])) {
   $examt = $conn->real_escape_string($_POST["examt"]);
   $exnote = $conn->real_escape_string($_POST["exnote"]);
   $exdate = $conn->real_escape_string($_POST["exdate"]);
+  $billing_type = $conn->real_escape_string($_POST["billing_type"]); // Get the billing type (monthly/yearly)
 
   // File Upload Handling
   $targetDir = "uploads/"; // Directory where files will be stored
@@ -38,20 +39,21 @@ if (isset($_POST["submit_expense"])) {
   if (in_array($fileType, $allowedTypes)) {
     // Move file to the uploads directory
     if (move_uploaded_file($_FILES["exfile"]["tmp_name"], $targetFilePath)) {
-      // Insert data into the database
-      $sql = "INSERT INTO expenses (Details, amount, attachment, note, timeanddate)
-                  VALUES ('$exdesc', '$examt', '$fileName', '$exnote', '$exdate')";
-
-      if ($conn->query($sql) === TRUE) {
-        echo "New expense added successfully!";
+      // Insert data into the database using prepared statement
+      $stmt = $conn->prepare("INSERT INTO expenses (Details, amount, attachment, note, timeanddate, billing_type) VALUES (?, ?, ?, ?, ?, ?)");
+      $stmt->bind_param("sdssss", $exdesc, $examt, $fileName, $exnote, $exdate, $billing_type);
+      
+      if ($stmt->execute()) {
+        echo "<script>alert('New expense added successfully!'); window.location.href='expenses.php';</script>";
       } else {
-        echo "Error: " . $conn->error;
+        echo "<script>alert('Error: " . $stmt->error . "');</script>";
       }
+      $stmt->close();
     } else {
-      echo "File upload failed.";
+      echo "<script>alert('File upload failed.');</script>";
     }
   } else {
-    echo "Invalid file format. Only JPG, PNG, PDF, JPEG, DOCX are allowed.";
+    echo "<script>alert('Invalid file format. Only JPG, PNG, PDF, JPEG, DOCX are allowed.');</script>";
   }
 }
 ?>
@@ -518,6 +520,109 @@ if (isset($_POST["submit_expense"])) {
       min-width: 100px;
     }
   }
+  
+  /* Enhanced table styles */
+  #expensesTable {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  #expensesTable thead th {
+    background-color: #343a40;
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    padding: 12px 15px;
+    border: none;
+  }
+  
+  #expensesTable tbody tr {
+    transition: all 0.3s ease;
+  }
+  
+  #expensesTable tbody tr:hover {
+    background-color: rgba(41, 103, 182, 0.1);
+    color: #333;
+  }
+  
+  #expensesTable tbody td {
+    padding: 12px 15px;
+    vertical-align: middle;
+    border-bottom: 1px solid #e9ecef;
+  }
+  
+  .badge {
+    padding: 6px 10px;
+    font-weight: 500;
+    border-radius: 4px;
+  }
+  
+  .badge.bg-primary {
+    background-color: #0d6efd !important;
+  }
+  
+  .badge.bg-success {
+    background-color: #198754 !important;
+  }
+  
+  .fw-bold {
+    font-weight: 600 !important;
+  }
+  
+  /* Enhanced modal styles */
+  .modal-content {
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  .modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+  }
+  
+  .modal-footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+  }
+  
+  /* Enhanced button styles */
+  .btn-info {
+    background-color: #0dcaf0;
+    border-color: #0dcaf0;
+    color: white;
+  }
+  
+  .btn-info:hover {
+    background-color: #0bacda;
+    border-color: #0aa2cc;
+    color: white;
+  }
+  
+  .btn-success {
+    background-color: #198754;
+    border-color: #198754;
+  }
+  
+  .btn-success:hover {
+    background-color: #157347;
+    border-color: #146c43;
+  }
+  
+  .btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+  }
+  
+  .btn-danger:hover {
+    background-color: #bb2d3b;
+    border-color: #b02a37;
+  }
 </style>
 
 <body class="index-page">
@@ -593,22 +698,27 @@ if (isset($_POST["submit_expense"])) {
                 <th>#</th>
                 <th>Description</th>
                 <th>Amount</th>
+                <th>Billing Type</th>
                 <th>Date</th>
                 <th>Attachment</th>
               </tr>
             </thead>
             <tbody>
               <?php
-              $sql = "SELECT *, DATE(timeanddate) AS d FROM expenses";
+              $sql = "SELECT *, DATE(timeanddate) AS d FROM expenses ORDER BY timeanddate DESC";
               $result = $conn->query($sql);
               $count = 1;
 
               if ($result->num_rows > 0) {
-                while ($row = $result->fetch_assoc()) { ?>
+                while ($row = $result->fetch_assoc()) { 
+                  // Determine badge color based on billing type
+                  $badgeClass = ($row['billing_type'] == 'monthly') ? 'badge bg-primary' : 'badge bg-success';
+                  ?>
                   <tr>
                     <td><?php echo $count++; ?></td>
                     <td><?php echo htmlspecialchars($row['Details']); ?></td>
-                    <td>₱<?php echo number_format($row['amount'], 2); ?></td>
+                    <td class="fw-bold">₱<?php echo number_format($row['amount'], 2); ?></td>
+                    <td><span class="<?php echo $badgeClass; ?>"><?php echo ucfirst(htmlspecialchars($row['billing_type'] ?? 'monthly')); ?></span></td>
                     <td><?php echo htmlspecialchars($row['d']); ?></td>
                     <td class="text-center">
                       <?php
@@ -621,18 +731,17 @@ if (isset($_POST["submit_expense"])) {
                           echo "<img src='{$filePath}' alt='Attachment' class='img-thumbnail' width='100' height='100'>";
                         } else {
                           // For non-image files, display a download link
-                          echo "<a href='{$filePath}' target='_blank' class='btn btn-sm btn-outline-primary'>Download File</a>";
+                          echo "<a href='{$filePath}' target='_blank' class='btn btn-sm btn-outline-primary'><i class='bi bi-download'></i> Download</a>";
                         }
                       } else {
                         echo "<span class='text-muted'>No attachment</span>";
                       }
                       ?>
                     </td>
-
                   </tr>
                 <?php }
               } else {
-                echo "<tr><td colspan='5' class='text-center text-muted'>No records found</td></tr>";
+                echo "<tr><td colspan='6' class='text-center text-muted'>No records found</td></tr>";
               }
               ?>
             </tbody>
@@ -675,6 +784,15 @@ if (isset($_POST["submit_expense"])) {
               <div class="mb-3">
                 <label for="ex-amt" class="form-label">Amount</label>
                 <input type="number" class="form-control" id="ex-amt" name="examt" autocomplete="off" required>
+              </div>
+
+              <!-- Billing Type -->
+              <div class="mb-3">
+                <label for="billing_type" class="form-label">Billing Type</label>
+                <select class="form-control" id="billing_type" name="billing_type" required>
+                  <option value="monthly">Monthly</option>
+                  <option value="yearly">Yearly</option>
+                </select>
               </div>
 
               <!-- Expense Attachment -->

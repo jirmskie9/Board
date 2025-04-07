@@ -402,8 +402,8 @@ VALUES ('$rn', '$ro', '$rc')";
 
                 if ($result->num_rows > 0) {
                   while ($row = $result->fetch_assoc()) {
-                    // Determine the correct image based on room status
-                    $statusImage = ($row['status'] == 'available') ? 'logo/available.png' : 'logo/occupied.png';
+                    // Determine the correct image based on tenants vs occupants
+                    $statusImage = ($row['tenants'] >= $row['Occupants']) ? 'logo/occupied.png' : 'logo/available.png';
                     ?>
 
                     <div class="col-xs-12 col-sm-4">
