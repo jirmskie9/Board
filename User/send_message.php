@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // Get the current time in the correct format
     $currentTime = new DateTime('now', new DateTimeZone('Asia/Manila'));
-    $ts = $currentTime->format('Y-m-d h:ia');
+    $ts = $currentTime->format('Y-m-d H:i:s'); // Use 24-hour format with seconds
 
     if (empty($m)) {
         echo json_encode(['success' => false, 'message' => 'Message cannot be empty.']);
@@ -32,9 +32,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($stmt->execute()) {
         // After successful insert, update any future-dated messages to current time
-        $updateSql = "UPDATE chats SET dt = ? WHERE dt > ? AND sender = ? AND receiver = ?";
+        $updateSql = "UPDATE chats SET dt = ? WHERE dt > ? AND (sender = ? OR receiver = ?)";
         $updateStmt = $conn->prepare($updateSql);
-        $updateStmt->bind_param("ssii", $ts, $ts, $id, $r);
+        $updateStmt->bind_param("ssii", $ts, $ts, $id, $id);
         $updateStmt->execute();
         
         echo json_encode(['success' => true, 'message' => 'Message sent successfully.']);
