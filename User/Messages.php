@@ -1,16 +1,13 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 include('../db.php');
 session_start();
-
 date_default_timezone_set('Asia/Manila');
 
 // Ensure 'Uid' session variable is set
-if (isset($_GET['ucid'])) {
-  $_SESSION['ucid'] = $_GET['ucid'];
+if (!isset($_SESSION['Uid'])) {
+  die("Session 'Uid' is not set. Please log in again.");
 }
+
 $id = $_SESSION['Uid']; // Use 'Uid' session key
 
 // Set 'ucid' session variable if passed in the URL
@@ -22,9 +19,10 @@ if (isset($_GET['ucid'])) {
 $ucids = $_SESSION['ucid'] ?? 0;
 
 // Fetch user details
-
-// Fetch user details
 $id = $_SESSION['Uid'];
+
+
+// Prepare the SQL query to fetch user details
 $sql = "SELECT * FROM user WHERE ID = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $id);
@@ -38,34 +36,22 @@ if ($result->num_rows > 0) {
 } else {
   echo "No user found.";
 }
-$host = "localhost";
-$user = "u507130350_johnrid";
-$pass = "Johnrid123";
-$db_name = "u507130350_board";
-// $host = "localhost";
-// $user = "root";
-// $pass = "";
-// $db_name = "board";
 
+// Handle chat submission
 if (isset($_POST['submit'])) {
-  $link = mysqli_connect($host, $user, $pass, $db_name);
-
-  if ($link === false) {
-    die("ERROR: Could not connect. " . mysqli_connect_error());
-  }
-
-  // Escape user inputs for security
-  $r = mysqli_real_escape_string($link, $_POST['rec']);
-  $m = mysqli_real_escape_string($link, $_POST['msg']);
-  $t = mysqli_real_escape_string($link, $_POST['types']);
+  $r = mysqli_real_escape_string($conn, $_POST['rec']);
+  $m = mysqli_real_escape_string($conn, $_POST['msg']);
+  $t = mysqli_real_escape_string($conn, $_POST['types']);
   $ts = date('Y-m-d h:ia');
 
-  $sql = "INSERT INTO chats (sender, receiver, msg, Category, dt) VALUES ('$id', '$r', '$m', '$t', '$ts')";
-  if (!mysqli_query($link, $sql)) {
-    echo "ERROR: Message not sent!";
-  }
+  // Use the correct session variable
+  $sql = "INSERT INTO chats (sender, receiver, msg, Category, dt) VALUES (?, ?, ?, ?, ?)";
+  $stmt = $conn->prepare($sql);
+  $stmt->bind_param("iisss", $id, $r, $m, $t, $ts);
 
-  mysqli_close($link);
+  if (!$stmt->execute()) {
+    echo "<script>alert('ERROR: Message not sent!');</script>";
+  }
 }
 ?>
 <!DOCTYPE html>
@@ -112,116 +98,8 @@ if (isset($_POST['submit'])) {
     overflow-x: hidden;
   }
 
-  /* Buttons for sign in form */
-  .btn-google {
-    color: white;
-    background-color: #dd4b39;
-    border-color: #dd4b39;
-  }
-
-  .btn-google:hover,
-  .btn-google:focus,
-  .btn-google:active,
-  .btn-google.active {
-    background-color: #d73925;
-    border-color: #c23321;
-    color: white;
-  }
-
-  .btn-twitter {
-    color: white;
-    background-color: #55acee;
-    border-color: #55acee;
-  }
-
-  .btn-twitter:hover,
-  .btn-twitter:focus,
-  .btn-twitter:active,
-  .btn-twitter.active {
-    background-color: #3ea1ec;
-    border-color: #2795e9;
-    color: white;
-  }
-
-  .btn-facebook {
-    color: white;
-    background-color: #3B5998;
-    border-color: #3B5998;
-  }
-
-  .btn-facebook:hover,
-  .btn-facebook:focus,
-  .btn-facebook:active,
-  .btn-facebook.active {
-    background-color: #344e86;
-    border-color: #2d4373;
-    color: white;
-  }
-
-  .btn-vk {
-    color: white;
-    background-color: #36638e;
-    border-color: #36638e;
-  }
-
-  .btn-vk:hover,
-  .btn-vk:focus,
-  .btn-vk:active,
-  .btn-vk.active {
-    background-color: #2f567c;
-    border-color: #284969;
-    color: white;
-  }
-
-  .auth-buttons {
-    padding-left: 0px;
-  }
-
-  .auth-buttons li {
-    list-style: none;
-    margin-bottom: 5px;
-    float: left;
-    margin-right: 5px;
-  }
-
-  .close-signin {
-    position: absolute;
-    right: 20px;
-    top: 15px;
-    z-index: 3000;
-  }
-
-  #via_ue .form-inline .form-group {
-    vertical-align: top;
-  }
-
-  .foot {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    height: 100px;
-    width: 100%;
-  }
-
-  .page-title {
-    text-align: center;
-  }
-
-  .form-control:focus {
-    box-shadow: none;
-  }
-
-  .form-control-underlined {
-    border-width: 0;
-    border-bottom-width: 1px;
-    border-radius: 0;
-    padding-left: 0;
-  }
-
-  .form-control::placeholder {
-    font-size: 0.95rem;
-    color: #aaa;
-    font-style: italic;
+  body {
+    background-color: #F8F8F8;
   }
 
   .onlines {
@@ -235,31 +113,23 @@ if (isset($_POST['submit'])) {
     padding: .1in;
   }
 
-  /*.onlines:hover {
-  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
-}
-*/
-  body {
-    background-color: #F8F8F8;
-  }
-
-  /*@media (min-width: 900px) {*/
   .chat {
     float: left;
     background-color: white;
-    height: 630px;
+    height: 90vh;
     width: 65%;
     margin: .2in;
     margin-left: -.1in;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
     transition: 0.3s;
-    padding: .1in;
+    padding: 0;
     position: relative;
-    /* Ensure relative positioning for the pseudo-element */
-    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    overflow: hidden;
   }
 
-  /* Background Image with Opacity */
   .chat::before {
     content: "";
     position: absolute;
@@ -267,28 +137,188 @@ if (isset($_POST['submit'])) {
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('../chatbg2.png');
-    /* Your background image */
+    background-image: url('chatbg2.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    opacity: 0.5;
-    /* Adjust opacity here */
+    opacity: 0.05;
     z-index: -1;
-    /* Sends background behind content */
+  }
+
+  .chat-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .chat-header .profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    border: none;
+  }
+
+  .chat-header .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    border: 2px solid #007bff;
+  }
+
+  .chat-header .select-dropdown {
+    background: #f8f9fa;
+    border-radius: 5px;
+    padding: 5px;
+  }
+
+  .chat-header select {
+    border: none;
+    background: transparent;
+    padding: 5px;
+    font-size: 14px;
+    color: #495057;
+  }
+
+  .inner_div {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    height: calc(90vh - 120px);
+    background: rgba(248, 249, 250, 0.5);
+  }
+
+  .mess {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    background: white;
+    border-top: 1px solid #eee;
+    position: sticky;
+    bottom: 0;
+  }
+
+  .msg {
+    flex: 1;
+    padding: 12px 20px;
+    border: 1px solid #ddd;
+    border-radius: 25px;
+    margin-right: 10px;
+    outline: none;
+    font-size: 14px;
+    transition: border-color 0.3s;
+  }
+
+  .msg:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+  }
+
+  .input2 {
+    background: transparent;
+    border: none;
+    color: #007bff;
+    cursor: pointer;
+    padding: 8px 15px;
+    border-radius: 50%;
+    transition: all 0.3s;
+  }
+
+  .input2:hover {
+    background: rgba(0, 123, 255, 0.1);
+    color: #0056b3;
+  }
+
+  .plane {
+    font-size: 20px;
+  }
+
+  /* Custom scrollbar */
+  .inner_div::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .inner_div::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+
+  .inner_div::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+  }
+
+  .inner_div::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+  }
+
+  /* Status indicator */
+  #status {
+    background: transparent;
+    border: none;
+    padding: 0;
+    font-size: 12px;
+    color: #28a745;
+  }
+
+  #status i {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #28a745;
+    margin-right: 5px;
+  }
+
+  /* Message typing indicator */
+  .typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 10px 15px;
+    background: #f8f9fa;
+    border-radius: 15px;
+    margin: 5px 0;
+    width: fit-content;
+  }
+
+  .typing-indicator span {
+    width: 8px;
+    height: 8px;
+    background: #6c757d;
+    border-radius: 50%;
+    animation: typing 1s infinite;
+  }
+
+  .typing-indicator span:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+
+  .typing-indicator span:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+
+  @keyframes typing {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
   }
 
   .avatar {
-    width: 150px;
-    height: 100px;
-    /*    background-image: url("https://s3-us-west-2.amazonaws.com/s.cdpn.io/1689055/profile/profile-80.jpg");*/
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: 50% 50%;
-    border-radius: 50px;
-    box-shadow: 0 0 0 2px #66cc33;
     width: 48px;
     height: 48px;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    border: 2px solid #66cc33;
     float: left;
     margin-right: 10px;
   }
@@ -299,9 +329,6 @@ if (isset($_POST['submit'])) {
     cursor: pointer;
     height: 55px;
     width: 100%;
-
-    /*  max-width: 200px;*/
-    /*  margin: 0 auto;*/
   }
 
   .onlines .profile:hover {
@@ -336,442 +363,6 @@ if (isset($_POST['submit'])) {
   .profile button span {
     display: inline-block;
   }
-
-  /*}*/
-  /*@media (min-width: 760px) {
-.chat{
-  height: 630px;
-  width: 35%;
-}
-}*/
-  .msg {
-    border-radius: 20px;
-  }
-
-  @media screen and (min-width: 450px) {
-    .mess {
-      position: absolute;
-      bottom: 3;
-      width: 55%;
-      height: 4vh;
-      margin: auto;
-    }
-
-    main .inner_div {
-      padding-left: 0;
-      margin: 0;
-      list-style-type: none;
-      position: relative;
-      overflow: auto;
-      height: 80vh;
-      background-image: url(/*https://media.geeksforgeeks.org/wp-content/cdn-uploads/20200911064223/bg.jpg);
-      */ background-position: center;
-      background-repeat: no-repeat;
-      background-size: cover;
-      position: relative;
-      border-top: 2px solid #fff;
-      border-bottom: 2px solid #fff;
-
-    }
-
-    .chat {
-      height: 90vh;
-      width: 60%;
-    }
-
-    .onlines {
-      height: 90vh;
-    }
-
-    .msg {
-      height: 40px;
-      width: 245px;
-    }
-
-    .plane {
-      font-size: 17px;
-      margin: 0;
-
-    }
-  }
-
-  @media screen and (min-width: 900px) {
-    .plane {
-      font-size: 20px;
-      margin: 0;
-    }
-
-    .mess {
-      display: flex;
-      align-items: center;
-      /* Ensures items align properly */
-      position: relative;
-      /* Prevents interference from ::before */
-      z-index: 2;
-      /* Keeps it above the background */
-    }
-
-    .msg {
-      flex: 1;
-      /* Allows input to take available space */
-    }
-
-    .input2 {
-      background-color: transparent;
-      color: blue;
-      width: 100%;
-      margin: 0;
-      border: none;
-      cursor: pointer;
-    }
-
-    .chat {
-      height: 95vh;
-      width: 45%;
-    }
-
-    .onlines {
-      height: 95vh;
-    }
-
-    main {
-      width: 60%;
-      height: 90vh;
-      display: inline-block;
-      font-size: 15px;
-      vertical-align: top;
-    }
-
-    main .inner_div {
-      padding-left: 0;
-      margin: 0;
-      list-style-type: none;
-      position: relative;
-      overflow: auto;
-      height: 78vh;
-      background-image: url(/*https://media.geeksforgeeks.org/wp-content/cdn-uploads/20200911064223/bg.jpg);
-      */ background-position: center;
-      background-repeat: no-repeat;
-      background-size: cover;
-      position: relative;
-      border-top: 2px solid #fff;
-      border-bottom: 2px solid #fff;
-
-    }
-
-    .msg {
-      height: 40px;
-      width: 550px;
-    }
-  }
-
-  #container {
-    /*  width:700px;*/
-    height: 650px;
-    background: white;
-    margin: 0 auto;
-    font-size: 0;
-    border-radius: 5px;
-    overflow: hidden;
-    float: right;
-  }
-
-  main {
-    width: 100%;
-    height: 650px;
-    display: inline-block;
-    font-size: 15px;
-    vertical-align: top;
-  }
-
-  main header {
-    height: 80px;
-    padding: 30px 20px 30px 40px;
-    background-color: blue;
-    text-align: center;
-  }
-
-  main header>* {
-    display: inline-block;
-    vertical-align: top;
-  }
-
-  main header img:first-child {
-    width: 24px;
-    margin-top: 8px;
-  }
-
-  main header img:last-child {
-    width: 24px;
-    margin-top: 8px;
-  }
-
-  /*main header div{
-  margin-left:100px;
-  margin-right:100px;
-}*/
-  main header h2 {
-    font-size: 25px;
-    margin-top: 5px;
-    text-align: center;
-    color: #FFFFFF;
-  }
-
-  main .triangle {
-    width: 0;
-    height: 0;
-    border-style: solid;
-    border-width: 0 8px 8px 8px;
-    border-color: transparent transparent #58b666 transparent;
-    margin-left: 20px;
-    clear: both;
-  }
-
-  main .message {
-    background: #007bff;
-    padding: 10px;
-    border-radius: 10px;
-    max-width: 60%;
-    color: white;
-    display: inline-block;
-  }
-
-  main .triangle1 {
-    width: 0;
-    height: 0;
-    border-style: solid;
-    border-width: 0 8px 8px 8px;
-    border-color: transparent transparent #6fbced transparent;
-    margin-right: 20px;
-    float: right;
-    clear: both;
-  }
-
-  main .message1 {
-    background: rgb(0, 255, 106);
-    padding: 10px;
-    border-radius: 10px;
-    max-width: 60%;
-    color: black;
-    display: inline-block;
-    float: right;
-  }
-
-  main footer {
-    height: 150px;
-    padding: 20px 30px 10px 20px;
-    background-color: #622569;
-  }
-
-  main footer .input1 {
-    resize: none;
-    border: 100%;
-    display: block;
-    width: 120%;
-    height: 55px;
-    border-radius: 3px;
-    padding: 20px;
-    font-size: 13px;
-    margin-bottom: 13px;
-  }
-
-  main footer #msg {
-    resize: none;
-    border: 100%;
-    display: block;
-    width: 140%;
-    height: 55px;
-    border-radius: 3px;
-    padding: 20px;
-    font-size: 13px;
-    margin-bottom: 13px;
-    margin-left: 20px;
-  }
-
-  main footer .input2 {
-    resize: none;
-    border: 100%;
-    display: block;
-    width: 40%;
-    height: 55px;
-    border-radius: 3px;
-    padding: 20px;
-    font-size: 13px;
-    margin-bottom: 13px;
-    margin-left: 100px;
-    color: white;
-    text-align: center;
-    background-color: black;
-    border: 2px solid white;
-  }
-
-
-  main footer textarea::placeholder {
-    color: #ddd;
-  }
-
-  .index-page {
-    overflow-x: hidden;
-  }
-
-  /* Buttons for sign in form */
-  .btn-google {
-    color: white;
-    background-color: #dd4b39;
-    border-color: #dd4b39;
-  }
-
-  .btn-google:hover,
-  .btn-google:focus,
-  .btn-google:active,
-  .btn-google.active {
-    background-color: #d73925;
-    border-color: #c23321;
-    color: white;
-  }
-
-  .btn-twitter {
-    color: white;
-    background-color: #55acee;
-    border-color: #55acee;
-  }
-
-  .btn-twitter:hover,
-  .btn-twitter:focus,
-  .btn-twitter:active,
-  .btn-twitter.active {
-    background-color: #3ea1ec;
-    border-color: #2795e9;
-    color: white;
-  }
-
-  .btn-facebook {
-    color: white;
-    background-color: #3B5998;
-    border-color: #3B5998;
-  }
-
-  .btn-facebook:hover,
-  .btn-facebook:focus,
-  .btn-facebook:active,
-  .btn-facebook.active {
-    background-color: #344e86;
-    border-color: #2d4373;
-    color: white;
-  }
-
-  .btn-vk {
-    color: white;
-    background-color: #36638e;
-    border-color: #36638e;
-  }
-
-  .btn-vk:hover,
-  .btn-vk:focus,
-  .btn-vk:active,
-  .btn-vk.active {
-    background-color: #2f567c;
-    border-color: #284969;
-    color: white;
-  }
-
-  .auth-buttons {
-    padding-left: 0px;
-  }
-
-  .auth-buttons li {
-    list-style: none;
-    margin-bottom: 5px;
-    float: left;
-    margin-right: 5px;
-  }
-
-  .close-signin {
-    position: absolute;
-    right: 20px;
-    top: 15px;
-    z-index: 3000;
-  }
-
-  #via_ue .form-inline .form-group {
-    vertical-align: top;
-  }
-
-  .foot {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    height: 100px;
-    width: 100%;
-  }
-
-  .page-title {
-    text-align: center;
-  }
-
-  .form-control:focus {
-    box-shadow: none;
-  }
-
-  .form-control-underlined {
-    border-width: 0;
-    border-bottom-width: 1px;
-    border-radius: 0;
-    padding-left: 0;
-  }
-
-  .form-control::placeholder {
-    font-size: 0.95rem;
-    color: #aaa;
-    font-style: italic;
-  }
-
-  .select-dropdown,
-  .select-dropdown * {
-    margin: 0;
-    padding: 0;
-    position: relative;
-    box-sizing: border-box;
-  }
-
-  .select-dropdown {
-    position: relative;
-    background-color: #E6E6E6;
-    border-radius: 4px;
-  }
-
-  .select-dropdown select {
-    font-size: 1rem;
-    font-weight: normal;
-    max-width: 100%;
-    padding: 8px 24px 8px 10px;
-    border: none;
-    background-color: transparent;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-  }
-
-  .select-dropdown select:active,
-  .select-dropdown select:focus {
-    outline: none;
-    box-shadow: none;
-  }
-
-  .select-dropdown:after {
-    content: "";
-    position: absolute;
-    top: 50%;
-    right: 8px;
-    width: 0;
-    height: 0;
-    margin-top: -2px;
-    border-top: 5px solid #aaa;
-    border-right: 5px solid transparent;
-    border-left: 5px solid transparent;
-  }
-
-  .active {}
 </style>
 
 <body class="index-page">
@@ -789,21 +380,21 @@ if (isset($_POST['submit'])) {
       <h1 class="sitename"><?php echo $fullname ?></h1>
     </a>
 
-    <div class="social-links text-center">
-      <a href="#" class="twitter"><i class="bi bi-twitter-x"></i></a>
-      <a href="#" class="facebook"><i class="bi bi-facebook"></i></a>
-      <a href="#" class="instagram"><i class="bi bi-instagram"></i></a>
-    </div>
-
     <nav id="navmenu" class="navmenu">
       <ul>
-        <li><a href="Home.php"><i class="bi bi-house navicon"></i>Home</a></li>
+        <li><a href="Home.php" ><i class="bi bi-house navicon"></i>Home</a></li>
         <li><a href="Documents.php"><i class="bi bi-file-earmark-text navicon"></i> Documents</a></li>
 
-        <li><a href="Messages.php" class="active"><i class="bi bi-envelope navicon"></i> Messages</a></li>
-        <li><a href="Maintenance.php"><i class="bi bi-newspaper navicon"></i> Maintenance Request</a></li>
+
+        <li><a href="Messages.php"><i class="bi bi-envelope navicon"></i>
+            Messages</a></li>
+        <li><a href="Maintenance.php" class="active"><i class="bi bi-newspaper navicon"></i>
+            Maintenance Request</a></li>
+        <!--         <li><a href="#portfolio"><i class="bi bi-receipt navicon"></i> Expenses</a></li>
+        <li><a href="#services"><i class="bi bi-hdd-stack navicon"></i> History</a></li> -->
         <li><a href="../logout.php"><i class="bi bi-box-arrow-right navicon"></i> Logout</a></li>
       </ul>
+
 
     </nav>
 
@@ -834,21 +425,36 @@ if (isset($_POST['submit'])) {
 
     <form id="myform" method="POST">
       <div class="chat">
-        <div id="preloader"></div>
-        <?php
-        if ($ucids != 0) {
-          $sql = "SELECT * FROM user WHERE ID = ?";
-          $stmt = $conn->prepare($sql);
-          $stmt->bind_param("i", $ucids);
-          $stmt->execute();
-          $result = $stmt->get_result();
+        <div class="chat-header">
+          <?php
+          if ($ucids != 0) {
+            $sql = "SELECT * FROM user WHERE ID = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("i", $ucids);
+            $stmt->execute();
+            $result = $stmt->get_result();
 
-          if ($result->num_rows > 0) {
-            $row = $result->fetch_assoc();
-            ?>
-            <div class="profile" style="border-bottom: 1px solid;">
-              <div class="avatar" style="background-image: url('./logo/<?php echo $row['imgs']; ?>');"></div>
-              <span><?php echo htmlspecialchars($row['Fullname']); ?></span>
+            if ($result->num_rows > 0) {
+              while ($row = $result->fetch_assoc()) { ?>
+                <div class="profile" style="border-bottom: none;">
+                  <div class="avatar" style="background-image: url('./logo/<?php echo $row['imgs']; ?>');"></div>
+                  <span><?php echo htmlspecialchars($row['Fullname']); ?></span>
+                  <button id="status"><i></i> <span style="color: green">Online</span></button>
+                  <div style="float: right;">
+                    <div class="select-dropdown">
+                      <select name="types">
+                        <option value="Message">Message</option>
+                        <option value="Announcement">Announcement</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              <?php }
+            }
+          } else { ?>
+            <div class="profile" style="border-bottom: none;">
+              <div class="avatar" style="background-image: url('./logo/logo.png');"></div>
+              <span>All</span>
               <button id="status"><i></i> <span style="color: green">Online</span></button>
               <div style="float: right;">
                 <div class="select-dropdown">
@@ -859,37 +465,22 @@ if (isset($_POST['submit'])) {
                 </div>
               </div>
             </div>
-          <?php }
-        } else { ?>
-          <div class="profile" style="border-bottom: 1px solid;">
-            <div class="avatar" style="background-image: url('./logo/logo.png');"></div>
-            <span>All</span>
-            <button id="status"><i></i> <span style="color: green">Online</span></button>
-            <div style="float: right;">
-              <div class="select-dropdown">
-                <select name="types">
-                  <option value="Message">Message</option>
-                  <option value="Announcement">Announcement</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        <?php } ?>
+          <?php } ?>
+        </div>
 
         <div class="inner_div" id="chathist"></div>
+        
         <div class="mess">
           <input type="hidden" id="uname" name="uname" value="<?php echo htmlspecialchars($id); ?>">
           <input type="hidden" id="rec" name="rec" value="<?php echo htmlspecialchars($ucids); ?>">
-          <input type="text" name="msg" class="msg" id="msg">
-          <button class="input2" type="submit" id="submit" name="submit"
-            style="background-color: transparent; color: blue; width: auto; margin: 0; border: none;">
+          <input type="text" name="msg" class="msg" id="msg" placeholder="Type your message...">
+          <button class="input2" type="submit" id="submit" name="submit">
             <i class="fa fa-paper-plane plane"></i>
           </button>
         </div>
       </div>
     </form>
   </main>
-
 
   <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i
       class="bi bi-arrow-up-short"></i></a>
@@ -956,31 +547,66 @@ if (isset($_POST['submit'])) {
     });
   </script>
   <script>
-    $(document).ready(function () {
+    $(document).ready(function() {
+        // Handle form submission with AJAX
+        $('#myform').on('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form data
+            var formData = {
+                rec: $('#rec').val(),
+                msg: $('#msg').val(),
+                types: $('select[name="types"]').val()
+            };
 
-      setInterval(function () {
-        $.ajax({
-          url: 'chat.php', // URL of the server-side script
-          success: function (data) {
-            $('#chathist').html(data); // Update the content of the DIV element
-          }
+            // Send message via AJAX
+            $.ajax({
+                url: 'send_message.php',
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    if (response.success) {
+                        // Clear input field
+                        $('#msg').val('');
+                        // Refresh chat history
+                        loadChatHistory();
+                    } else {
+                        alert('Error sending message: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('Error sending message. Please try again.');
+                }
+            });
         });
-      }, 1000); // Refresh the content every 5 seconds
 
-    });
-  </script>
-  <script>
-    var input = document.getElementById("msg");
+        // Function to load chat history
+        function loadChatHistory() {
+            $.ajax({
+                url: 'chathistory.php',
+                type: 'GET',
+                success: function(data) {
+                    $('#chathist').html(data);
+                    // Scroll to bottom
+                    var chatHistory = document.getElementById('chathist');
+                    chatHistory.scrollTop = chatHistory.scrollHeight;
+                }
+            });
+        }
 
-    // Execute a function when the user presses a key on the keyboard
-    input.addEventListener("keypress", function (event) {
-      // If the user presses the "Enter" key on the keyboard
-      if (event.key === "Enter") {
-        // Cancel the default action, if needed
-        event.preventDefault();
-        // Trigger the button element with a click
-        document.getElementById("submit").click();
-      }
+        // Load chat history initially
+        loadChatHistory();
+
+        // Refresh chat history every 2 seconds
+        setInterval(loadChatHistory, 2000);
+
+        // Handle Enter key in message input
+        $('#msg').keypress(function(e) {
+            if (e.which == 13) {
+                $('#myform').submit();
+                return false;
+            }
+        });
     });
   </script>
   <script>

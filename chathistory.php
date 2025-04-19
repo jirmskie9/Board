@@ -5,70 +5,62 @@
 </style>
 
 <?php
+include('db.php');
 session_start();
-$id = $_SESSION['Uid'];
-date_default_timezone_set('Asia/Manila');
 
-$host = "localhost"; 
-$user = "u507130350_johnrid"; 
-$pass = "Johnrid123"; 
-$db_name = "u507130350_board"; 
-// $host = "localhost"; 
-// $user = "root"; 
-// $pass = ""; 
-// $db_name = "board"; 
-$con = new mysqli($host, $user, $pass, $db_name);
-$dates = date('F d, Y');
-
-$ucid = $_SESSION['ucid'] ?? 0;
-
-if ($ucid == 0) {
-    // Fetch global messages and join with users table to get sender's full name
-    $query = "SELECT chats.*, user.Fullname, 
-                     DATE_FORMAT(chats.dt, '%M %d, %Y') as dt, 
-                     DATE_FORMAT(chats.dt, '%h:%i %p') as tim 
-              FROM chats 
-              JOIN user ON chats.sender = user.ID 
-              WHERE chats.receiver = 0 
-              ORDER BY chats.dt ASC";
-    $stmt = $con->prepare($query);
-} else {
-    // Fetch private messages and join with users table to get sender's full name
-    $query = "SELECT chats.*, user.Fullname, 
-                     DATE_FORMAT(chats.dt, '%M %d, %Y') as dt, 
-                     DATE_FORMAT(chats.dt, '%h:%i %p') as tim 
-              FROM chats 
-              JOIN user ON chats.sender = user.ID 
-              WHERE ((chats.receiver=? AND chats.sender=?) OR (chats.receiver=? AND chats.sender=?)) 
-              ORDER BY chats.dt ASC";
-    $stmt = $con->prepare($query);
-    $stmt->bind_param("iiii", $id, $ucid, $ucid, $id);
+if (!isset($_SESSION['Uid'])) {
+    die("Session 'Uid' is not set.");
 }
 
-$stmt->execute();
-$run = $stmt->get_result();
+$id = $_SESSION['Uid'];
+$ucids = $_SESSION['ucid'] ?? 0;
 
-while ($row = $run->fetch_assoc()): 
-    $isSender = ($row['sender'] == $id);
-?>
-    <h6 style="text-align: center;">
-        <?= ($dates == $row['dt']) ? 'Today ' . $row['tim'] : $row['dt'] . ' ' . $row['tim']; ?>
-    </h6>
+// Fetch messages
+if ($ucids == 0) {
+    $sql = "SELECT c.*, u.Fullname as sender_name, u.imgs as sender_img 
+            FROM chats c 
+            JOIN user u ON c.sender = u.ID 
+            ORDER BY c.dt ASC";
+} else {
+    $sql = "SELECT c.*, u.Fullname as sender_name, u.imgs as sender_img 
+            FROM chats c 
+            JOIN user u ON c.sender = u.ID 
+            WHERE (c.sender = ? AND c.receiver = ?) 
+            OR (c.sender = ? AND c.receiver = ?) 
+            ORDER BY c.dt ASC";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("iiii", $id, $ucids, $ucids, $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+}
 
-    <div class="<?= $isSender ? 'triangle1' : 'triangle'; ?>"></div>
-    <div class="<?= $isSender ? 'message1' : 'message'; ?>">
-        <span style="color:white; float: <?= $isSender ? 'right' : 'left'; ?>">
-            <?= htmlspecialchars($row['msg']); ?>
-        </span>
-        <br>
-        <div>
-            <span style="color:black; float: <?= $isSender ? 'left' : 'right'; ?>; font-size:10px; clear:both;">
-                <?= htmlspecialchars($row['Fullname']); ?>  <!-- Display Fullname instead of sender ID -->
-            </span>
+if ($ucids == 0) {
+    $result = $conn->query($sql);
+}
+
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $isSent = $row['sender'] == $id;
+        $messageClass = $isSent ? 'sent' : 'received';
+        ?>
+        <div class="message <?php echo $messageClass; ?>">
+            <div class="message-content">
+                <?php if (!$isSent): ?>
+                    <div class="message-sender">
+                        <img src="./logo/<?php echo $row['sender_img']; ?>" alt="<?php echo htmlspecialchars($row['sender_name']); ?>" class="message-avatar">
+                        <span class="sender-name"><?php echo htmlspecialchars($row['sender_name']); ?></span>
+                    </div>
+                <?php endif; ?>
+                <div class="message-text"><?php echo htmlspecialchars($row['msg']); ?></div>
+                <div class="message-time"><?php echo date('h:i A', strtotime($row['dt'])); ?></div>
+            </div>
         </div>
-    </div>
-    <br><br><br>
-<?php endwhile; ?>
+        <?php
+    }
+} else {
+    echo '<div class="no-messages">No messages yet. Start the conversation!</div>';
+}
+?>
 
 <script>
   var tm;
