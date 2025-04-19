@@ -15,7 +15,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $r = isset($_POST['rec']) ? intval($_POST['rec']) : 0;
     $m = isset($_POST['msg']) ? trim($_POST['msg']) : '';
     $t = isset($_POST['types']) ? trim($_POST['types']) : 'Message';
-    $ts = date('Y-m-d h:ia');
+    
+    // Get the current time in the correct format
+    $currentTime = new DateTime('now', new DateTimeZone('Asia/Manila'));
+    $ts = $currentTime->format('Y-m-d h:ia');
 
     if (empty($m)) {
         echo json_encode(['success' => false, 'message' => 'Message cannot be empty.']);
@@ -28,6 +31,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->bind_param("iisss", $id, $r, $m, $t, $ts);
 
     if ($stmt->execute()) {
+        // After successful insert, update any future-dated messages to current time
+        $updateSql = "UPDATE chats SET dt = ? WHERE dt > ? AND sender = ? AND receiver = ?";
+        $updateStmt = $conn->prepare($updateSql);
+        $updateStmt->bind_param("ssii", $ts, $ts, $id, $r);
+        $updateStmt->execute();
+        
         echo json_encode(['success' => true, 'message' => 'Message sent successfully.']);
     } else {
         echo json_encode(['success' => false, 'message' => 'Failed to send message.']);
